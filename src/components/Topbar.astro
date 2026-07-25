@@ -1,0 +1,23 @@
+---
+import { brand } from '../config/funnel';
+---
+
+<header class="bg-ink text-cream relative z-30">
+  <div class="max-w-7xl mx-auto px-5 lg:px-10 h-16 flex items-center justify-between">
+    <a href="/" class="flex items-baseline gap-2 group">
+      <span class="font-display text-[1.35rem] tracking-tight">{brand.name}</span>
+      {brand.nmls && (
+        <span class="hidden sm:inline font-mono text-[0.6rem] uppercase tracking-[0.2em] text-cream/50">{brand.nmls}</span>
+      )}
+    </a>
+    <div class="flex items-center gap-5">
+      <span class="hidden md:flex items-center gap-2 font-mono text-[0.62rem] uppercase tracking-[0.18em] text-cream/60">
+        <span class="w-1.5 h-1.5 rounded-full bg-brass-2 animate-pulse"></span>
+        DSCR loans across Texas
+      </span>
+      <a href={brand.phoneHref} class="font-semibold text-[0.95rem] text-brass-2 hover:text-cream transition-colors">
+        {brand.phone}
+      </a>
+    </div>
+  </div>
+</header>

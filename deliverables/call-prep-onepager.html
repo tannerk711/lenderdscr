@@ -1,0 +1,239 @@
+<!-- ================================================================
+  STRATEGY-CALL PREP ONE-PAGER ("What to have ready for your call")
+  Print-ready (letter, one page) and PDF-able. Linked from the eligibility
+  summary email. A live, auto-branded copy of this page ships inside the
+  funnel at /call-prep (src/pages/call-prep.astro, rendered from funnel.ts);
+  this file is the standalone master for printing or attaching as a PDF.
+
+  REBRAND TOKENS (find-replace; values mirror src/config/funnel.ts):
+    Internet Loans Direct                    -> brand.name
+    lenderdscr.com                               -> brand.nmls (company)
+    (855) 545-2022                              -> brand.phone
+    +18555452022                                -> brand.phoneHref digits
+    (no address published)    -> brand.address
+================================================================ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What to Have Ready for Your Call · Internet Loans Direct</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..700,0..100&family=Hanken+Grotesk:wght@300..800&family=Fragment+Mono&display=swap">
+  <style>
+    :root {
+      --paper: #f6f2e9;
+      --paper-2: #eee8d9;
+      --card: #fffdf6;
+      --ink: #0f231c;
+      --pine: #24503f;
+      --moss: #3c6b55;
+      --brass: #b0873a;
+      --line: rgba(15, 35, 28, 0.16);
+      --muted: rgba(15, 35, 28, 0.62);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body {
+      font-family: "Hanken Grotesk", "Segoe UI", sans-serif;
+      background: var(--paper-2);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+    .display { font-family: "Fraunces", Georgia, serif; font-variation-settings: "opsz" 72, "SOFT" 40; }
+    .mono { font-family: "Fragment Mono", "Courier New", monospace; }
+    .eyebrow { font-family: "Fragment Mono", "Courier New", monospace; font-size: 0.62rem; letter-spacing: 0.24em; text-transform: uppercase; }
+
+    .sheet {
+      max-width: 8.5in;
+      margin: 0 auto;
+      background: var(--paper);
+      min-height: 100vh;
+      padding: 0.55in 0.65in 0.4in;
+      box-shadow: 0 8px 40px rgba(15, 35, 28, 0.14);
+    }
+
+    /* letterhead */
+    .letterhead { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; padding-bottom: 14px; border-bottom: 2px solid var(--ink); }
+    .letterhead .brand { font-size: 1.25rem; letter-spacing: 0.01em; }
+    .letterhead .nmls { color: var(--muted); margin-top: 3px; }
+    .letterhead .right { text-align: right; }
+    .letterhead .right .eyebrow { color: var(--moss); }
+    .letterhead .right .phone { font-weight: 700; font-size: 0.85rem; margin-top: 4px; }
+    .brass-rule { height: 3px; background: linear-gradient(90deg, var(--brass), #d7b264 55%, var(--brass)); margin-top: 3px; }
+
+    /* title */
+    .title-block { padding: 22px 0 18px; }
+    h1 { font-size: 1.85rem; line-height: 1.12; letter-spacing: -0.01em; font-weight: 500; }
+    h1 em { color: var(--pine); }
+    .intro { max-width: 42rem; margin-top: 9px; font-size: 0.86rem; line-height: 1.55; color: var(--muted); }
+
+    /* sections grid */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 13px 16px 14px;
+      break-inside: avoid;
+    }
+    .section.full { grid-column: 1 / -1; }
+    .sec-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+    .sec-num { font-family: "Fraunces", Georgia, serif; font-size: 1.3rem; color: var(--brass); line-height: 1; }
+    .sec-title { font-family: "Fragment Mono", "Courier New", monospace; font-size: 0.66rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pine); }
+    .sec-note { font-size: 0.76rem; line-height: 1.5; color: var(--muted); margin-bottom: 9px; }
+
+    .write-line { display: flex; align-items: flex-end; gap: 8px; margin-top: 12px; }
+    .write-line .lbl { font-family: "Fragment Mono", "Courier New", monospace; font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); white-space: nowrap; padding-bottom: 2px; }
+    .write-line .line { flex: 1; border-bottom: 1px solid rgba(15, 35, 28, 0.4); height: 1.05rem; }
+
+    .checks { display: flex; flex-wrap: wrap; gap: 7px 14px; margin-top: 10px; }
+    .check { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--ink); }
+    .box { width: 11px; height: 11px; border: 1.4px solid var(--pine); border-radius: 3px; display: inline-block; flex: none; }
+
+    /* footer */
+    .foot { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 11px; display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; }
+    .foot .cta { font-family: "Fraunces", Georgia, serif; font-size: 0.9rem; color: var(--pine); white-space: nowrap; }
+    .foot .legal { font-size: 0.56rem; line-height: 1.55; color: var(--muted); text-align: right; max-width: 34rem; }
+
+    /* screen-only print button */
+    .print-bar { max-width: 8.5in; margin: 0 auto; padding: 14px 4px; display: flex; justify-content: flex-end; }
+    .print-btn {
+      font-family: "Hanken Grotesk", sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--ink);
+      background: linear-gradient(180deg, #e3c176 0%, #cfa452 55%, #b0873a 100%);
+      border: 1px solid rgba(15, 35, 28, 0.35); border-radius: 10px; padding: 9px 20px; cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255, 245, 220, 0.65), 0 6px 18px rgba(176, 135, 58, 0.35);
+    }
+    .print-btn:hover { filter: brightness(1.04); }
+
+    .two-col { display: grid; grid-template-columns: 1fr 2fr; gap: 0 22px; }
+    @media (max-width: 700px) {
+      .grid { grid-template-columns: 1fr; }
+      .two-col { grid-template-columns: 1fr; }
+      .sheet { padding: 26px 20px 22px; min-height: 0; }
+      .letterhead { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .letterhead .right { text-align: left; }
+      .foot { flex-direction: column; gap: 10px; }
+      .foot .legal { text-align: left; }
+    }
+
+    @page { size: letter; margin: 0.35in; }
+    @media print {
+      body { background: var(--paper); }
+      .sheet { box-shadow: none; max-width: none; min-height: 0; padding: 0.15in 0.1in 0; }
+      .print-bar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-bar">
+    <button class="print-btn" onclick="window.print()">Print this sheet</button>
+  </div>
+
+  <main class="sheet">
+
+    <header class="letterhead">
+      <div>
+        <div class="brand display">Internet Loans Direct</div>
+        <div class="nmls mono" style="font-size:0.6rem; letter-spacing:0.18em;">lenderdscr.com</div>
+      </div>
+      <div class="right">
+        <div class="eyebrow">Client Preparation Sheet</div>
+        <div class="phone"><a href="tel:+18555452022" style="color:inherit; text-decoration:none;">(855) 545-2022</a></div>
+      </div>
+    </header>
+    <div class="brass-rule"></div>
+
+    <div class="title-block">
+      <h1 class="display">What to have ready <em>for your call.</em></h1>
+      <p class="intro">
+        Thirty minutes goes a long way when the numbers are on the table. Nothing here is
+        required, and "I don't know yet" is a real answer. Bring what you have; we will fill
+        the gaps together on the call.
+      </p>
+    </div>
+
+    <div class="grid">
+
+      <section class="section">
+        <div class="sec-head"><span class="sec-num">01</span><span class="sec-title">The Property</span></div>
+        <p class="sec-note">An address if you have one. A target market if you don't. Both work.</p>
+        <div class="write-line"><span class="lbl">Address / market</span><span class="line"></span></div>
+        <div class="write-line"><span class="lbl">City &amp; state</span><span class="line"></span></div>
+        <div class="checks">
+          <span class="check"><span class="box"></span>Under contract</span>
+          <span class="check"><span class="box"></span>Making offers</span>
+          <span class="check"><span class="box"></span>Still hunting</span>
+          <span class="check"><span class="box"></span>Already own it</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="sec-head"><span class="sec-num">02</span><span class="sec-title">The Rent Line</span></div>
+        <p class="sec-note">Current lease, market estimate, or short-term rental history. If you don't know it, we pull comps together on the call.</p>
+        <div class="write-line"><span class="lbl">Monthly rent</span><span class="line"></span></div>
+        <div class="write-line"><span class="lbl">Source</span><span class="line"></span></div>
+        <div class="checks">
+          <span class="check"><span class="box"></span>Signed lease</span>
+          <span class="check"><span class="box"></span>Estimate</span>
+          <span class="check"><span class="box"></span>STR history</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="sec-head"><span class="sec-num">03</span><span class="sec-title">The Credit Picture</span></div>
+        <p class="sec-note">A ballpark band is plenty. We never pull credit without your explicit go-ahead.</p>
+        <div class="checks" style="margin-top:12px;">
+          <span class="check"><span class="box"></span>740+</span>
+          <span class="check"><span class="box"></span>700 to 739</span>
+          <span class="check"><span class="box"></span>660 to 699</span>
+          <span class="check"><span class="box"></span>620 to 659</span>
+        </div>
+        <div class="write-line"><span class="lbl">Anything we should know</span><span class="line"></span></div>
+      </section>
+
+      <section class="section">
+        <div class="sec-head"><span class="sec-num">04</span><span class="sec-title">The Entity</span></div>
+        <p class="sec-note">Plenty of investors close in an LLC; with most DSCR programs it does not change your rate.</p>
+        <div class="checks" style="margin-top:12px;">
+          <span class="check"><span class="box"></span>LLC</span>
+          <span class="check"><span class="box"></span>Personal name</span>
+          <span class="check"><span class="box"></span>Not decided</span>
+        </div>
+        <div class="write-line"><span class="lbl">Entity name / state</span><span class="line"></span></div>
+      </section>
+
+      <section class="section full">
+        <div class="sec-head"><span class="sec-num">05</span><span class="sec-title">The Timeline</span></div>
+        <p class="sec-note">What has to be true, and by when? A close date, a balloon coming due, a contractor waiting on funds. Deadlines change which lenders we shortlist.</p>
+        <div class="two-col">
+          <div class="write-line"><span class="lbl">Target date</span><span class="line"></span></div>
+          <div class="write-line"><span class="lbl">What's driving it</span><span class="line"></span></div>
+        </div>
+      </section>
+
+      <section class="section full">
+        <div class="sec-head"><span class="sec-num">06</span><span class="sec-title">Your Questions</span></div>
+        <p class="sec-note">The call is yours. Write down the two or three questions you would want answered even if you never work with us.</p>
+        <div class="write-line"><span class="lbl">1</span><span class="line"></span></div>
+        <div class="write-line"><span class="lbl">2</span><span class="line"></span></div>
+        <div class="write-line"><span class="lbl">3</span><span class="line"></span></div>
+      </section>
+
+    </div>
+
+    <footer class="foot">
+      <div class="cta">Keep this beside you on the call.</div>
+      <p class="legal">
+        Internet Loans Direct. lenderdscr.com. No advertisement or solicitation from Internet Loans Direct is meant to be a mortgage brokering activity or mortgage lending activity. All brokering or lending activities can only be completed by a licensed loan originator.
+        For licensing information visit www.nmlsconsumeraccess.org. This is not a commitment to lend.
+        All loans are subject to credit approval, underwriting, and property review. For informational
+        purposes only. Equal Housing Opportunity.
+      </p>
+    </footer>
+
+  </main>
+</body>
+</html>

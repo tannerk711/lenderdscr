@@ -1,0 +1,426 @@
+@import "tailwindcss";
+
+/* ============================================================
+   DESIGN TOKENS: "Private credit house"
+   Ink green · warm ivory paper · brass
+   Display: Fraunces  ·  Body: Hanken Grotesk  ·  Data: Fragment Mono
+   ============================================================ */
+
+@theme {
+  --color-paper: #f6f2e9;
+  --color-paper-2: #eee8d9;
+  --color-paper-3: #e5ddc9;
+  --color-ink: #0f231c;
+  --color-ink-2: #143029;
+  --color-ink-3: #1b4034;
+  --color-pine: #24503f;
+  --color-moss: #3c6b55;
+  --color-sage: #7f9c8b;
+  --color-brass: #b0873a;
+  --color-brass-2: #d7b264;
+  --color-cream: #efe7d2;
+  --color-blush: #c96f4a;
+
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-body: "Hanken Grotesk", "Segoe UI", sans-serif;
+  --font-mono: "Fragment Mono", "Consolas", monospace;
+}
+
+:root {
+  --line-ink: rgba(15, 35, 28, 0.14);
+  --line-paper: rgba(246, 242, 233, 0.16);
+  --shadow-card: 0 1px 2px rgba(15, 35, 28, 0.05), 0 8px 24px rgba(15, 35, 28, 0.09),
+    0 24px 64px rgba(15, 35, 28, 0.12);
+  --shadow-pop: 0 2px 6px rgba(10, 24, 19, 0.35), 0 20px 60px rgba(10, 24, 19, 0.55);
+  --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--color-brass);
+  color: var(--color-ink);
+}
+
+/* ---------- type helpers ---------- */
+
+.font-display {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 72, "SOFT" 40, "WONK" 0;
+}
+
+.font-display-wonk {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 72, "SOFT" 60, "WONK" 1;
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* ---------- atmosphere ---------- */
+
+/* film grain over dark sections */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
+}
+
+/* faint topographic contours for ink sections */
+.contours {
+  background-image: radial-gradient(1100px 520px at 82% -10%, rgba(215, 178, 100, 0.13), transparent 62%),
+    radial-gradient(900px 600px at -12% 108%, rgba(60, 107, 85, 0.35), transparent 60%);
+}
+
+/* hairline rules */
+.rule-ink {
+  border-color: var(--line-ink);
+}
+.rule-paper {
+  border-color: var(--line-paper);
+}
+
+/* ---------- marquee ticker ---------- */
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 42s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.marquee {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+/* ---------- reveal-on-scroll (GSAP sets final state; these are safe defaults) ---------- */
+
+.gs-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+.gs-reveal-left {
+  opacity: 0;
+  transform: translateX(-36px);
+}
+
+.gs-reveal-right {
+  opacity: 0;
+  transform: translateX(36px);
+}
+
+.gs-reveal-scale {
+  opacity: 0;
+  transform: scale(0.94);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-reveal,
+  .gs-reveal-left,
+  .gs-reveal-right,
+  .gs-reveal-scale {
+    opacity: 1;
+    transform: none;
+  }
+  .marquee-track {
+    animation: none;
+  }
+}
+
+/* ---------- buttons ---------- */
+
+.btn-brass {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--color-ink);
+  background: linear-gradient(180deg, #e3c176 0%, #cfa452 55%, #b0873a 100%);
+  border: 1px solid rgba(15, 35, 28, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 245, 220, 0.65), 0 6px 18px rgba(176, 135, 58, 0.35);
+  transition: transform 0.25s var(--ease-lux), box-shadow 0.25s var(--ease-lux), filter 0.2s;
+}
+
+.btn-brass:hover {
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255, 245, 220, 0.65), 0 12px 28px rgba(176, 135, 58, 0.45);
+  filter: brightness(1.04);
+}
+
+.btn-brass:active {
+  transform: translateY(0);
+}
+
+/* ---------- form option buttons ---------- */
+
+.opt-btn {
+  position: relative;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line-ink);
+  background: rgba(255, 255, 255, 0.55);
+  transition: border-color 0.2s var(--ease-lux), background 0.2s var(--ease-lux),
+    transform 0.2s var(--ease-lux), box-shadow 0.2s var(--ease-lux);
+}
+
+.opt-btn:hover {
+  border-color: var(--color-brass);
+  background: #fffdf6;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(15, 35, 28, 0.08);
+}
+
+.opt-btn:active {
+  transform: translateY(0) scale(0.995);
+}
+
+.opt-btn:focus-visible {
+  outline: 2px solid var(--color-brass);
+  outline-offset: 2px;
+}
+
+.opt-btn .opt-arrow {
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.2s, transform 0.25s var(--ease-lux);
+}
+
+.opt-btn:hover .opt-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ---------- range slider (brass) ---------- */
+
+input[type="range"].brass-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--color-brass) 0%,
+    var(--color-brass) var(--fill, 50%),
+    rgba(15, 35, 28, 0.15) var(--fill, 50%),
+    rgba(15, 35, 28, 0.15) 100%
+  );
+  outline: none;
+}
+
+input[type="range"].brass-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: grab;
+  background: radial-gradient(circle at 35% 30%, #eed9a4, #cfa452 55%, #9a7431);
+  border: 2px solid #0f231c;
+  box-shadow: 0 3px 10px rgba(15, 35, 28, 0.35);
+}
+
+input[type="range"].brass-range::-moz-range-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: grab;
+  background: radial-gradient(circle at 35% 30%, #eed9a4, #cfa452 55%, #9a7431);
+  border: 2px solid #0f231c;
+  box-shadow: 0 3px 10px rgba(15, 35, 28, 0.35);
+}
+
+input[type="range"].brass-range:active::-webkit-slider-thumb {
+  cursor: grabbing;
+}
+
+/* ---------- text inputs ---------- */
+
+.field-input {
+  width: 100%;
+  border: 1px solid var(--line-ink);
+  background: #fffdf6;
+  padding: 0.95rem 1.1rem;
+  font-size: 1.05rem;
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.field-input::placeholder {
+  color: rgba(15, 35, 28, 0.35);
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: var(--color-brass);
+  box-shadow: 0 0 0 3px rgba(176, 135, 58, 0.22);
+}
+
+/* ---------- form card step transitions ---------- */
+
+.step-enter {
+  animation: stepIn 0.45s var(--ease-lux) both;
+}
+
+.step-enter-back {
+  animation: stepInBack 0.45s var(--ease-lux) both;
+}
+
+@keyframes stepIn {
+  from {
+    opacity: 0;
+    transform: translateX(42px) rotateY(4deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) rotateY(0);
+  }
+}
+
+@keyframes stepInBack {
+  from {
+    opacity: 0;
+    transform: translateX(-42px) rotateY(-4deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) rotateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-enter,
+  .step-enter-back {
+    animation: none;
+  }
+}
+
+/* ---------- floating ledger chips (hero 3D scene) ---------- */
+
+.ledger-chip {
+  position: absolute;
+  background: rgba(246, 242, 233, 0.96);
+  border: 1px solid rgba(15, 35, 28, 0.2);
+  box-shadow: 0 14px 40px rgba(5, 14, 11, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0) translateZ(var(--z, 40px));
+  }
+  50% {
+    transform: translateY(-9px) translateZ(var(--z, 40px));
+  }
+}
+
+.floaty {
+  animation: floaty 7s ease-in-out infinite;
+}
+
+.floaty-slow {
+  animation: floaty 9.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floaty,
+  .floaty-slow {
+    animation: none;
+  }
+}
+
+/* ---------- FAQ accordion ---------- */
+
+details.faq-item summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+details.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+details.faq-item .faq-icon {
+  transition: transform 0.3s var(--ease-lux);
+}
+
+details.faq-item[open] .faq-icon {
+  transform: rotate(45deg);
+}
+
+details.faq-item .faq-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s var(--ease-lux);
+}
+
+details.faq-item[open] .faq-body {
+  grid-template-rows: 1fr;
+}
+
+details.faq-item .faq-body > div {
+  overflow: hidden;
+}
+
+/* ---------- misc ---------- */
+
+.arch {
+  border-radius: 999px 999px 24px 24px;
+}
+
+.tilt-scene {
+  perspective: 1200px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

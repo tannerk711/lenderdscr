@@ -1,0 +1,252 @@
+<!-- ================================================================
+  ELIGIBILITY SUMMARY EMAIL (Email 1 of the promise chain)
+  DSCR Funnel Template deliverable. GHL-ready HTML (custom code template).
+  Sent immediately when /api/lead fires the inbound webhook. See WIRING.md.
+
+  REBRAND TOKENS (find-replace IN THE ORDER LISTED, top to bottom; some tokens
+  are substrings of others; values mirror src/config/funnel.ts):
+    Internet Loans Direct                    -> brand.name
+    lenderdscr.com                               -> brand.nmls (company)
+    (no NMLS published)                                -> brand.specialist.nmls
+    Paul Howarth                        -> brand.specialist.name
+    DSCR Loan Specialist                           -> brand.specialist.title
+    (855) 545-2022                              -> brand.phone
+    +18555452022                                -> brand.phoneHref digits
+    (no address published)    -> brand.address
+    100+                                        -> brand.lenderCount (VERIFY per client)
+    https://REPLACE-BOOKING-LINK                -> booking / scheduling URL
+    https://REPLACE-FUNNEL-DOMAIN               -> deployed funnel domain
+    "usually lands within 24 hours" (P.S.)      -> VERIFY per client, same rule
+                                                   as the thank-you page's step-2
+                                                   card; soften or cut if untrue
+
+  GHL MERGE FIELDS USED (create per WIRING.md before sending):
+    {{contact.first_name}}
+    {{contact.dscr_goal_label}}      e.g. "Buy a rental"
+    {{contact.dscr_property_label}}  e.g. "Single family"
+    {{contact.dscr_credit_band}}     e.g. "700-739"
+    {{contact.dscr_price_display}}   e.g. "$350,000"
+    {{contact.dscr_scenario_detail}} e.g. "25% down (about $87,500)"
+    {{contact.dscr_state}}           e.g. "Georgia"
+    {{unsubscribe_link}}             GHL unsubscribe URL (verify tag in test send)
+
+  SUBJECT (primary): {{contact.first_name}}, your DSCR eligibility summary is inside
+  SUBJECT VARIANT B: Your scenario on paper (and the one ratio that decides it)
+  SUBJECT VARIANT C: What the rent needs to cover on a {{contact.dscr_price_display}} property
+  PREVIEW TEXT: Your answers on paper, the pre-qualification read, and your
+  next step. Nothing here touched your credit.
+================================================================ -->
+<!DOCTYPE html>
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+  <title>Your DSCR Eligibility Summary</title>
+  <!--[if mso]>
+  <noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+  <style>body, table, td, a { font-family: Georgia, 'Times New Roman', serif !important; }</style>
+  <![endif]-->
+  <style>
+    body { margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
+    table { border-collapse: collapse; }
+    img { border: 0; line-height: 100%; }
+    a { color: #24503f; }
+    @media only screen and (max-width: 620px) {
+      .sp { padding-left: 22px !important; padding-right: 22px !important; }
+      .h-verdict { font-size: 24px !important; line-height: 30px !important; }
+      .ledger-val { font-size: 15px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0; padding:0; background-color:#eee8d9;">
+
+  <!-- preview text (hidden) -->
+  <div style="display:none; font-size:1px; color:#eee8d9; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden;">
+    Your answers on paper, the pre-qualification read, and your next step. Nothing here touched your credit.&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
+  </div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#eee8d9">
+    <tr>
+      <td align="center" style="padding: 28px 12px 40px;">
+
+        <!--[if mso]><table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
+        <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; max-width:600px; margin:0 auto;">
+
+          <!-- ====== brass top rule ====== -->
+          <tr>
+            <td height="4" bgcolor="#b0873a" style="font-size:4px; line-height:4px; mso-line-height-rule:exactly; border-radius:2px 2px 0 0;">&nbsp;</td>
+          </tr>
+
+          <!-- ====== ink header band ====== -->
+          <tr>
+            <td bgcolor="#0f231c" align="center" style="padding: 30px 30px 28px;">
+              <p style="margin:0 0 10px; font-family:'Courier New',Courier,monospace; font-size:10px; letter-spacing:4px; color:#d7b264; text-transform:uppercase;">Eligibility&nbsp;Summary</p>
+              <p style="margin:0; font-family:Georgia,'Times New Roman',serif; font-size:22px; color:#efe7d2;">Internet Loans Direct</p>
+              <p style="margin:8px 0 0; font-family:'Courier New',Courier,monospace; font-size:9px; letter-spacing:3px; color:#7f9c8b; text-transform:uppercase;">lenderdscr.com</p>
+            </td>
+          </tr>
+
+          <!-- ====== paper body ====== -->
+          <tr>
+            <td bgcolor="#f6f2e9" class="sp" style="padding: 38px 44px 8px; border-left:1px solid #dcd4bf; border-right:1px solid #dcd4bf;">
+
+              <p style="margin:0 0 18px; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; line-height:26px; color:#0f231c;">
+                {{contact.first_name}},
+              </p>
+              <p style="margin:0 0 26px; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; line-height:26px; color:#0f231c;">
+                Sixty seconds of answers, now on paper. Here is the scenario you gave us:
+              </p>
+
+              <!-- ====== scenario ledger ====== -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#fffdf6" style="border:1px solid #ddd5c2; border-radius:14px;">
+                <tr>
+                  <td style="padding: 22px 26px 24px;">
+                    <p style="margin:0 0 6px; font-family:'Courier New',Courier,monospace; font-size:10px; letter-spacing:3px; color:#3c6b55; text-transform:uppercase;">Prepared for {{contact.first_name}}</p>
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding:13px 0 12px; border-bottom:1px solid #e6dfcb; font-family:'Courier New',Courier,monospace; font-size:11px; letter-spacing:2px; color:#3c6b55; text-transform:uppercase;">Goal</td>
+                        <td align="right" class="ledger-val" style="padding:13px 0 12px; border-bottom:1px solid #e6dfcb; font-family:Georgia,'Times New Roman',serif; font-size:16px; color:#0f231c;">{{contact.dscr_goal_label}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:13px 0 12px; border-bottom:1px solid #e6dfcb; font-family:'Courier New',Courier,monospace; font-size:11px; letter-spacing:2px; color:#3c6b55; text-transform:uppercase;">Property</td>
+                        <td align="right" class="ledger-val" style="padding:13px 0 12px; border-bottom:1px solid #e6dfcb; font-family:Georgia,'Times New Roman',serif; font-size:16px; color:#0f231c;">{{contact.dscr_property_label}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:13px 0 12px; border-bottom:1px solid #e6dfcb; font-family:'Courier New',Courier,monospace; font-size:11px; letter-spacing:2px; color:#3c6b55; text-transform:uppercase;">Credit&nbsp;Band</td>
+                        <td align="right" class="ledger-val" style="padding:13px 0 12px; border-bottom:1px solid #e6dfcb; font-family:Georgia,'Times New Roman',serif; font-size:16px; color:#0f231c;">{{contact.dscr_credit_band}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:13px 0 12px; border-bottom:1px solid #e6dfcb; font-family:'Courier New',Courier,monospace; font-size:11px; letter-spacing:2px; color:#3c6b55; text-transform:uppercase;">Price&nbsp;Point</td>
+                        <td align="right" class="ledger-val" style="padding:13px 0 12px; border-bottom:1px solid #e6dfcb; font-family:Georgia,'Times New Roman',serif; font-size:16px; color:#0f231c;">{{contact.dscr_price_display}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:13px 0 12px; border-bottom:1px solid #e6dfcb; font-family:'Courier New',Courier,monospace; font-size:11px; letter-spacing:2px; color:#3c6b55; text-transform:uppercase;">Position</td>
+                        <td align="right" class="ledger-val" style="padding:13px 0 12px; border-bottom:1px solid #e6dfcb; font-family:Georgia,'Times New Roman',serif; font-size:16px; color:#0f231c;">{{contact.dscr_scenario_detail}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:13px 0 2px; font-family:'Courier New',Courier,monospace; font-size:11px; letter-spacing:2px; color:#3c6b55; text-transform:uppercase;">State</td>
+                        <td align="right" class="ledger-val" style="padding:13px 0 2px; font-family:Georgia,'Times New Roman',serif; font-size:16px; color:#0f231c;">{{contact.dscr_state}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- ====== the read ====== -->
+              <p style="margin:34px 0 10px; font-family:'Courier New',Courier,monospace; font-size:11px; letter-spacing:3px; color:#3c6b55; text-transform:uppercase;">The Read</p>
+              <p class="h-verdict" style="margin:0 0 16px; font-family:Georgia,'Times New Roman',serif; font-size:27px; line-height:34px; color:#0f231c;">
+                Based on your answers, <em style="color:#24503f;">you pre-qualify.</em>
+              </p>
+              <p style="margin:0 0 26px; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:15px; line-height:25px; color:#3d4d45;">
+                To be straight with you: that is not an approval. Nobody can promise one from a sixty-second form, and you should side-eye anyone who does. What it means is that your scenario fits the box DSCR lenders are actively funding right now: your credit band, your property type, your price point, in {{contact.dscr_state}}.
+              </p>
+
+              <!-- ====== the math ====== -->
+              <p style="margin:0 0 10px; font-family:'Courier New',Courier,monospace; font-size:11px; letter-spacing:3px; color:#3c6b55; text-transform:uppercase;">The One Ratio That Decides It</p>
+              <p style="margin:0 0 16px; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:15px; line-height:25px; color:#3d4d45;">
+                A DSCR lender never asks for your W-2s, pay stubs, or tax returns. The property qualifies, not you, and it comes down to one line of arithmetic:
+              </p>
+              <p style="margin:0 0 16px; font-family:Georgia,'Times New Roman',serif; font-size:17px; line-height:26px; color:#0f231c; text-align:center;">
+                monthly rent &divide; full monthly payment = DSCR
+              </p>
+              <p style="margin:0 0 22px; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:15px; line-height:25px; color:#3d4d45;">
+                The payment side counts everything: principal, interest, taxes, insurance, and any HOA. At 1.00, the property carries itself. Most programs fund from around 1.00 up, and pricing gets noticeably better at 1.25 and above.
+              </p>
+
+              <!-- ====== worked example (dark ledger) ====== -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#0f231c" style="border-radius:14px;">
+                <tr>
+                  <td style="padding: 22px 26px 20px;">
+                    <p style="margin:0 0 14px; font-family:'Courier New',Courier,monospace; font-size:10px; letter-spacing:3px; color:#d7b264; text-transform:uppercase;">A Worked Example &middot; Illustration Only</p>
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding:9px 0; border-bottom:1px solid #2a4038; font-family:'Courier New',Courier,monospace; font-size:12px; letter-spacing:1px; color:#9db3a8;">PAYMENT (PITIA)</td>
+                        <td align="right" style="padding:9px 0; border-bottom:1px solid #2a4038; font-family:'Courier New',Courier,monospace; font-size:13px; color:#efe7d2;">$2,000 / mo</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:9px 0; border-bottom:1px solid #2a4038; font-family:'Courier New',Courier,monospace; font-size:12px; letter-spacing:1px; color:#9db3a8;">TARGET RATIO</td>
+                        <td align="right" style="padding:9px 0; border-bottom:1px solid #2a4038; font-family:'Courier New',Courier,monospace; font-size:13px; color:#efe7d2;">1.25</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:10px 0 2px; font-family:'Courier New',Courier,monospace; font-size:12px; letter-spacing:1px; color:#9db3a8;">RENT THAT GETS THERE</td>
+                        <td align="right" style="padding:10px 0 2px; font-family:'Courier New',Courier,monospace; font-size:15px; color:#d7b264;"><strong>$2,500 / mo</strong></td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:14px 0 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:21px; color:#6b7a72;">
+                Round numbers to show the shape of it, not your numbers and not a quote. On the call we run the real version for your {{contact.dscr_price_display}} scenario: live pricing across 100+ lenders, your actual payment, and the rent line that makes it work. If your play is a flip rather than a hold, we run the same discipline on purchase, rehab, and exit value instead.
+              </p>
+
+              <!-- ====== CTA ====== -->
+              <p style="margin:36px 0 10px; font-family:'Courier New',Courier,monospace; font-size:11px; letter-spacing:3px; color:#3c6b55; text-transform:uppercase;">Your Next Step</p>
+              <p style="margin:0 0 24px; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:15px; line-height:25px; color:#3d4d45;">
+                Thirty minutes, video or phone, zero obligation. We run your real numbers, answer everything, and if the numbers do not pencil, we will tell you that too.
+              </p>
+              <table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto 18px;">
+                <tr>
+                  <td bgcolor="#b0873a" style="border-radius:12px; border:1px solid #8a6a2e; padding:15px 42px;">
+                    <a href="https://REPLACE-BOOKING-LINK" style="display:inline-block; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:bold; color:#0f231c; text-decoration:none; border-radius:12px;">Pick my call time&nbsp;&nbsp;&rarr;</a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:0 0 8px; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:14px; line-height:23px; color:#3d4d45; text-align:center;">
+                Prefer to talk now? Call <a href="tel:+18555452022" style="color:#24503f; font-weight:bold; text-decoration:none;">(855) 545-2022</a>.<br>
+                Or simply reply to this email and we will set a time by hand.
+              </p>
+              <p style="margin:18px 0 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:14px; line-height:23px; color:#3d4d45; text-align:center;">
+                Want to walk in loaded? Here is the one-page prep sheet:<br>
+                <a href="https://REPLACE-FUNNEL-DOMAIN/call-prep" style="color:#24503f; font-weight:bold;">What to have ready for your call</a>
+              </p>
+
+              <!-- ====== sign-off ====== -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:36px;">
+                <tr><td style="border-top:1px solid #ddd5c2; font-size:1px; line-height:1px; mso-line-height-rule:exactly;">&nbsp;</td></tr>
+              </table>
+              <p style="margin:22px 0 4px; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:15px; line-height:25px; color:#0f231c;">
+                Talk soon,
+              </p>
+              <p style="margin:0 0 6px; font-family:Georgia,'Times New Roman',serif; font-size:18px; color:#0f231c;">
+                Paul Howarth
+              </p>
+              <p style="margin:0 0 26px; font-family:'Courier New',Courier,monospace; font-size:10px; letter-spacing:2px; color:#6b7a72; text-transform:uppercase;">
+                DSCR Loan Specialist<br>
+                Internet Loans Direct &middot; <span style="white-space:nowrap;">(855)&nbsp;545-2022</span>
+              </p>
+              <p style="margin:0 0 34px; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:22px; color:#6b7a72;">
+                P.S. Nothing we did today touched your credit. And once we talk, income and credit approval usually happens the same day.
+              </p>
+            </td>
+          </tr>
+
+          <!-- ====== compliance footer ====== -->
+          <tr>
+            <td bgcolor="#0f231c" align="center" class="sp" style="padding: 30px 44px 32px; border-radius:0 0 14px 14px;">
+              <p style="margin:0 0 4px; font-family:Georgia,'Times New Roman',serif; font-size:16px; color:#efe7d2;">Internet Loans Direct</p>
+              <p style="margin:0 0 18px; font-family:'Courier New',Courier,monospace; font-size:9px; letter-spacing:3px; color:#7f9c8b; text-transform:uppercase;">lenderdscr.com</p>
+              <p style="margin:0 0 14px; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; line-height:19px; color:#93a49b;">
+                Internet Loans Direct. lenderdscr.com. No advertisement or solicitation from Internet Loans Direct is meant to be a mortgage brokering activity or mortgage lending activity. All brokering or lending activities can only be completed by a licensed loan originator.
+                For licensing information visit <a href="https://www.nmlsconsumeraccess.org" style="color:#c4cfc8;">www.nmlsconsumeraccess.org</a>.
+                This is not a commitment to lend. All loans are subject to credit approval, underwriting, and property review.
+                Rates, terms, and programs are subject to change without notice. The examples in this email are educational
+                illustrations only, not offers of specific rates or terms. This company is not endorsed by, or acting on
+                behalf of, any government agency. Equal Housing Opportunity.
+              </p>
+              <p style="margin:0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; line-height:19px; color:#93a49b;">
+                You are receiving this because you requested your DSCR eligibility summary on our website.
+                <a href="{{unsubscribe_link}}" style="color:#c4cfc8;">Unsubscribe</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+        <!--[if mso]></td></tr></table><![endif]-->
+
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

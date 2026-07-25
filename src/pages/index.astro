@@ -1,0 +1,474 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Topbar from '../components/Topbar.astro';
+import Footer from '../components/Footer.astro';
+import FunnelForm from '../components/FunnelForm';
+import { brand, tickerItems, faqs } from '../config/funnel';
+---
+
+<Layout
+  title={`DSCR Loans Texas | ${brand.name}`}
+  description="DSCR rental property loans for Texas investors. Qualify on the rent, not your tax returns. Rates from 100+ lenders. Check your eligibility in 60 seconds with no credit pull."
+>
+  <Topbar />
+
+  <!-- ============ HERO ============ -->
+  <section class="relative bg-ink text-cream contours grain overflow-hidden">
+    <div class="max-w-7xl mx-auto px-5 lg:px-10 pt-14 pb-20 lg:pt-20 lg:pb-28 grid lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-16 items-start relative z-10">
+
+      <!-- left: pitch -->
+      <div class="max-w-xl">
+        <p class="eyebrow text-brass-2 mb-6 gs-reveal">DSCR Rental Property Loans · Texas</p>
+        <h1 class="font-display text-[clamp(2.6rem,4.9vw,4.4rem)] leading-[1.04] tracking-[-0.015em] [text-wrap:balance] gs-reveal">
+          Qualify on the rent. <em class="font-display-wonk italic text-brass-2">Skip</em> the tax&nbsp;returns.
+        </h1>
+        <p class="text-cream/70 text-lg leading-relaxed mt-6 max-w-md gs-reveal">
+          Purchase, refinance, or pull cash out of Texas investment property.
+          Rates from {brand.lenderCount} lenders, with closings in as little as {brand.avgDaysToClose} days.
+        </p>
+
+        <!-- proof row -->
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-3 mt-8 gs-reveal">
+          <div class="flex items-center gap-2">
+            <span class="text-brass-2 text-sm" aria-hidden>✓</span>
+            <span class="text-sm text-cream/70">Same-day income &amp; credit approval</span>
+          </div>
+          <div class="hidden sm:block w-px h-4 bg-cream/20"></div>
+          <div class="flex items-center gap-2">
+            <span class="text-brass-2 text-sm" aria-hidden>✓</span>
+            <span class="text-sm text-cream/70">No tax returns required</span>
+          </div>
+        </div>
+
+        <!-- 3D property scene -->
+        <div class="tilt-scene mt-10 hidden lg:block gs-reveal" id="hero-scene">
+          <div class="relative w-[440px]" id="hero-tilt" style="transform-style: preserve-3d;">
+            <div class="arch overflow-hidden border border-cream/15 shadow-[var(--shadow-pop)]" style="transform: translateZ(0px);">
+              <img
+                src="/images/hero-property.webp"
+                alt="Rental property financed with a DSCR loan"
+                class="w-full h-[300px] object-cover object-[center_38%] scale-105"
+                id="hero-img"
+                loading="eager"
+              />
+            </div>
+            <!-- ledger chips -->
+            <div class="ledger-chip floaty rounded-xl px-4 py-2.5 -left-10 top-8 text-ink" style="--z: 55px;">
+              <div class="font-mono text-[0.58rem] uppercase tracking-[0.18em] text-ink/50">Market rent</div>
+              <div class="font-display text-[1.25rem] leading-tight">$2,450<span class="text-[0.8rem] text-ink/50">/mo</span></div>
+            </div>
+            <div class="ledger-chip floaty-slow rounded-xl px-4 py-2.5 -right-6 top-24 text-ink" style="--z: 75px;">
+              <div class="font-mono text-[0.58rem] uppercase tracking-[0.18em] text-ink/50">Full payment</div>
+              <div class="font-display text-[1.25rem] leading-tight">$1,890<span class="text-[0.8rem] text-ink/50">/mo</span></div>
+            </div>
+            <div class="ledger-chip floaty rounded-xl px-4 py-2.5 left-16 -bottom-5 text-ink border-brass!" style="--z: 90px; border-color: var(--color-brass);">
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-[0.58rem] uppercase tracking-[0.18em] text-ink/50">DSCR</span>
+                <span class="font-display text-[1.35rem] leading-none text-pine">1.30×</span>
+                <span class="w-5 h-5 rounded-full bg-pine text-cream text-[0.7rem] flex items-center justify-center font-bold">✓</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- right: the form card -->
+      <div class="lg:sticky lg:top-8" id="eligibility">
+        <div class="relative">
+          <div class="absolute -inset-1.5 rounded-[26px] bg-gradient-to-b from-brass/50 via-brass/10 to-transparent blur-[2px] opacity-70" aria-hidden></div>
+          <div class="relative bg-paper text-ink rounded-3xl px-6 py-7 sm:px-8 sm:py-8 shadow-[var(--shadow-pop)]">
+            <div class="flex items-center justify-center gap-2 mb-5">
+              <span class="w-1.5 h-1.5 rounded-full bg-pine animate-pulse"></span>
+              <span class="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-pine">60-second eligibility check</span>
+            </div>
+            <FunnelForm client:load />
+          </div>
+        </div>
+        <p class="text-center font-mono text-[0.62rem] uppercase tracking-[0.18em] text-cream/50 mt-4">
+          No credit pull · No documents · No obligation
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CAPABILITY TICKER ============ -->
+  <section class="marquee bg-pine text-cream/90 border-y border-cream/10 overflow-hidden" aria-label="Loan programs offered">
+    <div class="marquee-track py-3.5">
+      {[0, 1].map(() => (
+        <div class="flex shrink-0 items-center">
+          {tickerItems.map((item) => (
+            <span class="flex items-center gap-3 px-8 whitespace-nowrap font-mono text-[0.72rem] uppercase tracking-[0.14em]">
+              <span class="text-brass-2">●</span>
+              {item}
+            </span>
+          ))}
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ============ WHY DSCR ============ -->
+  <section class="bg-paper py-24 lg:py-32">
+    <div class="max-w-7xl mx-auto px-5 lg:px-10">
+      <div class="grid lg:grid-cols-12 gap-10">
+        <div class="lg:col-span-4 gs-reveal">
+          <p class="eyebrow text-moss mb-4">Why investors switch</p>
+          <h2 class="font-display text-[clamp(2rem,3.6vw,3rem)] leading-[1.06] tracking-tight">
+            Banks read your W-2. <em class="italic text-pine">We read the rent roll.</em>
+          </h2>
+        </div>
+        <div class="lg:col-span-8 grid sm:grid-cols-3 gap-x-8 gap-y-10 lg:pt-4">
+          <div class="gs-reveal border-t-2 border-ink/80 pt-5">
+            <div class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-ink/40 mb-3">01</div>
+            <h3 class="font-display text-xl mb-2.5">No income docs</h3>
+            <p class="text-[0.94rem] leading-relaxed text-ink/65">
+              No tax returns, W-2s, or pay stubs. The property's rent does the qualifying. Perfect for
+              self-employed investors and complex returns.
+            </p>
+          </div>
+          <div class="gs-reveal border-t-2 border-ink/80 pt-5">
+            <div class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-ink/40 mb-3">02</div>
+            <h3 class="font-display text-xl mb-2.5">Built for portfolios</h3>
+            <p class="text-[0.94rem] leading-relaxed text-ink/65">
+              Close in your LLC, finance unlimited doors, and keep every deal off your personal DTI.
+              Scale without hitting a bank's ten-property wall.
+            </p>
+          </div>
+          <div class="gs-reveal border-t-2 border-ink/80 pt-5">
+            <div class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-ink/40 mb-3">03</div>
+            <h3 class="font-display text-xl mb-2.5">Rates from {brand.lenderCount} lenders</h3>
+            <p class="text-[0.94rem] leading-relaxed text-ink/65">
+              One application, priced across {brand.lenderCount} lenders. Same-day income and
+              credit approval, with closings in as little as {brand.avgDaysToClose} days.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ THE MATH (DSCR dial) ============ -->
+  <section class="bg-paper-2 py-24 lg:py-32 border-y border-ink/10" id="math">
+    <div class="max-w-7xl mx-auto px-5 lg:px-10 grid lg:grid-cols-2 gap-14 items-center">
+      <div class="gs-reveal-left">
+        <p class="eyebrow text-moss mb-4">The one number that matters</p>
+        <h2 class="font-display text-[clamp(2rem,3.6vw,3rem)] leading-[1.06] tracking-tight mb-6">
+          If the rent covers the payment, <em class="italic text-pine">you qualify.</em>
+        </h2>
+        <p class="text-ink/70 leading-relaxed max-w-md mb-8">
+          DSCR, the debt service coverage ratio, is simply the monthly rent divided by the full monthly
+          payment. At 1.0 the property pays for itself. At 1.25+ lenders sharpen their pencils and
+          your rate drops.
+        </p>
+        <div class="border border-ink/15 rounded-2xl bg-paper divide-y divide-ink/10 max-w-md shadow-[var(--shadow-card)]">
+          <div class="flex items-center justify-between px-5 py-3.5">
+            <span class="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-ink/50">Market rent</span>
+            <span class="font-display text-xl tabular-nums" data-count="2450" data-prefix="$" data-suffix="/mo">$0/mo</span>
+          </div>
+          <div class="flex items-center justify-between px-5 py-3.5">
+            <span class="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-ink/50">PITIA payment</span>
+            <span class="font-display text-xl tabular-nums" data-count="1890" data-prefix="$" data-suffix="/mo">$0/mo</span>
+          </div>
+          <div class="flex items-center justify-between px-5 py-3.5 bg-pine/5">
+            <span class="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-pine">DSCR</span>
+            <span class="font-display text-2xl text-pine tabular-nums" id="dscr-result">0.00×</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- dial -->
+      <div class="gs-reveal-right flex justify-center">
+        <div class="w-full max-w-[460px]">
+          <svg viewBox="0 0 400 260" class="w-full" id="dscr-dial" role="img" aria-label="DSCR gauge sweeping to 1.30">
+            <defs>
+              <linearGradient id="dialArc" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#c96f4a" />
+                <stop offset="45%" stop-color="#d7b264" />
+                <stop offset="100%" stop-color="#24503f" />
+              </linearGradient>
+            </defs>
+            <!-- arc track -->
+            <path d="M 40 220 A 160 160 0 0 1 360 220" fill="none" stroke="rgba(15,35,28,0.12)" stroke-width="18" stroke-linecap="round" />
+            <path d="M 40 220 A 160 160 0 0 1 360 220" fill="none" stroke="url(#dialArc)" stroke-width="18" stroke-linecap="round"
+              stroke-dasharray="502.65" stroke-dashoffset="502.65" id="dial-fill" />
+            <!-- tick marks at 1.00 and 1.25 -->
+            <line x1="93.9" y1="113.9" x2="79.8" y2="99.8" stroke="rgba(15,35,28,0.4)" stroke-width="2" />
+            <line x1="229.3" y1="72.9" x2="233.2" y2="53.3" stroke="#b0873a" stroke-width="2.5" />
+            <!-- labels -->
+            <g font-family="Fragment Mono, monospace" font-size="11" fill="rgba(15,35,28,0.55)" text-anchor="middle">
+              <text x="42" y="248">0.80</text>
+              <text x="66" y="88">1.00</text>
+              <text x="240" y="40" fill="#b0873a">1.25</text>
+              <text x="358" y="248">1.50+</text>
+            </g>
+            <!-- needle -->
+            <g id="dial-needle" style="transform-origin: 200px 220px;">
+              <line x1="200" y1="220" x2="200" y2="84" stroke="#0f231c" stroke-width="4" stroke-linecap="round" />
+              <circle cx="200" cy="220" r="12" fill="#0f231c" />
+              <circle cx="200" cy="220" r="5" fill="#d7b264" />
+            </g>
+            <!-- readout -->
+            <text x="200" y="200" text-anchor="middle" font-family="Fraunces, serif" font-size="40" fill="#0f231c" id="dial-readout">1.30×</text>
+          </svg>
+          <p class="text-center font-mono text-[0.65rem] uppercase tracking-[0.18em] text-ink/45 mt-2">
+            Example deal · $2,450 rent ÷ $1,890 payment · 1.25+ is the sweet spot
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STATS BAND ============ -->
+  <section class="bg-ink text-cream grain relative py-16 lg:py-20">
+    <div class="max-w-7xl mx-auto px-5 lg:px-10 grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-6 relative z-10">
+      <div class="text-center gs-reveal">
+        <div class="font-display text-[clamp(2.6rem,4.5vw,4rem)] leading-none text-brass-2"><span data-count="15">0</span></div>
+        <div class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-cream/50 mt-3">Day closings, fastest files</div>
+      </div>
+      <div class="text-center gs-reveal">
+        <div class="font-display text-[clamp(2.6rem,4.5vw,4rem)] leading-none text-brass-2"><span data-count="100">0</span>+</div>
+        <div class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-cream/50 mt-3">Lenders quoting your deal</div>
+      </div>
+      <div class="text-center gs-reveal">
+        <div class="font-display text-[clamp(2.6rem,4.5vw,4rem)] leading-none text-brass-2"><span data-count="620">0</span></div>
+        <div class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-cream/50 mt-3">Minimum credit score</div>
+      </div>
+      <div class="text-center gs-reveal">
+        <div class="font-display text-[clamp(2.6rem,4.5vw,4rem)] leading-none text-brass-2"><span data-count="0">0</span></div>
+        <div class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-cream/50 mt-3">Tax returns required</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section class="bg-paper py-24 lg:py-32">
+    <div class="max-w-7xl mx-auto px-5 lg:px-10 grid lg:grid-cols-12 gap-12">
+      <div class="lg:col-span-5">
+        <div class="lg:sticky lg:top-24 gs-reveal">
+          <p class="eyebrow text-moss mb-4">How it works</p>
+          <h2 class="font-display text-[clamp(2rem,3.6vw,3rem)] leading-[1.06] tracking-tight mb-6">
+            Sixty seconds now. <em class="italic text-pine">Priced on your call.</em>
+          </h2>
+          <p class="text-ink/65 leading-relaxed max-w-sm mb-8">
+            The eligibility check is instant: no credit pull, no documents, no obligation. It simply tells
+            us enough to price your deal across our lender network when we talk.
+          </p>
+          <a href="#eligibility" class="btn-brass rounded-xl px-7 py-3.5 inline-flex">Check my eligibility →</a>
+        </div>
+      </div>
+      <div class="lg:col-span-7 grid gap-5">
+        <div class="gs-reveal bg-paper-2 border border-ink/10 rounded-2xl p-7 lg:p-9 flex gap-6 items-start">
+          <span class="font-display text-[2.6rem] leading-none text-brass shrink-0">1</span>
+          <div>
+            <h3 class="font-display text-[1.35rem] mb-2">Answer seven quick questions</h3>
+            <p class="text-[0.95rem] text-ink/65 leading-relaxed">
+              Deal type, property, credit range, numbers. Sixty seconds, no credit check of any kind.
+            </p>
+          </div>
+        </div>
+        <div class="gs-reveal bg-paper-2 border border-ink/10 rounded-2xl p-7 lg:p-9 flex gap-6 items-start lg:translate-x-8">
+          <span class="font-display text-[2.6rem] leading-none text-brass shrink-0">2</span>
+          <div>
+            <h3 class="font-display text-[1.35rem] mb-2">We shop {brand.lenderCount} lenders</h3>
+            <p class="text-[0.95rem] text-ink/65 leading-relaxed">
+              On a quick call we price your scenario across the wholesale market and you see the
+              best terms (rate, points, and payment) side by side.
+            </p>
+          </div>
+        </div>
+        <div class="gs-reveal bg-paper-2 border border-ink/10 rounded-2xl p-7 lg:p-9 flex gap-6 items-start lg:translate-x-16">
+          <span class="font-display text-[2.6rem] leading-none text-brass shrink-0">3</span>
+          <div>
+            <h3 class="font-display text-[1.35rem] mb-2">Close in {brand.closeRangeDays} days</h3>
+            <p class="text-[0.95rem] text-ink/65 leading-relaxed">
+              Appraisal with a rent schedule, title, done. No income verification means no
+              document circus. Most deals fund in two to three weeks.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVIEWS SECTION REMOVED: Internet Loans Direct has no published
+       testimonials. Add the section back (see dscr-funnel-template) only
+       with real reviews supplied by Paul. Never fabricate. -->
+
+  <!-- ============ FAQ ============ -->
+  <section class="bg-paper py-24 lg:py-32">
+    <div class="max-w-3xl mx-auto px-5 lg:px-10">
+      <p class="eyebrow text-moss mb-4 text-center gs-reveal">Straight answers</p>
+      <h2 class="font-display text-[clamp(2rem,3.6vw,2.8rem)] leading-[1.06] tracking-tight text-center mb-12 gs-reveal">
+        Frequently asked questions
+      </h2>
+      <div class="divide-y divide-ink/10 border-y border-ink/10">
+        {faqs.map((f) => (
+          <details class="faq-item group py-1">
+            <summary class="flex items-center justify-between gap-6 py-5">
+              <span class="font-display text-[1.15rem] leading-snug">{f.q}</span>
+              <span class="faq-icon shrink-0 w-8 h-8 rounded-full border border-ink/20 flex items-center justify-center text-lg text-ink/60">+</span>
+            </summary>
+            <div class="faq-body">
+              <div>
+                <p class="text-[0.96rem] leading-relaxed text-ink/65 pb-6 pr-10">{f.a}</p>
+              </div>
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <section class="relative bg-ink text-cream overflow-hidden grain">
+    <img src="/images/aerial-golden.webp" alt="" class="absolute inset-0 w-full h-full object-cover opacity-40" loading="lazy" id="cta-bg" />
+    <div class="absolute inset-0 bg-gradient-to-b from-ink via-ink/45 to-ink"></div>
+    <div class="relative z-10 max-w-4xl mx-auto px-5 lg:px-10 py-28 lg:py-36 text-center">
+      <p class="eyebrow text-brass-2 mb-6 gs-reveal">No credit pull · No documents · No obligation</p>
+      <h2 class="font-display text-[clamp(2.4rem,5vw,4rem)] leading-[1.04] tracking-tight gs-reveal">
+        Know your buying power<br /><em class="italic text-brass-2">in the next 60 seconds.</em>
+      </h2>
+      <div class="mt-10 gs-reveal">
+        <a href="#eligibility" class="btn-brass rounded-xl px-9 py-4 text-lg">Check My Eligibility →</a>
+        <p class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-cream/50 mt-5">
+          Free for Texas investors · Takes about 60 seconds
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+
+  <!-- ============ MOBILE STICKY CTA ============ -->
+  <div
+    id="sticky-cta"
+    class="lg:hidden fixed bottom-0 inset-x-0 z-40 translate-y-full transition-transform duration-300 ease-out"
+  >
+    <div class="bg-ink/95 backdrop-blur border-t border-brass/30 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+      <a href="#eligibility" class="btn-brass w-full rounded-xl py-3.5 text-[1.02rem]">
+        Check My Eligibility in 60 Seconds →
+      </a>
+    </div>
+  </div>
+
+  <!-- ============ MOTION ============ -->
+  <script>
+    import gsap from 'gsap';
+    import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!reduced) {
+      // reveal-on-scroll
+      const reveal = (sel: string, from: gsap.TweenVars) => {
+        gsap.utils.toArray<HTMLElement>(sel).forEach((el) => {
+          gsap.fromTo(
+            el,
+            from,
+            {
+              opacity: 1,
+              x: 0,
+              y: 0,
+              scale: 1,
+              duration: 0.9,
+              ease: 'power3.out',
+              scrollTrigger: { trigger: el, start: 'top 86%' },
+            }
+          );
+        });
+      };
+      reveal('.gs-reveal', { opacity: 0, y: 28 });
+      reveal('.gs-reveal-left', { opacity: 0, x: -36 });
+      reveal('.gs-reveal-right', { opacity: 0, x: 36 });
+      reveal('.gs-reveal-scale', { opacity: 0, scale: 0.94 });
+
+      // number count-ups
+      gsap.utils.toArray<HTMLElement>('[data-count]').forEach((el) => {
+        const end = Number(el.dataset.count);
+        const prefix = el.dataset.prefix ?? '';
+        const suffix = el.dataset.suffix ?? '';
+        const obj = { v: 0 };
+        gsap.to(obj, {
+          v: end,
+          duration: 1.6,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: el, start: 'top 88%' },
+          onUpdate: () => {
+            el.textContent = `${prefix}${Math.round(obj.v).toLocaleString()}${suffix}`;
+          },
+        });
+      });
+
+      // DSCR dial: needle sweep + arc fill + readout
+      const needle = document.getElementById('dial-needle');
+      const fill = document.getElementById('dial-fill');
+      const readout = document.getElementById('dial-readout');
+      const result = document.getElementById('dscr-result');
+      if (needle && fill && readout) {
+        // scale: 0.80 at -90deg → 1.60 at +90deg. 1.30 → +22.5deg... map linearly.
+        const angleFor = (v: number) => ((v - 0.8) / (1.6 - 0.8)) * 180 - 90;
+        const obj = { v: 0.8 };
+        gsap.set(needle, { rotate: -90, transformOrigin: '200px 220px' });
+        gsap.to(obj, {
+          v: 1.3,
+          duration: 2,
+          ease: 'power3.inOut',
+          scrollTrigger: { trigger: '#dscr-dial', start: 'top 75%' },
+          onUpdate: () => {
+            gsap.set(needle, { rotate: angleFor(obj.v) });
+            const pct = (obj.v - 0.8) / (1.6 - 0.8);
+            fill.setAttribute('stroke-dashoffset', String(502.65 * (1 - pct)));
+            readout.textContent = `${obj.v.toFixed(2)}×`;
+            if (result) result.textContent = `${obj.v.toFixed(2)}×`;
+          },
+        });
+      }
+
+      // hero 3D tilt on pointer
+      const scene = document.getElementById('hero-scene');
+      const tilt = document.getElementById('hero-tilt');
+      if (scene && tilt && matchMedia('(pointer: fine)').matches) {
+        scene.addEventListener('pointermove', (e) => {
+          const r = scene.getBoundingClientRect();
+          const x = (e.clientX - r.left) / r.width - 0.5;
+          const y = (e.clientY - r.top) / r.height - 0.5;
+          gsap.to(tilt, { rotateY: x * 10, rotateX: -y * 8, duration: 0.6, ease: 'power2.out' });
+        });
+        scene.addEventListener('pointerleave', () => {
+          gsap.to(tilt, { rotateY: 0, rotateX: 0, duration: 0.8, ease: 'power3.out' });
+        });
+      }
+
+      // slow parallax on CTA background
+      gsap.to('#cta-bg', {
+        yPercent: 12,
+        ease: 'none',
+        scrollTrigger: { trigger: '#cta-bg', start: 'top bottom', end: 'bottom top', scrub: true },
+      });
+    } else {
+      /* reduced motion: reveal handled below */
+    }
+
+    // mobile sticky CTA: show when the form card is out of view
+    const stickyCta = document.getElementById('sticky-cta');
+    const formCard = document.getElementById('eligibility');
+    if (stickyCta && formCard && 'IntersectionObserver' in window) {
+      new IntersectionObserver(
+        ([entry]) => {
+          // Tailwind v4 translate-* utilities use the CSS `translate` property
+          stickyCta.style.translate = entry.isIntersecting ? '0 100%' : '0 0';
+        },
+        { rootMargin: '0px 0px -80px 0px' }
+      ).observe(formCard);
+    }
+
+    if (reduced) {
+      document.querySelectorAll('[data-count]').forEach((el) => {
+        const e = el as HTMLElement;
+        e.textContent = `${e.dataset.prefix ?? ''}${Number(e.dataset.count).toLocaleString()}${e.dataset.suffix ?? ''}`;
+      });
+    }
+  </script>
+</Layout>

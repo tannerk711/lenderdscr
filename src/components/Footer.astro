@@ -1,0 +1,27 @@
+---
+import { brand } from '../config/funnel';
+---
+
+<footer class="bg-ink text-cream/60 border-t border-cream/10 py-14">
+  <div class="max-w-5xl mx-auto px-5 lg:px-10 text-center">
+    <div class="font-display text-cream text-xl mb-2">{brand.name}</div>
+    <p class="font-mono text-[0.62rem] uppercase tracking-[0.18em] mb-8">{brand.nmls || brand.site}</p>
+    <p class="text-[0.8rem] leading-relaxed max-w-3xl mx-auto">
+      {brand.name}. No advertisement or solicitation from {brand.name} is meant to be a mortgage
+      brokering activity or mortgage lending activity. All brokering or lending activities can only be
+      completed by a licensed loan originator. To see if your loan officer is licensed in your state, visit
+      <a href={brand.licensingUrl} class="underline hover:text-cream" rel="noopener" target="_blank"> www.nmlsconsumeraccess.org</a>.
+      This is not a commitment to lend. All loans subject to credit approval, underwriting, and property review.
+      Rates, terms, and programs subject to change without notice. This company is not endorsed by, or acting on
+      behalf of, any government agency. For informational purposes only.
+    </p>
+    <div class="flex items-center justify-center gap-8 mt-8">
+      <a href="/privacy" class="text-[0.8rem] underline hover:text-cream">Privacy Policy</a>
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Equal Housing Opportunity">
+        <path d="M12 2 1 10h2v12h18V10h2L12 2zm0 2.5L18.5 9h-13L12 4.5zM5 11h14v9H5v-9zm3 2v2h8v-2H8zm0 3.5v2h8v-2H8z"/>
+      </svg>
+      <a href="/legal" class="text-[0.8rem] underline hover:text-cream">Legal</a>
+    </div>
+    <p class="text-[0.72rem] mt-8 text-cream/40">© {new Date().getFullYear()} {brand.name}. All rights reserved.</p>
+  </div>
+</footer>

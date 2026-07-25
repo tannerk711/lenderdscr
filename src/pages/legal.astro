@@ -1,0 +1,36 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Topbar from '../components/Topbar.astro';
+import Footer from '../components/Footer.astro';
+import { brand } from '../config/funnel';
+---
+
+<Layout title={`Legal | ${brand.name}`}>
+  <Topbar />
+  <section class="bg-paper py-20">
+    <div class="max-w-3xl mx-auto px-5 lg:px-10">
+      <h1 class="font-display text-4xl tracking-tight mb-8">Legal Disclosures</h1>
+      <div class="space-y-5 text-ink/70 leading-relaxed text-[0.95rem]">
+        <p>
+          No advertisement or solicitation from {brand.name} ({brand.site}) is meant to be a mortgage
+          brokering activity or mortgage lending activity. All brokering or lending activities can only be
+          completed by a licensed loan originator. To see if your loan officer is licensed in your state,
+          visit
+          <a href={brand.licensingUrl} class="underline" rel="noopener" target="_blank">www.nmlsconsumeraccess.org</a>.
+        </p>
+        <p>
+          This is not a commitment to lend. All loan approvals are subject to underwriting guidelines, credit
+          review, and property appraisal. Rates, terms, and program availability are subject to change without
+          notice. This company is not endorsed by, nor acting on behalf of or at the direction of, any
+          government agency.
+        </p>
+        <p>
+          Any figures shown on this site (including example rents, payments, and DSCR ratios) are
+          illustrations for educational purposes only and are not a quote, an offer of credit, or a
+          representation of terms available to any particular borrower.
+        </p>
+      </div>
+    </div>
+  </section>
+  <Footer />
+</Layout>

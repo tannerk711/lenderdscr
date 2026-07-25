@@ -1,0 +1,78 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Topbar from '../components/Topbar.astro';
+import Footer from '../components/Footer.astro';
+import { brand } from '../config/funnel';
+---
+
+<Layout title={`Privacy Policy | ${brand.name}`}>
+  <Topbar />
+  <section class="bg-paper py-20">
+    <div class="max-w-3xl mx-auto px-5 lg:px-10">
+      <h1 class="font-display text-4xl tracking-tight mb-8">Privacy Policy</h1>
+      <div class="space-y-5 text-ink/70 leading-relaxed text-[0.95rem]">
+        <p>
+          At {brand.name} ({brand.site}), the privacy of our visitors is one of our main priorities. This
+          Privacy Policy describes the types of information we collect and how we use it. It applies only to
+          our online activities and to information shared with or collected on this website, not to
+          information collected offline or through other channels.
+        </p>
+
+        <h2 class="font-display text-2xl tracking-tight pt-4">Information we collect</h2>
+        <p>
+          When you complete the eligibility check on this site, we collect the information you provide: your
+          name, email address, phone number, and the loan-scenario answers you select (such as goal, property
+          type, credit range, property value, and location). If you contact us directly, we may receive
+          additional information such as the contents of your message.
+        </p>
+
+        <h2 class="font-display text-2xl tracking-tight pt-4">How we use your information</h2>
+        <p>
+          We use the information we collect to respond to your inquiry, evaluate your loan scenario, price it
+          with lending partners, communicate with you about your inquiry (including by email, phone, and text
+          message where you have consented), operate and improve our website, and find and prevent fraud. We
+          do not sell your personal information. Information may be shared with lending partners solely for
+          the purpose of pricing and originating your loan.
+        </p>
+
+        <h2 class="font-display text-2xl tracking-tight pt-4">Consent to be contacted</h2>
+        <p>
+          By submitting the eligibility form you expressly consent to being contacted by {brand.name} about
+          your inquiry by email, phone call, or text message at the contact details you provided, including
+          via automated technology. Consent is not a condition of purchase or of receiving services and can
+          be revoked at any time. Reply STOP to any text message to opt out.
+        </p>
+
+        <h2 class="font-display text-2xl tracking-tight pt-4">Log files, cookies, and advertising</h2>
+        <p>
+          Like most websites, we use standard log files and cookies. Log files record information such as IP
+          address, browser type, date and time stamps, and referring pages; this information is not linked to
+          anything personally identifiable and is used to analyze trends and administer the site. Cookies
+          store visitor preferences and help us optimize your experience. Third-party advertising platforms
+          (such as Google) may use cookies or similar technologies to measure the effectiveness of
+          advertising campaigns; we have no access to or control over third-party cookies. You can disable
+          cookies through your browser settings.
+        </p>
+
+        <h2 class="font-display text-2xl tracking-tight pt-4">Your rights (CCPA and GDPR)</h2>
+        <p>
+          Depending on your place of residence, you may have the right to request access to the personal data
+          we hold about you, request correction of inaccurate information, request deletion of your data, and
+          restrict or object to its processing. To exercise any of these rights, call us at
+          <a href={brand.phoneHref} class="underline">{brand.phone}</a> and we will respond within one month.
+        </p>
+
+        <h2 class="font-display text-2xl tracking-tight pt-4">Children's information</h2>
+        <p>
+          {brand.name} does not knowingly collect personal information from children under the age of 13. If
+          you believe your child provided this kind of information on our website, contact us immediately and
+          we will promptly remove it from our records.
+        </p>
+
+        <h2 class="font-display text-2xl tracking-tight pt-4">Consent</h2>
+        <p>By using our website, you hereby consent to this Privacy Policy and agree to its terms.</p>
+      </div>
+    </div>
+  </section>
+  <Footer />
+</Layout>
