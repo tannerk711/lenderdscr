@@ -1,9 +1,23 @@
 # CLAUDE.md. Internet Loans Direct DSCR Funnel (Paul Howarth)
 
 **Texas-only DSCR funnel for Paul Howarth's Internet Loans Direct, target domain
-`lenderdscr.com`.** Built 2026-07-24 by cloning `clients/dscr-funnel-template/` (funnel v1,
-"private credit house" design) and rebranding it. Replaces the current GHL landing pages at
-lenderdscr.com/dscr-loan-texas (where the live Google Ads campaign points today).
+`lenderdscr.com`.** Built 2026-07-24 by cloning `clients/dscr-funnel-template/` (funnel v1)
+and rebranding it. Replaces the current GHL landing pages at lenderdscr.com/dscr-loan-texas
+(where the live Google Ads campaign points today).
+
+## Design system ("ILD sky & slate", rethemed 2026-07-24)
+
+Full recolor from the ILD logo (`public/images/ild-logo.png`, transparent PNG; original
+upload kept as `ILD Logo.png`). Logo colors: sky blue `#22a0dd`, deep blue `#1f78b4`,
+charcoal `#4a4a4a`. **Token NAMES kept the template's brass/pine/ink naming so markup never
+changed; only values did** (`src/styles/global.css` @theme): brass = deep brand blue
+#1f78b4, brass-2 = sky #29a3e0, ink = blue-slate #122431, pine = deep band blue #15618f,
+paper = cool white #f5f8fa. CTA gradient, slider, focus rings, selection, contours all
+blue. Hardcoded SVG hexes updated in index.astro (DSCR dial: red -> slate -> brand blue)
+and favicon.svg. Deliverables emails + call-prep got the same palette swap (two-pass hex
+sweep, zero old-palette hexes remain). Topbar shows the logo in a white chip (logo has a
+charcoal roof that dies on navy) + wordmark. Warm golden-hour imagery kept on purpose
+(complementary against the cool navy).
 
 ## Client facts
 

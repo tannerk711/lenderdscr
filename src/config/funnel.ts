@@ -19,6 +19,7 @@ export const brand = {
   phoneHref: 'tel:+18555452022',
   address: '',                              // none published (open item for Paul)
   site: 'lenderdscr.com',
+  logo: '/images/ild-logo.png',             // transparent PNG, sky/deep blue + charcoal
   licensingUrl: 'https://www.nmlsconsumeraccess.org',
 
   // Proof (client's own published claims only, do not inflate)

@@ -4,10 +4,13 @@ import { brand } from '../config/funnel';
 
 <header class="bg-ink text-cream relative z-30">
   <div class="max-w-7xl mx-auto px-5 lg:px-10 h-16 flex items-center justify-between">
-    <a href="/" class="flex items-baseline gap-2 group">
-      <span class="font-display text-[1.35rem] tracking-tight">{brand.name}</span>
+    <a href="/" class="flex items-center gap-3 group">
+      <span class="bg-white rounded-lg px-2 py-1 flex items-center shadow-[0_2px_10px_rgba(4,12,20,0.35)]">
+        <img src={brand.logo} alt={`${brand.name} logo`} class="h-8 w-auto" width="44" height="32" />
+      </span>
+      <span class="hidden sm:inline font-display text-[1.25rem] tracking-tight">{brand.name}</span>
       {brand.nmls && (
-        <span class="hidden sm:inline font-mono text-[0.6rem] uppercase tracking-[0.2em] text-cream/50">{brand.nmls}</span>
+        <span class="hidden lg:inline font-mono text-[0.6rem] uppercase tracking-[0.2em] text-cream/50">{brand.nmls}</span>
       )}
     </a>
     <div class="flex items-center gap-5">

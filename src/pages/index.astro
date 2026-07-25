@@ -182,33 +182,33 @@ import { brand, tickerItems, faqs } from '../config/funnel';
           <svg viewBox="0 0 400 260" class="w-full" id="dscr-dial" role="img" aria-label="DSCR gauge sweeping to 1.30">
             <defs>
               <linearGradient id="dialArc" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#c96f4a" />
-                <stop offset="45%" stop-color="#d7b264" />
-                <stop offset="100%" stop-color="#24503f" />
+                <stop offset="0%" stop-color="#c9564a" />
+                <stop offset="45%" stop-color="#8ca6b8" />
+                <stop offset="100%" stop-color="#1f78b4" />
               </linearGradient>
             </defs>
             <!-- arc track -->
-            <path d="M 40 220 A 160 160 0 0 1 360 220" fill="none" stroke="rgba(15,35,28,0.12)" stroke-width="18" stroke-linecap="round" />
+            <path d="M 40 220 A 160 160 0 0 1 360 220" fill="none" stroke="rgba(18,36,49,0.12)" stroke-width="18" stroke-linecap="round" />
             <path d="M 40 220 A 160 160 0 0 1 360 220" fill="none" stroke="url(#dialArc)" stroke-width="18" stroke-linecap="round"
               stroke-dasharray="502.65" stroke-dashoffset="502.65" id="dial-fill" />
             <!-- tick marks at 1.00 and 1.25 -->
-            <line x1="93.9" y1="113.9" x2="79.8" y2="99.8" stroke="rgba(15,35,28,0.4)" stroke-width="2" />
-            <line x1="229.3" y1="72.9" x2="233.2" y2="53.3" stroke="#b0873a" stroke-width="2.5" />
+            <line x1="93.9" y1="113.9" x2="79.8" y2="99.8" stroke="rgba(18,36,49,0.4)" stroke-width="2" />
+            <line x1="229.3" y1="72.9" x2="233.2" y2="53.3" stroke="#1f78b4" stroke-width="2.5" />
             <!-- labels -->
-            <g font-family="Fragment Mono, monospace" font-size="11" fill="rgba(15,35,28,0.55)" text-anchor="middle">
+            <g font-family="Fragment Mono, monospace" font-size="11" fill="rgba(18,36,49,0.55)" text-anchor="middle">
               <text x="42" y="248">0.80</text>
               <text x="66" y="88">1.00</text>
-              <text x="240" y="40" fill="#b0873a">1.25</text>
+              <text x="240" y="40" fill="#1f78b4">1.25</text>
               <text x="358" y="248">1.50+</text>
             </g>
             <!-- needle -->
             <g id="dial-needle" style="transform-origin: 200px 220px;">
-              <line x1="200" y1="220" x2="200" y2="84" stroke="#0f231c" stroke-width="4" stroke-linecap="round" />
-              <circle cx="200" cy="220" r="12" fill="#0f231c" />
-              <circle cx="200" cy="220" r="5" fill="#d7b264" />
+              <line x1="200" y1="220" x2="200" y2="84" stroke="#122431" stroke-width="4" stroke-linecap="round" />
+              <circle cx="200" cy="220" r="12" fill="#122431" />
+              <circle cx="200" cy="220" r="5" fill="#29a3e0" />
             </g>
             <!-- readout -->
-            <text x="200" y="200" text-anchor="middle" font-family="Fraunces, serif" font-size="40" fill="#0f231c" id="dial-readout">1.30×</text>
+            <text x="200" y="200" text-anchor="middle" font-family="Fraunces, serif" font-size="40" fill="#122431" id="dial-readout">1.30×</text>
           </svg>
           <p class="text-center font-mono text-[0.65rem] uppercase tracking-[0.18em] text-ink/45 mt-2">
             Example deal · $2,450 rent ÷ $1,890 payment · 1.25+ is the sweet spot

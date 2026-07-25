@@ -1,25 +1,30 @@
 @import "tailwindcss";
 
 /* ============================================================
-   DESIGN TOKENS: "Private credit house"
-   Ink green · warm ivory paper · brass
+   DESIGN TOKENS: "ILD sky & slate"
+   Recolored 2026-07-24 from the ILD logo: sky blue #22a0dd,
+   deep blue #1f78b4, charcoal roof #4a4a4a. Token NAMES keep the
+   template's brass/pine/etc. naming so markup stays untouched;
+   only values changed. brass = deep brand blue (primary accent),
+   brass-2 = sky blue (highlights on dark), pine = deep band blue,
+   ink = blue-slate charcoal.
    Display: Fraunces  ·  Body: Hanken Grotesk  ·  Data: Fragment Mono
    ============================================================ */
 
 @theme {
-  --color-paper: #f6f2e9;
-  --color-paper-2: #eee8d9;
-  --color-paper-3: #e5ddc9;
-  --color-ink: #0f231c;
-  --color-ink-2: #143029;
-  --color-ink-3: #1b4034;
-  --color-pine: #24503f;
-  --color-moss: #3c6b55;
-  --color-sage: #7f9c8b;
-  --color-brass: #b0873a;
-  --color-brass-2: #d7b264;
-  --color-cream: #efe7d2;
-  --color-blush: #c96f4a;
+  --color-paper: #f5f8fa;
+  --color-paper-2: #e9eff4;
+  --color-paper-3: #dbe5ec;
+  --color-ink: #122431;
+  --color-ink-2: #17303f;
+  --color-ink-3: #1d3c50;
+  --color-pine: #15618f;
+  --color-moss: #3f6c8c;
+  --color-sage: #86a3b8;
+  --color-brass: #1f78b4;
+  --color-brass-2: #29a3e0;
+  --color-cream: #e9f2f8;
+  --color-blush: #c9564a;
 
   --font-display: "Fraunces", "Georgia", serif;
   --font-body: "Hanken Grotesk", "Segoe UI", sans-serif;
@@ -27,11 +32,11 @@
 }
 
 :root {
-  --line-ink: rgba(15, 35, 28, 0.14);
-  --line-paper: rgba(246, 242, 233, 0.16);
-  --shadow-card: 0 1px 2px rgba(15, 35, 28, 0.05), 0 8px 24px rgba(15, 35, 28, 0.09),
-    0 24px 64px rgba(15, 35, 28, 0.12);
-  --shadow-pop: 0 2px 6px rgba(10, 24, 19, 0.35), 0 20px 60px rgba(10, 24, 19, 0.55);
+  --line-ink: rgba(18, 36, 49, 0.14);
+  --line-paper: rgba(245, 248, 250, 0.16);
+  --shadow-card: 0 1px 2px rgba(18, 36, 49, 0.05), 0 8px 24px rgba(18, 36, 49, 0.09),
+    0 24px 64px rgba(18, 36, 49, 0.12);
+  --shadow-pop: 0 2px 6px rgba(10, 22, 32, 0.35), 0 20px 60px rgba(10, 22, 32, 0.55);
   --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -51,7 +56,7 @@ body {
 
 ::selection {
   background: var(--color-brass);
-  color: var(--color-ink);
+  color: #ffffff;
 }
 
 /* ---------- type helpers ---------- */
@@ -91,10 +96,10 @@ body {
   background-size: 240px 240px;
 }
 
-/* faint topographic contours for ink sections */
+/* faint atmospheric glows for ink sections */
 .contours {
-  background-image: radial-gradient(1100px 520px at 82% -10%, rgba(215, 178, 100, 0.13), transparent 62%),
-    radial-gradient(900px 600px at -12% 108%, rgba(60, 107, 85, 0.35), transparent 60%);
+  background-image: radial-gradient(1100px 520px at 82% -10%, rgba(41, 163, 224, 0.14), transparent 62%),
+    radial-gradient(900px 600px at -12% 108%, rgba(21, 97, 143, 0.38), transparent 60%);
 }
 
 /* hairline rules */
@@ -177,16 +182,16 @@ body {
   font-family: var(--font-body);
   font-weight: 700;
   letter-spacing: 0.01em;
-  color: var(--color-ink);
-  background: linear-gradient(180deg, #e3c176 0%, #cfa452 55%, #b0873a 100%);
-  border: 1px solid rgba(15, 35, 28, 0.35);
-  box-shadow: inset 0 1px 0 rgba(255, 245, 220, 0.65), 0 6px 18px rgba(176, 135, 58, 0.35);
+  color: #ffffff;
+  background: linear-gradient(180deg, #4db5ec 0%, #2196d6 55%, #1f78b4 100%);
+  border: 1px solid rgba(14, 52, 79, 0.45);
+  box-shadow: inset 0 1px 0 rgba(224, 244, 255, 0.55), 0 6px 18px rgba(31, 120, 180, 0.35);
   transition: transform 0.25s var(--ease-lux), box-shadow 0.25s var(--ease-lux), filter 0.2s;
 }
 
 .btn-brass:hover {
   transform: translateY(-2px);
-  box-shadow: inset 0 1px 0 rgba(255, 245, 220, 0.65), 0 12px 28px rgba(176, 135, 58, 0.45);
+  box-shadow: inset 0 1px 0 rgba(224, 244, 255, 0.55), 0 12px 28px rgba(31, 120, 180, 0.45);
   filter: brightness(1.04);
 }
 
@@ -208,9 +213,9 @@ body {
 
 .opt-btn:hover {
   border-color: var(--color-brass);
-  background: #fffdf6;
+  background: #fbfdff;
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(15, 35, 28, 0.08);
+  box-shadow: 0 6px 20px rgba(18, 36, 49, 0.08);
 }
 
 .opt-btn:active {
@@ -233,7 +238,7 @@ body {
   transform: translateX(0);
 }
 
-/* ---------- range slider (brass) ---------- */
+/* ---------- range slider (brand blue) ---------- */
 
 input[type="range"].brass-range {
   -webkit-appearance: none;
@@ -245,8 +250,8 @@ input[type="range"].brass-range {
     to right,
     var(--color-brass) 0%,
     var(--color-brass) var(--fill, 50%),
-    rgba(15, 35, 28, 0.15) var(--fill, 50%),
-    rgba(15, 35, 28, 0.15) 100%
+    rgba(18, 36, 49, 0.15) var(--fill, 50%),
+    rgba(18, 36, 49, 0.15) 100%
   );
   outline: none;
 }
@@ -258,9 +263,9 @@ input[type="range"].brass-range::-webkit-slider-thumb {
   height: 28px;
   border-radius: 50%;
   cursor: grab;
-  background: radial-gradient(circle at 35% 30%, #eed9a4, #cfa452 55%, #9a7431);
-  border: 2px solid #0f231c;
-  box-shadow: 0 3px 10px rgba(15, 35, 28, 0.35);
+  background: radial-gradient(circle at 35% 30%, #9fd6f5, #3ea2dd 55%, #16608f);
+  border: 2px solid #122431;
+  box-shadow: 0 3px 10px rgba(18, 36, 49, 0.35);
 }
 
 input[type="range"].brass-range::-moz-range-thumb {
@@ -268,9 +273,9 @@ input[type="range"].brass-range::-moz-range-thumb {
   height: 26px;
   border-radius: 50%;
   cursor: grab;
-  background: radial-gradient(circle at 35% 30%, #eed9a4, #cfa452 55%, #9a7431);
-  border: 2px solid #0f231c;
-  box-shadow: 0 3px 10px rgba(15, 35, 28, 0.35);
+  background: radial-gradient(circle at 35% 30%, #9fd6f5, #3ea2dd 55%, #16608f);
+  border: 2px solid #122431;
+  box-shadow: 0 3px 10px rgba(18, 36, 49, 0.35);
 }
 
 input[type="range"].brass-range:active::-webkit-slider-thumb {
@@ -282,7 +287,7 @@ input[type="range"].brass-range:active::-webkit-slider-thumb {
 .field-input {
   width: 100%;
   border: 1px solid var(--line-ink);
-  background: #fffdf6;
+  background: #fdfeff;
   padding: 0.95rem 1.1rem;
   font-size: 1.05rem;
   font-family: var(--font-body);
@@ -291,13 +296,13 @@ input[type="range"].brass-range:active::-webkit-slider-thumb {
 }
 
 .field-input::placeholder {
-  color: rgba(15, 35, 28, 0.35);
+  color: rgba(18, 36, 49, 0.35);
 }
 
 .field-input:focus {
   outline: none;
   border-color: var(--color-brass);
-  box-shadow: 0 0 0 3px rgba(176, 135, 58, 0.22);
+  box-shadow: 0 0 0 3px rgba(31, 120, 180, 0.22);
 }
 
 /* ---------- form card step transitions ---------- */
@@ -343,9 +348,9 @@ input[type="range"].brass-range:active::-webkit-slider-thumb {
 
 .ledger-chip {
   position: absolute;
-  background: rgba(246, 242, 233, 0.96);
-  border: 1px solid rgba(15, 35, 28, 0.2);
-  box-shadow: 0 14px 40px rgba(5, 14, 11, 0.5);
+  background: rgba(248, 251, 254, 0.96);
+  border: 1px solid rgba(18, 36, 49, 0.2);
+  box-shadow: 0 14px 40px rgba(4, 12, 20, 0.5);
   backdrop-filter: blur(4px);
 }
 
