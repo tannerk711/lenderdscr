@@ -60,29 +60,58 @@ Name, phone, proof numbers, fixedState, ticker items (capability claims, not fak
 deals), FAQs (adapted from Paul's own FAQ copy), TCPA copy, specialist (Paul Howarth, DSCR
 Loan Specialist), booking URL, gtag ids.
 
-## Lead flow
+## Lead flow (LIVE as of 2026-07-27)
 
 Form (`FunnelForm.tsx`) → POST `/api/lead` (serverless) → forwards server-side to
-`LEAD_WEBHOOK_URL` env var (set in Vercel; never read webhooks in browser code). Payload
-contract in `deliverables/WIRING.md`. Partial captures fire with `partial: true` after
-name+email. Honeypot field `website` drops bots server-side. Thank-you conversion is GATED
-(real submission or `?demo=1` only).
+`LEAD_WEBHOOK_URL` → **Zapier catch hook** → Tanner maps into GHL. Payload contract in
+`deliverables/WIRING.md` section 1-2. Honeypot field `website` drops bots inside
+`/api/lead` before they ever reach Zapier (so bots never burn Zap tasks). Thank-you
+conversion is GATED (real submission or `?demo=1` only).
 
-## Open items before launch (2026-07-24)
+**Zapier, never GHL inbound webhooks.** Standing decision (2026-07-27): every project
+forwards to a Zapier catch hook that Tanner maps into GHL himself. GHL's native inbound
+webhooks are unreliable in his experience. WIRING.md's Workflow A/B/C build is therefore
+REFERENCE ONLY for this client, not the build path.
 
-1. **LEAD_WEBHOOK_URL**: create GHL inbound-webhook Workflow A (WIRING.md) in Paul's
-   location, set env var in Vercel.
+**ONE webhook per lead, no partial captures.** Removed 2026-07-27 (Tanner's call: he does
+not want two intake automations in GHL). The form fires exactly once, from `submit()`,
+with name + email + phone all present. `partial` is still in the payload, hardcoded
+`false`, so a mapped Zap field never sees a missing key. Do not re-add `sendPartial`.
+
+## No booking calendar, no email sequence (2026-07-27)
+
+Paul declined the booking calendar. `bookingEmbedUrl` stays `''` and the thank-you page
+renders the phone CTA branch. Because no email automation exists, **all copy promising an
+email was removed**: the contact-step subtitle ("Your eligibility summary lands in your
+inbox" → "So your specialist can reach you with your results") and the thank-you line
+"reply to the email we just sent." Do not reintroduce an email promise unless a sequence
+is actually built in GHL. The `deliverables/` email masters stay in the folder unused.
+
+**Thank-you page rebuilt 2026-07-27:** booking section became "Skip the wait. Call now."
+(phone CTA + "if we miss each other we'll reach out"), plus a new capability proof band
+(100+ lenders / same day / 15 to 25 / $0 tax returns, all published claims) and a
+`/call-prep` link. The three-step section was rewritten to cover process (strategy call →
+terms in writing → appraisal to funding) so it no longer repeats the proof band's stats.
+
+**No testimonials, still.** Tanner asked for "realistic reviews" on 2026-07-27 and was
+declined: inventing consumer endorsements for a lender is an FTC endorsement-guide
+problem and an ads-account risk. The proof band fills that trust slot instead. Re-add a
+reviews section ONLY if Paul supplies real, attributable feedback.
+
+## Open items before launch
+
+1. ~~LEAD_WEBHOOK_URL~~ **DONE 2026-07-27.** Zapier hook set in Vercel (production,
+   preview, development). Verified live: complete lead → 200, honeypot bot → dropped.
 2. **Google Ads conversion**: create/map the conversion action in acct 340-440-3562, then
-   set `gtagId` + `gtagConversion` in funnel.ts (currently '' = tag disabled). This was
-   already the open next-action on the ads side before this funnel existed.
-3. **Booking embed**: `bookingEmbedUrl` is '' (thank-you shows the phone CTA). Add Paul's
-   GHL calendar widget URL if he wants booked calls.
-4. **Ask Paul**: NMLS + address (if any), real testimonials, confirm proof claims above.
-5. **Deploy**: new Vercel project, root = this folder, then point lenderdscr.com DNS at it
-   (or stage on a vercel.app URL first and A/B against the GHL page).
-6. **GHL emails**: `deliverables/` is fully rebranded (emails, SMS, call-prep); build
-   Workflow A/B/C per WIRING.md. The funnel promises an eligibility summary email; until
-   Workflow A exists that promise is unbacked.
+   set `gtagId` + `gtagConversion` in funnel.ts (currently '' = tag disabled).
+3. **Repoint the campaign**: `DSCR - TX` 24041061079 final URLs still point at
+   lenderdscr.com/dscr-loan-texas, and the campaign is PAUSED. Repoint + unpause after
+   DNS cutover.
+4. **Ask Paul**: NMLS + address (if any), confirm the proof claims above still hold.
+5. **DNS**: Paul points lenderdscr.com at the Vercel project (`internet-loans-direct`).
+   Deployed and live at `internet-loans-direct.vercel.app` until then.
+6. **Zap mapping**: Tanner maps the payload into GHL on the Zapier side (field table in
+   WIRING.md section 2 still applies as the field list).
 
 ## Build / QA
 

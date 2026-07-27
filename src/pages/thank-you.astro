@@ -39,14 +39,16 @@ import { brand } from '../config/funnel';
     </div>
   </section>
 
-  <!-- ============ BOOKING ============ -->
+  <!-- ============ CALL NOW / BOOKING ============ -->
   <section class="bg-paper-2 border-y border-ink/10 py-16 lg:py-20">
     <div class="max-w-4xl mx-auto px-5 lg:px-10">
       <div class="text-center mb-10">
         <h2 class="font-display text-[clamp(1.7rem,3vw,2.4rem)] tracking-tight">
-          Grab a time that suits you
+          Skip the wait. Call now.
         </h2>
-        <p class="text-ink/60 mt-3">30 minutes · video or phone · zero obligation</p>
+        <p class="text-ink/60 mt-3">
+          {brand.specialist.name} is reviewing your scenario. Call and you can go through it together today.
+        </p>
       </div>
 
       {brand.bookingEmbedUrl ? (
@@ -61,13 +63,47 @@ import { brand } from '../config/funnel';
         </div>
       ) : (
         <div class="bg-paper border border-ink/10 rounded-2xl shadow-[var(--shadow-card)] px-8 py-12 text-center">
-          <p class="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-ink/45 mb-4">Prefer to talk now?</p>
+          <p class="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-ink/45 mb-4">Talk to a specialist</p>
           <a href={brand.phoneHref} class="font-display text-[clamp(2rem,4vw,3rem)] text-pine hover:text-ink transition-colors">
             {brand.phone}
           </a>
-          <p class="text-ink/55 text-sm mt-4">Or reply to the email we just sent to lock in a time.</p>
+          <p class="text-ink/55 text-sm mt-4">
+            No obligation, no credit pull. If we miss each other, we&rsquo;ll reach out at the number you gave us.
+          </p>
         </div>
       )}
+    </div>
+  </section>
+
+  <!-- ============ WHY INVESTORS USE US (published capability proof only) ============ -->
+  <section class="bg-paper py-16 lg:py-20 border-b border-ink/10">
+    <div class="max-w-5xl mx-auto px-5 lg:px-10">
+      <p class="eyebrow text-moss text-center mb-4">While you wait</p>
+      <h2 class="font-display text-[clamp(1.7rem,3vw,2.4rem)] tracking-tight text-center mb-12">
+        What your specialist brings to the call.
+      </h2>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="border border-ink/10 rounded-2xl bg-paper-2 px-6 py-7 text-center">
+          <div class="font-display text-[2rem] leading-none text-brass">{brand.lenderCount}</div>
+          <div class="text-sm text-ink/65 mt-2.5 leading-snug">Lenders your scenario gets priced across</div>
+        </div>
+        <div class="border border-ink/10 rounded-2xl bg-paper-2 px-6 py-7 text-center">
+          <div class="font-display text-[2rem] leading-none text-brass">Same day</div>
+          <div class="text-sm text-ink/65 mt-2.5 leading-snug">Income and credit approval on most files</div>
+        </div>
+        <div class="border border-ink/10 rounded-2xl bg-paper-2 px-6 py-7 text-center">
+          <div class="font-display text-[2rem] leading-none text-brass">{brand.closeRangeDays}</div>
+          <div class="text-sm text-ink/65 mt-2.5 leading-snug">Days to close, typical DSCR file</div>
+        </div>
+        <div class="border border-ink/10 rounded-2xl bg-paper-2 px-6 py-7 text-center">
+          <div class="font-display text-[2rem] leading-none text-brass">$0</div>
+          <div class="text-sm text-ink/65 mt-2.5 leading-snug">Tax returns and pay stubs required</div>
+        </div>
+      </div>
+      <p class="text-center text-ink/50 text-sm mt-8 max-w-2xl mx-auto leading-relaxed">
+        Bring your rent numbers and your target purchase price. Everything else, your specialist pulls.
+        <a href="/call-prep" class="text-pine underline underline-offset-4 hover:text-ink transition-colors ml-1">See the two-minute prep sheet</a>.
+      </p>
     </div>
   </section>
 
@@ -86,13 +122,13 @@ import { brand } from '../config/funnel';
         </div>
         <div class="border border-ink/10 rounded-2xl bg-paper-2 p-7">
           <span class="font-display text-[2.2rem] text-brass leading-none">2</span>
-          <h3 class="font-display text-lg mt-4 mb-2">Same-day approval</h3>
-          <p class="text-sm leading-relaxed text-ink/65">Income and credit approval the same day on most files, so you can write offers or lock your refi terms with confidence.</p>
+          <h3 class="font-display text-lg mt-4 mb-2">Terms in writing</h3>
+          <p class="text-sm leading-relaxed text-ink/65">You get the rate, the leverage, and the cash-to-close on paper, so you can write offers or lock your refi terms with real numbers.</p>
         </div>
         <div class="border border-ink/10 rounded-2xl bg-paper-2 p-7">
           <span class="font-display text-[2.2rem] text-brass leading-none">3</span>
-          <h3 class="font-display text-lg mt-4 mb-2">Clear to close</h3>
-          <p class="text-sm leading-relaxed text-ink/65">Appraisal, title, done. Most files fund in two to three weeks with no income documentation.</p>
+          <h3 class="font-display text-lg mt-4 mb-2">Appraisal to funding</h3>
+          <p class="text-sm leading-relaxed text-ink/65">Appraisal with a rent schedule, title, done. No tax returns, no pay stubs, no employment verification anywhere in the file.</p>
         </div>
       </div>
 

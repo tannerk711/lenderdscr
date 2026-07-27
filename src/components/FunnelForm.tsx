@@ -266,7 +266,7 @@ export default function FunnelForm() {
 
   // display-ready strings ride along so the CRM never has to format numbers
   // (GHL merge fields render these directly; see deliverables/WIRING.md)
-  const buildLeadPayload = (partial: boolean, honeypot = '') => {
+  const buildLeadPayload = (honeypot = '') => {
     const isRefiGoal = answers.goal === 'refinance' || answers.goal === 'cashout';
     const clampedBalance = Math.min(answers.balance, answers.price);
     const equity = isRefiGoal ? Math.max(answers.price - clampedBalance, 0) : null;
@@ -282,8 +282,8 @@ export default function FunnelForm() {
 
     return {
       ...answers,
-      phone: partial ? '' : phoneDigits,
-      partial,
+      phone: phoneDigits,
+      partial: false,   // always false; partial captures removed, kept so the CRM field map never sees a missing key
       price: answers.price >= 2_000_000 ? '2000000+' : answers.price,
       downPayment,
       goalLabel: goals.find((g) => g.value === answers.goal)?.label ?? answers.goal,
@@ -305,22 +305,9 @@ export default function FunnelForm() {
     };
   };
 
-  // fire-and-forget capture when the lead advances past name+email, so the
-  // promised eligibility summary still sends if they stall at the phone step.
-  // Workflow A branches on `partial` (see deliverables/WIRING.md).
-  const sendPartial = () => {
-    try {
-      const honeypot = (document.getElementById('ff-company') as HTMLInputElement)?.value || '';
-      fetch('/api/lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(buildLeadPayload(true, honeypot)),
-        keepalive: true,
-      }).catch(() => {});
-    } catch {
-      /* no-op */
-    }
-  };
+  // NO partial captures. One webhook per lead, fired only from submit() with
+  // name + email + phone all present, so the CRM never sees a half-lead and
+  // only one intake automation is needed. (Removed 2026-07-27, Tanner's call.)
 
   const submit = async () => {
     if (phoneDigits.length !== 10) {
@@ -331,7 +318,7 @@ export default function FunnelForm() {
     setSubmitting(true);
     setSubmitError(false);
 
-    const payload = buildLeadPayload(false, honeypot || '');
+    const payload = buildLeadPayload(honeypot || '');
 
     try {
       const res = await fetch('/api/lead', {
@@ -389,7 +376,7 @@ export default function FunnelForm() {
     goal: 'Takes about 60 seconds. No credit pull, no obligation.',
     credit: 'A soft estimate is fine. This never touches your credit.',
     secondary: isPurchase ? 'Most DSCR programs start at 20% down.' : undefined,
-    contact: 'Your eligibility summary lands in your inbox.',
+    contact: 'So your specialist can reach you with your results.',
     phone: "We won't sell your number. No games, no spam.",
   };
 
@@ -547,7 +534,6 @@ export default function FunnelForm() {
                   return;
                 }
                 track('funnel_step', { step: 'contact' });
-                sendPartial();
                 go('fwd');
               }}
             />

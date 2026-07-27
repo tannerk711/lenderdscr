@@ -7,10 +7,25 @@ email we just sent to lock in a time" (thank-you page, phone-CTA variant). The
 assets in this folder make those promises real. This doc is the one-pass build
 guide for wiring them into a GHL location.
 
-**Status: TEMPLATE MASTERS. Do not push anywhere until Tanner names a client.**
-When he does, the `ghl-mcp` server (`ghl_create_email_template`,
-`ghl_raw_request`) and the `ghl-email-template` skill exist for pushing
-templates into a location. Until then, everything here stays in this folder.
+> **INTERNET LOANS DIRECT OVERRIDES (2026-07-27). Read these before the rest of
+> this doc, which is the generic template build guide and is now partly stale
+> for this client:**
+>
+> 1. **Destination is a Zapier catch hook, not a GHL inbound webhook.** Standing
+>    decision for every project: `/api/lead` forwards to Zapier, Tanner maps into
+>    GHL by hand. Sections 3-6 below (Workflow A/B/C) are REFERENCE ONLY here.
+>    Section 1 (payload) and section 2 (field map) are still exactly right and
+>    are what you map on the Zapier side.
+> 2. **No partial leads.** The form fires ONE webhook, from submit, with name +
+>    email + phone all present. `partial` is hardcoded `false` in the payload.
+>    Ignore every "partial" branch, re-entry rule, and tag guard below.
+> 3. **No booking calendar and no email sequence.** Paul declined the calendar;
+>    no automation sends the emails in this folder. The funnel copy no longer
+>    promises an email. The email masters here are unused until that changes.
+
+**Status: TEMPLATE MASTERS.** For a client that DOES run the GHL build, the
+`ghl-mcp` server (`ghl_create_email_template`, `ghl_raw_request`) and the
+`ghl-email-template` skill exist for pushing templates into a location.
 
 The chain, end to end:
 
