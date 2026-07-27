@@ -108,8 +108,23 @@ reviews section ONLY if Paul supplies real, attributable feedback.
    lenderdscr.com/dscr-loan-texas, and the campaign is PAUSED. Repoint + unpause after
    DNS cutover.
 4. **Ask Paul**: NMLS + address (if any), confirm the proof claims above still hold.
-5. **DNS**: Paul points lenderdscr.com at the Vercel project (`internet-loans-direct`).
-   Deployed and live at `internet-loans-direct.vercel.app` until then.
+5. **DNS**: Paul points lenderdscr.com at the Vercel project **`lenderdscr`**.
+   Deployed and live at `lenderdscr.vercel.app` until then.
+
+## Deploy target: the `lenderdscr` Vercel project (do not create another)
+
+**Vercel project `ai-wizard-junk/lenderdscr`**, git-connected to
+`github.com/tannerk711/lenderdscr` (branch `main`, root `.`, Astro preset). **Pushing to
+`main` is the deploy**: it fires a production build automatically; no `vercel deploy`
+needed. `LEAD_WEBHOOK_URL` is set on this project in all three environments.
+
+**Gotcha that cost a cycle (2026-07-27):** `vercel link` was run with a guessed project
+name, which silently CREATED a second project (`internet-loans-direct`) and deployed
+there. The env var and deploys went to the duplicate, so nothing showed up in the project
+Tanner was watching, and a git push would have deployed the real project with NO webhook
+set (leads would have silently hit the `console.log` fallback in `/api/lead`). The
+duplicate has been deleted. **Always run `vercel project ls` and match an existing project
+before linking.**
 6. **Zap mapping**: Tanner maps the payload into GHL on the Zapier side (field table in
    WIRING.md section 2 still applies as the field list).
 
