@@ -6,9 +6,11 @@
 // Run with the dev server up: node tools/tcpa-test.mjs
 import puppeteer from 'puppeteer-core';
 import { fileURLToPath } from 'node:url';
+import { mkdirSync } from 'node:fs';
 
 const base = 'http://localhost:4321';
 const outDir = fileURLToPath(new URL('./shots/', import.meta.url));
+mkdirSync(outDir, { recursive: true });   // shots/ is gitignored, so it may not exist on a fresh clone
 
 const browser = await puppeteer.launch({
   executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
@@ -90,7 +92,7 @@ await clickByText('Eligibility Results');
 await settle(1000);
 console.log('TEST 1 unchecked -> POSTs:', posts.length, '(expect 0)');
 console.log('TEST 1 error shown:', await page.evaluate(() => {
-  const p = [...document.querySelectorAll('#eligibility p')].find((n) => n.textContent.includes('check the box'));
+  const p = [...document.querySelectorAll('#eligibility p')].find((n) => n.textContent.includes('consent box'));
   return p ? p.textContent.trim() : 'NO ERROR SHOWN';
 }));
 await page.screenshot({ path: `${outDir}tcpa-mobile-blocked.png` });

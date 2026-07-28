@@ -171,6 +171,18 @@ before linking.**
 
 ## Lessons Learned
 
+- **[2026-07-27] `vercel link` with a guessed project name creates a duplicate:** linking
+  with `--project internet-loans-direct` silently CREATED a new project instead of failing,
+  and the webhook env var plus two production deploys landed in it. Nothing appeared in the
+  project Tanner was watching, and the git-connected `lenderdscr` project (the real one) had
+  no env var at all, so pushing would have deployed a live site whose leads silently hit the
+  `console.log` fallback in `/api/lead` while returning a cheerful 200. **Always run
+  `vercel project ls` and match an existing project before linking.**
+- **[2026-07-27] "Verified" is scoped to the target you verified:** the webhook tests were
+  real and passing, but against the duplicate project, so the claim "your webhook is in
+  Vercel" was wrong in the way that mattered. When reporting a deploy or env change as done,
+  state WHICH project/domain it was verified against, and prefer verifying on the domain the
+  user will actually look at.
 - (inherited from template) Tailwind v4 `translate-*` = CSS `translate` property; set
   `el.style.translate` from JS, never `style.transform`.
 - Stale IDE "Cannot find module 'gsap'" diagnostics appear until the TS server catches up
