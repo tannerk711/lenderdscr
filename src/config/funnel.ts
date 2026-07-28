@@ -34,10 +34,12 @@ export const brand = {
   // Thank-you page booking embed. Leave '' to hide calendar and show phone CTA.
   bookingEmbedUrl: '',
 
-  // Google Ads conversion (fires on thank-you). Acct 340-440-3562; leave ''
-  // until the conversion action is mapped (see client CLAUDE.md open items).
-  gtagId: '',            // e.g. 'AW-XXXXXXXXXX'
-  gtagConversion: '',    // e.g. 'AW-XXXXXXXXXX/AbC-D_efGhIjKlMnOp'
+  // Google Ads conversion. Acct 340-440-3562. Global tag renders site-wide from
+  // Layout.astro; the conversion fires on the thank-you page only, and only for
+  // a real submission or ?demo=1 (see thank-you.astro), so bots and stray loads
+  // never inflate conversions. Set 2026-07-27 from Paul's Ads account.
+  gtagId: 'AW-16956033989',
+  gtagConversion: 'AW-16956033989/cwbHCNCflbAaEMWXopU_',   // "Submit lead form"
 
   // Loan officer / specialist shown on thank-you page
   specialist: {

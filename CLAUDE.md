@@ -91,6 +91,23 @@ not want two intake automations in GHL). The form fires exactly once, from `subm
 with name + email + phone all present. `partial` is still in the payload, hardcoded
 `false`, so a mapped Zap field never sees a missing key. Do not re-add `sendPartial`.
 
+## Google Ads conversion tracking (set 2026-07-27)
+
+`gtagId: 'AW-16956033989'` and `gtagConversion: 'AW-16956033989/cwbHCNCflbAaEMWXopU_'`
+in `funnel.ts`. Nothing is pasted into page markup: `Layout.astro` renders Google's exact
+global snippet in `<head>` (with `is:inline` so Astro does not bundle it) whenever
+`gtagId` is set, and `thank-you.astro` fires the conversion event.
+
+**The conversion is GATED, keep it that way.** It fires only when `lead-summary` is in
+sessionStorage (a real submission) or `?demo=1` is present (Tag Assistant verification).
+A bare visit to `/thank-you` fires nothing, so crawlers and stray loads cannot inflate
+conversions. Verified by `node tools/gtag-test.mjs`, which stubs the GTM library,
+records every `gtag()` call, and asserts all three cases. Re-run it after touching the
+thank-you page or the layout.
+
+**Verifying in Tag Assistant:** use `https://lenderdscr.com/thank-you?demo=1`. Loading
+`/thank-you` bare will correctly show no conversion, which is not a bug.
+
 ## No booking calendar, no email sequence (2026-07-27)
 
 Paul declined the booking calendar. `bookingEmbedUrl` stays `''` and the thank-you page
@@ -115,8 +132,9 @@ reviews section ONLY if Paul supplies real, attributable feedback.
 
 1. ~~LEAD_WEBHOOK_URL~~ **DONE 2026-07-27.** Zapier hook set in Vercel (production,
    preview, development). Verified live: complete lead → 200, honeypot bot → dropped.
-2. **Google Ads conversion**: create/map the conversion action in acct 340-440-3562, then
-   set `gtagId` + `gtagConversion` in funnel.ts (currently '' = tag disabled).
+2. ~~Google Ads conversion~~ **DONE 2026-07-27.** Global tag `AW-16956033989` renders
+   site-wide from `Layout.astro`; conversion `AW-16956033989/cwbHCNCflbAaEMWXopU_`
+   ("Submit lead form") fires on the thank-you page. Both live in `funnel.ts`.
 3. **Repoint the campaign**: `DSCR - TX` 24041061079 final URLs still point at
    lenderdscr.com/dscr-loan-texas, and the campaign is PAUSED. Repoint + unpause after
    DNS cutover.
