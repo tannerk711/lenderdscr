@@ -73,6 +73,19 @@ forwards to a Zapier catch hook that Tanner maps into GHL himself. GHL's native 
 webhooks are unreliable in his experience. WIRING.md's Workflow A/B/C build is therefore
 REFERENCE ONLY for this client, not the build path.
 
+**TCPA consent is an explicit gated checkbox (2026-07-27).** On the phone step, above the
+submit button, starting UNCHECKED. Submit is blocked until it is checked, client side
+(`submit()` in `FunnelForm.tsx`) AND server side (`/api/lead` returns 400 `consent
+required` when `tcpaConsent !== true`), because a client-only gate is bypassable and this
+is a legal record. **Never pre-check it, never move it below the button, never soften the
+server gate to a warning.** The payload carries a seven-field consent record, not a bare
+boolean: `tcpaConsent`, `tcpaConsentText` (verbatim language agreed to, ~550 chars, use a
+Multi Line field in GHL), `tcpaConsentAt` (checkbox click time), `tcpaConsentUrl`, plus
+server-stamped `tcpaConsentIp`, `tcpaConsentUserAgent`, `tcpaConsentReceivedAt`. Rationale
+and the field map are in `deliverables/WIRING.md` section 2. Verified by
+`node tools/tcpa-test.mjs` (drives the real form: asserts unchecked-starts, above-button
+placement, zero POSTs when blocked, full record when consented).
+
 **ONE webhook per lead, no partial captures.** Removed 2026-07-27 (Tanner's call: he does
 not want two intake automations in GHL). The form fires exactly once, from `submit()`,
 with name + email + phone all present. `partial` is still in the payload, hardcoded

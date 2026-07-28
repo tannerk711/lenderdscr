@@ -20,6 +20,23 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ ok: true }, 200);
   }
 
+  // TCPA gate, server side. The checkbox in the form is the real UX, but a
+  // client-only gate is bypassable and this is a legal consent record, so a
+  // lead without affirmative consent never reaches the CRM.
+  if (data.tcpaConsent !== true) {
+    return json({ ok: false, error: 'consent required' }, 400);
+  }
+
+  // Stamp the consent record with data only the server can vouch for. The
+  // browser can claim any timestamp/IP; these are captured at the edge.
+  const headers = request.headers;
+  data.tcpaConsentIp =
+    headers.get('x-vercel-forwarded-for') ??
+    headers.get('x-forwarded-for')?.split(',')[0].trim() ??
+    null;
+  data.tcpaConsentUserAgent = headers.get('user-agent') ?? null;
+  data.tcpaConsentReceivedAt = new Date().toISOString();
+
   const webhook = import.meta.env.LEAD_WEBHOOK_URL;
   if (webhook) {
     try {

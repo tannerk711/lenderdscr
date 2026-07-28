@@ -193,6 +193,11 @@ export default function FunnelForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(false);
   const [stateQuery, setStateQuery] = useState('');
+  // TCPA: explicit opt-in. Starts UNCHECKED by law (no pre-checked consent) and
+  // gates submit. The timestamp is captured at the moment of the click, not at
+  // submit, so the record reflects when consent was actually given.
+  const [tcpaConsent, setTcpaConsent] = useState(false);
+  const tcpaConsentAt = useRef<string | null>(null);
   const startedAt = useRef<number>(0);
   const attribution = useRef<Record<string, string>>({});
   const cardRef = useRef<HTMLDivElement>(null);
@@ -297,6 +302,14 @@ export default function FunnelForm() {
       equityDisplay: equity !== null ? fmt(equity) : null,
       rehabDisplay: answers.goal === 'bridge' ? fmt(answers.rehab) : null,
       scenarioDetail,
+      // ---- TCPA consent record (map ALL of these into the CRM) ----
+      // A bare "true" is weak evidence: it does not prove WHAT was agreed to,
+      // and this disclaimer text will change over time. So the exact language
+      // shown at the moment of consent ships with every lead.
+      tcpaConsent: true,                        // gated; a lead cannot submit without checking
+      tcpaConsentText: tcpaCopy,                // verbatim language the lead agreed to
+      tcpaConsentAt: tcpaConsentAt.current,     // ISO timestamp of the checkbox click
+      tcpaConsentUrl: window.location.href,     // exact page/URL where consent was captured
       ...attribution.current,
       landingPage: window.location.pathname + window.location.search,
       secondsToComplete: startedAt.current ? Math.round((Date.now() - startedAt.current) / 1000) : null,
@@ -312,6 +325,12 @@ export default function FunnelForm() {
   const submit = async () => {
     if (phoneDigits.length !== 10) {
       setError('Enter a 10-digit mobile number so your loan specialist can reach you.');
+      return;
+    }
+    // TCPA gate. Consent must be affirmative, so this blocks submit outright
+    // rather than defaulting to consented. Do not soften into a warning.
+    if (!tcpaConsent) {
+      setError('Please check the consent box so we have your permission to contact you.');
       return;
     }
     const honeypot = (document.getElementById('ff-company') as HTMLInputElement)?.value;
@@ -576,6 +595,29 @@ export default function FunnelForm() {
                 Hmm, that didn&rsquo;t go through. Give it one more try. Your answers are saved.
               </p>
             )}
+
+            {/* TCPA opt-in. MUST stay above the submit button, MUST start
+                unchecked, and MUST gate submit. Never pre-check it. */}
+            <label
+              htmlFor="ff-tcpa"
+              className="flex gap-3 mt-4 cursor-pointer select-none rounded-xl border border-ink/12 bg-paper-2/60 px-3.5 py-3 transition-colors hover:border-ink/25"
+            >
+              <input
+                id="ff-tcpa"
+                type="checkbox"
+                checked={tcpaConsent}
+                onChange={(e) => {
+                  const next = e.target.checked;
+                  setTcpaConsent(next);
+                  // stamp the moment consent was actually given, not submit time
+                  tcpaConsentAt.current = next ? new Date().toISOString() : null;
+                  if (next) setError('');
+                }}
+                className="mt-0.5 h-[1.15rem] w-[1.15rem] shrink-0 cursor-pointer accent-[var(--color-pine)]"
+              />
+              <span className="text-[0.68rem] leading-relaxed text-ink/55">{tcpaCopy}</span>
+            </label>
+
             <button
               type="button"
               onClick={submit}
@@ -584,7 +626,6 @@ export default function FunnelForm() {
             >
               {submitting ? 'Checking eligibility…' : 'Get My Eligibility Results'}
             </button>
-            <p className="text-[0.68rem] leading-relaxed text-ink/45 mt-4">{tcpaCopy}</p>
           </div>
         );
       }

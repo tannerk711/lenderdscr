@@ -166,6 +166,26 @@ breaks the merges.
 | `secondsToComplete` | DSCR Seconds To Complete | `dscr_seconds_to_complete` | lead-quality scoring |
 | `submittedAt` | DSCR Submitted At | `dscr_submitted_at` | reporting |
 
+**TCPA consent record (added 2026-07-27; map ALL SEVEN, this is the legal record).**
+A bare "consented: true" is weak evidence because it does not prove WHAT the lead agreed
+to, and the disclaimer wording changes over time. So the verbatim language shown at the
+moment of consent ships with every lead, along with when, where, and from what device.
+The last three are stamped server-side in `/api/lead` because a browser can claim any
+timestamp or IP.
+
+| Payload field | Suggested GHL field name | Key | Source |
+| --- | --- | --- | --- |
+| `tcpaConsent` | TCPA Consent | `tcpa_consent` | always `true` (submit is gated both client and server side) |
+| `tcpaConsentText` | TCPA Consent Text | `tcpa_consent_text` | verbatim disclaimer the lead checked |
+| `tcpaConsentAt` | TCPA Consent At | `tcpa_consent_at` | ISO time of the checkbox click (browser) |
+| `tcpaConsentUrl` | TCPA Consent URL | `tcpa_consent_url` | full URL where consent was captured |
+| `tcpaConsentIp` | TCPA Consent IP | `tcpa_consent_ip` | **server-stamped** from `x-vercel-forwarded-for` |
+| `tcpaConsentUserAgent` | TCPA Consent User Agent | `tcpa_consent_user_agent` | **server-stamped** |
+| `tcpaConsentReceivedAt` | TCPA Consent Received At | `tcpa_consent_received_at` | **server-stamped** arrival time |
+
+`tcpaConsentText` is long (about 550 characters). Use a **Multi Line Text** field for it,
+not Single Line, or GHL may truncate the record.
+
 Merge fields the templates actually consume (the minimum viable set if you
 want to trim): `first_name`, `dscr_goal_label`, `dscr_property_label`,
 `dscr_credit_band`, `dscr_price_display`, `dscr_scenario_detail`,
