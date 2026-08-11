@@ -527,8 +527,8 @@ export default function FunnelForm() {
           <div className="grid gap-3">
             <input
               className="field-input rounded-xl"
-              placeholder="First name"
-              autoComplete="given-name"
+              placeholder="Full name"
+              autoComplete="name"
               value={answers.firstName}
               onChange={(e) => set('firstName', e.target.value)}
             />
@@ -545,7 +545,7 @@ export default function FunnelForm() {
             <Continue
               onClick={() => {
                 if (answers.firstName.trim().length < 2) {
-                  setError('Add your first name so we know who to address.');
+                  setError('Add your full name so we know who to address.');
                   return;
                 }
                 if (!validEmail(answers.email)) {

@@ -160,7 +160,8 @@ import { brand } from '../config/funnel';
         const s = JSON.parse(raw);
         if (s.firstName) {
           const el = document.getElementById('ty-name');
-          if (el) el.textContent = `Congratulations, ${s.firstName}`;
+          const first = String(s.firstName).trim().split(/\s+/)[0];
+          if (el) el.textContent = `Congratulations, ${first}`;
         }
         const labels: Record<string, string> = {
           purchase: 'Purchase', refinance: 'Refinance', cashout: 'Cash-out refi', bridge: 'Fix & flip',
