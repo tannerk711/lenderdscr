@@ -113,9 +113,15 @@ thank-you page or the layout.
 Paul declined the booking calendar. `bookingEmbedUrl` stays `''` and the thank-you page
 renders the phone CTA branch. Because no email automation exists, **all copy promising an
 email was removed**: the contact-step subtitle ("Your eligibility summary lands in your
-inbox" → "So your specialist can reach you with your results") and the thank-you line
-"reply to the email we just sent." Do not reintroduce an email promise unless a sequence
-is actually built in GHL. The `deliverables/` email masters stay in the folder unused.
+inbox" → now "So your specialist knows who to follow up with." after the 2026-08-13 copy
+pass) and the thank-you line "reply to the email we just sent." Do not reintroduce an
+email promise unless a sequence is actually built in GHL. The `deliverables/` email
+masters stay in the folder unused.
+
+**Form copy frame updated 2026-08-13 (Tanner's call): "see if you qualify"** replaces the
+eligibility/results language. Contact step "What's your name and email?", phone step
+"What's the best number for us to reach you and get you qualified?", submit button "See
+If I Qualify", page CTAs + badge to match. Back-ported to the master template.
 
 **Thank-you page rebuilt 2026-07-27:** booking section became "Skip the wait. Call now."
 (phone CTA + "if we miss each other we'll reach out"), plus a new capability proof band
