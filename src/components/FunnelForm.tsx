@@ -387,15 +387,15 @@ export default function FunnelForm() {
         ? 'Estimated rehab budget?'
         : 'Roughly what do you still owe?',
     state: 'Where is the property?',
-    contact: 'Where should we send your results?',
-    phone: 'Last step: best mobile number?',
+    contact: "What's your name and email?",
+    phone: "What's the best number for us to reach you and get you qualified?",
   };
 
   const subtitles: Partial<Record<StepId, string>> = {
     goal: 'Takes about 60 seconds. No credit pull, no obligation.',
     credit: 'A soft estimate is fine. This never touches your credit.',
     secondary: isPurchase ? 'Most DSCR programs start at 20% down.' : undefined,
-    contact: 'So your specialist can reach you with your results.',
+    contact: 'So your specialist knows who to follow up with.',
     phone: "We won't sell your number. No games, no spam.",
   };
 
@@ -624,7 +624,7 @@ export default function FunnelForm() {
               disabled={submitting}
               className="btn-brass w-full rounded-xl py-4 text-[1.08rem] mt-4 disabled:opacity-60 disabled:cursor-wait"
             >
-              {submitting ? 'Checking eligibility…' : 'Get My Eligibility Results'}
+              {submitting ? 'Seeing if you qualify…' : 'See If I Qualify'}
             </button>
           </div>
         );

@@ -80,7 +80,7 @@ console.log('checkbox initial checked =', initial, '(expect false)');
 
 const order = await page.evaluate(() => {
   const cb = document.querySelector('#ff-tcpa');
-  const btn = [...document.querySelectorAll('#eligibility button')].find((b) => b.textContent.includes('Eligibility Results'));
+  const btn = [...document.querySelectorAll('#eligibility button')].find((b) => b.textContent.includes('See If I Qualify'));
   if (!cb || !btn) return 'missing';
   return cb.getBoundingClientRect().top < btn.getBoundingClientRect().top ? 'ABOVE' : 'BELOW';
 });
@@ -88,7 +88,7 @@ console.log('checkbox is', order, 'the submit button (expect ABOVE)');
 await page.screenshot({ path: `${outDir}tcpa-mobile-phone-step.png` });
 
 // TEST 1: unchecked submit must be blocked
-await clickByText('Eligibility Results');
+await clickByText('See If I Qualify');
 await settle(1000);
 console.log('TEST 1 unchecked -> POSTs:', posts.length, '(expect 0)');
 console.log('TEST 1 error shown:', await page.evaluate(() => {
@@ -100,7 +100,7 @@ await page.screenshot({ path: `${outDir}tcpa-mobile-blocked.png` });
 // TEST 2: checked submit goes through with the consent record
 await page.click('#ff-tcpa');
 await settle(400);
-await clickByText('Eligibility Results');
+await clickByText('See If I Qualify');
 await settle(1800);
 console.log('TEST 2 checked -> POSTs:', posts.length, '(expect 1)');
 if (posts[0]) {
