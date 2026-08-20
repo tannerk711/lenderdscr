@@ -5,10 +5,13 @@ import Footer from '../components/Footer.astro';
 import { brand } from '../config/funnel';
 ---
 
-<Layout title={`Eligibility Check Complete | ${brand.name}`} description="Your DSCR eligibility results. Book your consultation.">
+<Layout title={`Your Numbers Are In | ${brand.name}`} description="Your DSCR pricing request is in. Watch for the text.">
   <Topbar />
 
   <!-- ============ RESULT HERO ============ -->
+  <!-- Verdict is deliberately WITHHELD here (no "you pre-qualify"). The page's one
+       job is priming the reply loop: Paul texts first, the lead replies to start.
+       Overhaul plan 2026-08-19, Phase 1. Paul is named on THIS page only. -->
   <section class="bg-paper py-20 lg:py-24 relative overflow-hidden">
     <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-brass via-brass-2 to-brass"></div>
     <div class="max-w-3xl mx-auto px-5 lg:px-10 text-center relative z-10">
@@ -24,14 +27,14 @@ import { brand } from '../config/funnel';
         </svg>
       </div>
 
-      <p class="eyebrow text-moss mb-5">Eligibility check complete</p>
+      <p class="eyebrow text-moss mb-5">Pricing request received</p>
       <h1 class="font-display text-[clamp(2.2rem,4.5vw,3.6rem)] leading-[1.05] tracking-tight">
-        <span id="ty-name">Congratulations</span>. Based on your answers,
-        <em class="italic text-pine">you pre-qualify.</em>
+        <span id="ty-name">Your numbers are in.</span>
+        <em class="italic text-pine">Paul is pricing your deal now.</em>
       </h1>
       <p class="text-ink/65 text-lg leading-relaxed mt-5 max-w-xl mx-auto">
-        The last step is a quick call: we'll price your scenario across {brand.lenderCount} lenders,
-        walk you through your best options, and map your path to a pre-approval letter.
+        Paul Howarth will text you first from {brand.phone}. Reply to that text and the
+        conversation starts.
       </p>
 
       <!-- scenario chips (filled from sessionStorage) -->
@@ -39,39 +42,28 @@ import { brand } from '../config/funnel';
     </div>
   </section>
 
-  <!-- ============ CALL NOW / BOOKING ============ -->
+  <!-- ============ WATCH FOR THE TEXT ============ -->
   <section class="bg-paper-2 border-y border-ink/10 py-16 lg:py-20">
     <div class="max-w-4xl mx-auto px-5 lg:px-10">
       <div class="text-center mb-10">
         <h2 class="font-display text-[clamp(1.7rem,3vw,2.4rem)] tracking-tight">
-          Skip the wait. Call now.
+          Watch for the text.
         </h2>
-        <p class="text-ink/60 mt-3">
-          {brand.specialist.name} is reviewing your scenario. Call and you can go through it together today.
+        <p class="text-ink/60 mt-3 max-w-xl mx-auto">
+          Your pricing options come by text first. When it lands, a reply is all it takes.
+          Paul handles the rest.
         </p>
       </div>
 
-      {brand.bookingEmbedUrl ? (
-        <div class="bg-paper border border-ink/10 rounded-2xl shadow-[var(--shadow-card)]">
-          <iframe
-            src={brand.bookingEmbedUrl}
-            scrolling="yes"
-            class="w-full rounded-2xl"
-            style="height: min(1060px, calc(100vh - 120px)); overflow: auto; border: none;"
-            title="Book your consultation"
-          ></iframe>
-        </div>
-      ) : (
-        <div class="bg-paper border border-ink/10 rounded-2xl shadow-[var(--shadow-card)] px-8 py-12 text-center">
-          <p class="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-ink/45 mb-4">Talk to a specialist</p>
-          <a href={brand.phoneHref} class="font-display text-[clamp(2rem,4vw,3rem)] text-pine hover:text-ink transition-colors">
-            {brand.phone}
-          </a>
-          <p class="text-ink/55 text-sm mt-4">
-            No obligation, no credit pull. If we miss each other, we&rsquo;ll reach out at the number you gave us.
-          </p>
-        </div>
-      )}
+      <div class="bg-paper border border-ink/10 rounded-2xl shadow-[var(--shadow-card)] px-8 py-12 text-center">
+        <p class="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-ink/45 mb-4">It will come from this number</p>
+        <a href={brand.phoneHref} class="font-display text-[clamp(2rem,4vw,3rem)] text-pine hover:text-ink transition-colors">
+          {brand.phone}
+        </a>
+        <p class="text-ink/55 text-sm mt-4">
+          Save it so you know it&rsquo;s Paul. Rather talk it through live? Call the same number.
+        </p>
+      </div>
     </div>
   </section>
 
@@ -80,7 +72,7 @@ import { brand } from '../config/funnel';
     <div class="max-w-5xl mx-auto px-5 lg:px-10">
       <p class="eyebrow text-moss text-center mb-4">While you wait</p>
       <h2 class="font-display text-[clamp(1.7rem,3vw,2.4rem)] tracking-tight text-center mb-12">
-        What your specialist brings to the call.
+        What Paul is pricing your deal against.
       </h2>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="border border-ink/10 rounded-2xl bg-paper-2 px-6 py-7 text-center">
@@ -101,7 +93,7 @@ import { brand } from '../config/funnel';
         </div>
       </div>
       <p class="text-center text-ink/50 text-sm mt-8 max-w-2xl mx-auto leading-relaxed">
-        Bring your rent numbers and your target purchase price. Everything else, your specialist pulls.
+        Have your rent numbers and target purchase price handy. Everything else, Paul pulls.
         <a href="/call-prep" class="text-pine underline underline-offset-4 hover:text-ink transition-colors ml-1">See the two-minute prep sheet</a>.
       </p>
     </div>
@@ -117,8 +109,8 @@ import { brand } from '../config/funnel';
       <div class="grid sm:grid-cols-3 gap-5">
         <div class="border border-ink/10 rounded-2xl bg-paper-2 p-7">
           <span class="font-display text-[2.2rem] text-brass leading-none">1</span>
-          <h3 class="font-display text-lg mt-4 mb-2">Strategy call</h3>
-          <p class="text-sm leading-relaxed text-ink/65">We review your deal, answer every question, and price it across the lender network the same day.</p>
+          <h3 class="font-display text-lg mt-4 mb-2">Reply to Paul&rsquo;s text</h3>
+          <p class="text-sm leading-relaxed text-ink/65">That reply is the green light. Paul prices your scenario across the lender network and comes back with real numbers.</p>
         </div>
         <div class="border border-ink/10 rounded-2xl bg-paper-2 p-7">
           <span class="font-display text-[2.2rem] text-brass leading-none">2</span>
@@ -161,7 +153,7 @@ import { brand } from '../config/funnel';
         if (s.firstName) {
           const el = document.getElementById('ty-name');
           const first = String(s.firstName).trim().split(/\s+/)[0];
-          if (el) el.textContent = `Congratulations, ${first}`;
+          if (el) el.textContent = `${first}, your numbers are in.`;
         }
         const labels: Record<string, string> = {
           purchase: 'Purchase', refinance: 'Refinance', cashout: 'Cash-out refi', bridge: 'Fix & flip',
@@ -171,7 +163,7 @@ import { brand } from '../config/funnel';
         const price = typeof s.price === 'number'
           ? s.price >= 2_000_000 ? '$2M+' : `$${Number(s.price).toLocaleString()}`
           : null;
-        const chips = [labels[s.goal], labels[s.propertyType], s.state, price, s.credit ? `Credit ${s.credit}` : null].filter(Boolean);
+        const chips = [labels[s.goal], labels[s.propertyType], s.city || s.state, price, s.credit ? `Credit ${s.credit}` : null].filter(Boolean);
         const wrap = document.getElementById('ty-chips');
         if (wrap) {
           chips.forEach((c) => {
