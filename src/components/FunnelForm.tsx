@@ -388,7 +388,7 @@ export default function FunnelForm() {
         : 'Roughly what do you still owe?',
     state: 'Where is the property?',
     contact: "What's your name and email?",
-    phone: "What's the best number for us to reach you and get you qualified?",
+    phone: "What's the best number to text your pricing options to?",
   };
 
   const subtitles: Partial<Record<StepId, string>> = {
@@ -624,7 +624,7 @@ export default function FunnelForm() {
               disabled={submitting}
               className="btn-brass w-full rounded-xl py-4 text-[1.08rem] mt-4 disabled:opacity-60 disabled:cursor-wait"
             >
-              {submitting ? 'Seeing if you qualify…' : 'See If I Qualify'}
+              {submitting ? 'Pulling your pricing options…' : 'Get My DSCR Pricing Options'}
             </button>
           </div>
         );

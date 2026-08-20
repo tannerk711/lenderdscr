@@ -7,3 +7,7 @@ dist/
 tools/shots/
 .vercel
 .env*
+
+# lead exports / PII never go to GitHub
+Export_Contacts_*.csv
+lead-audit/

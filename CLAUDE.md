@@ -123,6 +123,25 @@ eligibility/results language. Contact step "What's your name and email?", phone 
 "What's the best number for us to reach you and get you qualified?", submit button "See
 If I Qualify", page CTAs + badge to match. Back-ported to the master template.
 
+**2026-08-19 REVERSAL: the qualify frame is the confirmed collapse point.** Conversions
+stopped right after the 8/13 deploy (2 on 8/14, then 0 on 33 clicks through 8/19) with the
+gtag verified firing (Tanner). The LeaderOne teardown's working conclusion: investors do
+not want an audition ("see if you qualify"), they want their numbers. Overhaul plan v2
+(`dscr-overhaul-plan-2026-08-19.md`) makes replacing this frame with a pricing-options
+frame ("Get My DSCR Pricing Options") the first action. Do not reuse the qualify frame on
+investor-avatar funnels; the master-template back-port needs the same review before any
+future DSCR deploy.
+
+**Paul HAS a GHL follow-up automation (Tanner, 2026-08-19),** similar to LeaderOne's,
+living in GHL where this repo can't see it. Earlier docs here saying leads "receive no
+message" are wrong on that point; what IS missing is upstream expectation-setting (ads
+never promise contact, thank-you asks for a call). "No email sequence" remains true for
+email-promise copy purposes.
+
+**NEVER publish rates for this client (standing rule, Tanner 2026-08-19).** No rates in
+headlines, ads, FAQs, anywhere, ever. Spec-sheet claims (620 floor, LTV, 15-25 day
+closes, LLC closings, speed-to-terms) are the certainty signals instead.
+
 **Thank-you page rebuilt 2026-07-27:** booking section became "Skip the wait. Call now."
 (phone CTA + "if we miss each other we'll reach out"), plus a new capability proof band
 (100+ lenders / same day / 15 to 25 / $0 tax returns, all published claims) and a
