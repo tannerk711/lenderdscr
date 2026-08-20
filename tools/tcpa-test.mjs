@@ -47,22 +47,25 @@ const clickByText = async (text) => {
 await page.goto(base, { waitUntil: 'networkidle0', timeout: 30000 });
 await settle(1200);
 
+const fillInput = async (idx, val) => {
+  await page.evaluate(({ i, v }) => {
+    const inputs = [...document.querySelectorAll('#eligibility input')].filter((el) => el.id !== 'ff-company');
+    const s = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+    s.call(inputs[i], v);
+    inputs[i].dispatchEvent(new Event('input', { bubbles: true }));
+  }, { i: idx, v: val });
+  await settle(300);
+};
 await clickByText('Buy a rental');
+await clickByText('Making offers');
 await clickByText('Single family');
 await clickByText('700');
 await clickByText('Continue');   // price
-await clickByText('Continue');   // down payment
-await page.evaluate(() => {
-  const inputs = [...document.querySelectorAll('#eligibility input')].filter((i) => i.id !== 'ff-company');
-  const setVal = (el, v) => {
-    const s = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-    s.call(el, v);
-    el.dispatchEvent(new Event('input', { bubbles: true }));
-  };
-  setVal(inputs[0], 'GateTest');
-  setVal(inputs[1], 'tanner@creloanpro.com');
-});
-await settle(300);
+await clickByText('Continue');   // deal structure (down %)
+await fillInput(0, 'Fort Worth');  // city
+await clickByText('Continue');
+await fillInput(0, 'GateTest');
+await fillInput(1, 'tanner@creloanpro.com');
 await clickByText('Continue');
 await settle(600);
 

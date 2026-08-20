@@ -307,6 +307,33 @@ input[type="range"].brass-range:active::-webkit-slider-thumb {
 
 /* ---------- form card step transitions ---------- */
 
+/* CSS-only hero entrance (LeaderOne pattern): the hero must never wait on
+   GSAP/JS to become visible, or LCP and the mobile fold both pay for it. */
+.hero-enter {
+  animation: heroEnter 0.7s var(--ease-lux) both;
+}
+.hero-enter-1 { animation-delay: 0.05s; }
+.hero-enter-2 { animation-delay: 0.14s; }
+.hero-enter-3 { animation-delay: 0.23s; }
+.hero-enter-4 { animation-delay: 0.32s; }
+
+@keyframes heroEnter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-enter {
+    animation: none;
+  }
+}
+
 .step-enter {
   animation: stepIn 0.45s var(--ease-lux) both;
 }

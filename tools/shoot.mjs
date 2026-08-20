@@ -117,37 +117,40 @@ const clickByText = async (text) => {
   if (!ok) console.log('CLICK MISS:', text);
   await settle(700);
 };
+const fillInput = async (idx, val) => {
+  await page.evaluate(({ i, v }) => {
+    const inputs = [...document.querySelectorAll('#eligibility input')].filter((el) => el.id !== 'ff-company');
+    const s = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+    s.call(inputs[i], v);
+    inputs[i].dispatchEvent(new Event('input', { bubbles: true }));
+  }, { i: idx, v: val });
+  await settle(300);
+};
 await clickByText('Buy a rental');
-await page.screenshot({ path: `${outDir}${prefix}-form-step2.png` });
+await page.screenshot({ path: `${outDir}${prefix}-form-stage.png` });
+await clickByText('Making offers');
 await clickByText('Single family');
 await clickByText('700');
 await page.screenshot({ path: `${outDir}${prefix}-form-price.png` });
 await clickByText('Continue');
-await page.screenshot({ path: `${outDir}${prefix}-form-down.png` });
+await page.screenshot({ path: `${outDir}${prefix}-form-structure.png` });
 await clickByText('Continue');
-// Texas-only funnel: no state step; down % Continue lands on contact
+// Texas-only funnel: no state step; deal-structure Continue lands on city
+await page.screenshot({ path: `${outDir}${prefix}-form-city.png` });
+await fillInput(0, 'Fort Worth');
+await clickByText('Continue');
 await page.screenshot({ path: `${outDir}${prefix}-form-contact.png` });
-await page.evaluate(() => {
-  const inputs = [...document.querySelectorAll('#eligibility input')].filter((i) => i.id !== 'ff-company');
-  const setVal = (el, v) => {
-    const s = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-    s.call(el, v);
-    el.dispatchEvent(new Event('input', { bubbles: true }));
-  };
-  setVal(inputs[0], 'Tanner');
-  setVal(inputs[1], 'test@example.com');
-});
-await settle(300);
+await fillInput(0, 'Tanner');
+await fillInput(1, 'test@example.com');
 await clickByText('Continue');
 await settle(600);
 await page.screenshot({ path: `${outDir}${prefix}-form-phone.png` });
 await page.close();
 
-// --- credit decline branch ---
+// --- credit hard-exit branch (sub-620 -> /not-yet redirect) ---
 page = await newPage(1440, 980);
 await page.goto(base, { waitUntil: 'networkidle0', timeout: 30000 });
 await settle(1000);
-await clickByText.call(null, 'Refinance');
 // redefine helper bound to this page
 const clickByText2 = async (text) => {
   await page.evaluate((t) => {
@@ -158,9 +161,12 @@ const clickByText2 = async (text) => {
   await settle(700);
 };
 await clickByText2('Refinance');
+await clickByText2('Comparing my options');
 await clickByText2('Single family');
 await clickByText2('Below 620');
-await page.screenshot({ path: `${outDir}${prefix}-form-decline.png` });
+await settle(2000);
+console.log('after sub-620 pick, url =', page.url(), '(expect /not-yet)');
+await page.screenshot({ path: `${outDir}${prefix}-form-decline.png`, fullPage: true });
 await page.close();
 
 // --- thank-you (seed sessionStorage first) ---
@@ -168,7 +174,7 @@ page = await newPage(1440, 1600);
 await page.goto(base, { waitUntil: 'domcontentloaded' });
 await page.evaluate(() => {
   sessionStorage.setItem('lead-summary', JSON.stringify({
-    firstName: 'Tanner', goal: 'purchase', propertyType: 'sfr', credit: '700-739', price: 350000, state: 'Texas',
+    firstName: 'Tanner', goal: 'purchase', propertyType: 'sfr', credit: '700-739', price: 350000, city: 'Fort Worth', state: 'Texas',
   }));
 });
 await page.goto(`${base}/thank-you`, { waitUntil: 'networkidle0', timeout: 30000 });

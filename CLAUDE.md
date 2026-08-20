@@ -153,6 +153,38 @@ declined: inventing consumer endorsements for a lender is an FTC endorsement-gui
 problem and an ads-account risk. The proof band fills that trust slot instead. Re-add a
 reviews section ONLY if Paul supplies real, attributable feedback.
 
+## 2026-08-19 OVERHAUL EXECUTED (plan: dscr-overhaul-plan-2026-08-19.md)
+
+All four phases shipped same day. Current state supersedes older form/page notes above.
+
+- **Frame:** pricing-options sitewide ("Get My DSCR Pricing Options"); qualify frame dead.
+- **Form is now 9 steps:** goal (3 options: purchase / refinance+cashout merged / bridge),
+  stage (deal-stage, feeds the first-text opener), propertyType, credit, price,
+  deal-structure (down % reframed), **city (new)**, contact, phone (positive-frame:
+  "Text first. A call only if you ask for one."). Sub-620 now HARD-EXITS to `/not-yet`
+  (LeaderOne pattern) and `/api/lead` silently drops `credit: '<620'` server-side.
+- **Payload adds `stage`, `stageLabel`, `city`.** ZAP MAPPING NEEDED (Tanner): map all
+  three into GHL; `city` feeds the "[city] rental" line in Paul's first text
+  (deliverables/first-sms-draft.md). Until mapped, the SMS uses the Texas fallback.
+- **Paul is named on the THANK-YOU PAGE ONLY** (Tanner's call): index/form say
+  "a DSCR specialist". Thank-you primes the reply loop: numbers are in, Paul texts
+  first from (855) 545-2022, reply to start. No verdict, no call-me ask.
+- **`?qa=1` conversion suppression:** a QA walk posts a real lead but never fires the
+  Ads conversion (sessionStorage flag read on /thank-you). `?demo=1` still fires it for
+  Tag Assistant. `tools/prod-submit-qa.mjs` runs the full prod walk with it.
+- **Hero:** mobile-fold compressed (LeaderOne pattern): full step 1 above the 390px
+  fold, CSS-only hero entrance (`hero-enter`), subhead/proof row desktop-only.
+  Headline: "Finance your next Texas rental on the rent alone." NO rates anywhere.
+  100+ lenders appears ONCE on the page (term-sheets-in-24h reframe, why-card 03).
+- **Ads side (acct 340-440-3562, campaign 24041061079):** Max Clicks + $6.50 CPC
+  ceiling; native "Lead form - Submit" goal demoted to secondary at customer AND
+  campaign level (website "Submit lead form" is the only biddable action); 7 true
+  SKAGs (added: DSCR Loan Texas + 3 lender-theme groups); rewritten inclusive ads
+  ENABLED in every group (contact promise, 620 floor, no "Minimum 20% Down"), old
+  Ad 1s/qualify-frame Ad 2 PAUSED for a clean 2-week window; +17 negatives (65 total);
+  callouts fixed to "620+ Credit Score" and "Close in 15-25 Days". Scripts + verify:
+  `google-ads/clients/paul-howarth/overhaul_*.py` (verify = all PASS 2026-08-19).
+
 ## Open items before launch
 
 1. ~~LEAD_WEBHOOK_URL~~ **DONE 2026-07-27.** Zapier hook set in Vercel (production,

@@ -5,9 +5,10 @@ import { brand } from '../config/funnel';
 interface Props {
   title: string;
   description?: string;
+  noindex?: boolean;
 }
 
-const { title, description = 'DSCR rental property loans. Qualify on the rent, not your tax returns. Get your pricing options in 60 seconds with no credit pull.' } = Astro.props;
+const { title, description = 'DSCR rental property loans. Qualify on the rent, not your tax returns. Get your pricing options in 60 seconds with no credit pull.', noindex = false } = Astro.props;
 const gtagSnippet = brand.gtagId
   ? `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', '${brand.gtagId}');`
   : '';
@@ -20,6 +21,7 @@ const gtagSnippet = brand.gtagId
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

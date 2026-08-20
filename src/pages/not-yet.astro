@@ -1,0 +1,92 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Topbar from '../components/Topbar.astro';
+import Footer from '../components/Footer.astro';
+import { brand } from '../config/funnel';
+
+// Sub-620 hard exit (overhaul 2026-08-19, LeaderOne /not-yet pattern): an
+// honest no with the fastest path back, instead of a "change my answer" loop
+// that invites gaming the credit question. No webhook ever fires for this page.
+const moves = [
+  {
+    title: 'Pay every bill on time, starting now',
+    body: 'Payment history is the single biggest slice of your score. Six months of on-time everything moves the needle more than any trick.',
+  },
+  {
+    title: 'Get credit cards under 30% of their limits',
+    body: 'Utilization is the second biggest lever, and it updates fast. Paying a maxed card down below 30%, and ideally below 10%, can show up in your score within a billing cycle or two.',
+  },
+  {
+    title: 'Keep old accounts open',
+    body: 'Closing an old card shortens your history and shrinks your available credit, which hurts twice. Leave them open, even if they sit unused.',
+  },
+  {
+    title: 'Pull your free reports and dispute errors',
+    body: 'annualcreditreport.com gives you all three bureaus free. Wrong balances, accounts that are not yours, and paid collections still showing open are all disputable, and fixes can add real points.',
+  },
+  {
+    title: 'Let the rental keep carrying the case',
+    body: "Your credit only has to clear the floor. The property's rent does the heavy lifting on a DSCR loan, so a 620 with a cash-flowing deal is a fundable file.",
+  },
+];
+---
+
+<Layout title={`Not Yet | ${brand.name}`} description="Below a 620 credit score, DSCR programs can't say yes yet. Here is the honest, fastest path back." noindex={true}>
+  <Topbar />
+
+  <section class="bg-paper py-20 lg:py-24 relative overflow-hidden">
+    <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-brass via-brass-2 to-brass"></div>
+    <div class="max-w-3xl mx-auto px-5 lg:px-10 text-center relative z-10">
+      <div class="mx-auto w-16 h-16 rounded-full border-2 border-brass/50 flex items-center justify-center mb-8">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-brass)" stroke-width="2" stroke-linecap="round" aria-hidden>
+          <path d="M12 8v5" /><circle cx="12" cy="16.5" r="0.5" fill="var(--color-brass)" />
+          <circle cx="12" cy="12" r="10" />
+        </svg>
+      </div>
+      <p class="eyebrow text-moss mb-5">Not yet, and that's okay</p>
+      <h1 class="font-display text-[clamp(2.1rem,4.5vw,3.3rem)] leading-[1.12] tracking-tight">
+        Below 620, no DSCR lender can say yes yet. Here's the <em class="italic text-pine">fastest way back.</em>
+      </h1>
+      <p class="text-ink/65 text-lg leading-relaxed mt-5 max-w-xl mx-auto">
+        We'd rather tell you the truth now than waste your time: DSCR programs start at a 620
+        credit score, and that's the floor everywhere, not just here. What we can do is show
+        you the moves that actually raise a score, because most investors are closer than
+        they think.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-paper-2 border-y border-ink/10 py-20 lg:py-24">
+    <div class="max-w-3xl mx-auto px-5 lg:px-10">
+      <h2 class="font-display text-[clamp(1.7rem,3vw,2.3rem)] leading-[1.12] tracking-tight text-center mb-12">
+        The five moves that raise scores fastest
+      </h2>
+      <div class="grid gap-5">
+        {moves.map((m, i) => (
+          <div class="bg-paper border border-ink/10 rounded-2xl p-7 flex gap-6 items-start">
+            <span class="font-display text-[2rem] leading-none text-brass shrink-0">{i + 1}</span>
+            <div>
+              <h3 class="font-display text-[1.2rem] mb-2">{m.title}</h3>
+              <p class="text-[0.95rem] text-ink/65 leading-relaxed">{m.body}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div class="text-center mt-14 bg-paper border border-brass/30 rounded-2xl px-8 py-10">
+        <h3 class="font-display text-[1.5rem] leading-[1.15] mb-3">When you cross 620, come back.</h3>
+        <p class="text-ink/65 leading-relaxed max-w-md mx-auto mb-7">
+          The 60-second pricing check will be right here, and the door stays open. Investors
+          who work the list above are often DSCR-ready in six months to a year.
+        </p>
+        <a href="/" class="btn-brass rounded-xl px-8 py-3.5 inline-flex">I'll be back →</a>
+        <p class="text-[0.85rem] text-ink/50 mt-6">
+          Picked the wrong credit range by accident?
+          <a href="/#eligibility" class="underline hover:text-ink">Start the check again</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Layout>

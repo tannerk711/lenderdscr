@@ -14,21 +14,21 @@ import { brand, tickerItems, faqs } from '../config/funnel';
 
   <!-- ============ HERO ============ -->
   <section class="relative bg-ink text-cream contours grain overflow-hidden">
-    <div class="max-w-7xl mx-auto px-5 lg:px-10 pt-14 pb-20 lg:pt-20 lg:pb-28 grid lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-16 items-start relative z-10">
+    <div class="max-w-7xl mx-auto px-5 lg:px-10 pt-8 pb-16 lg:pt-20 lg:pb-28 grid lg:grid-cols-[1.05fr_0.95fr] gap-8 lg:gap-16 items-start relative z-10">
 
-      <!-- left: pitch -->
+      <!-- left: pitch (compact on mobile so full form step 1 sits above the 390px fold) -->
       <div class="max-w-xl">
-        <p class="eyebrow text-brass-2 mb-6 gs-reveal">DSCR Rental Property Loans · Texas</p>
-        <h1 class="font-display text-[clamp(2.6rem,4.9vw,4.4rem)] leading-[1.04] tracking-[-0.015em] [text-wrap:balance] gs-reveal">
-          Qualify on the rent. <em class="font-display-wonk italic text-brass-2">Skip</em> the tax&nbsp;returns.
+        <p class="eyebrow text-brass-2 mb-4 lg:mb-6 hero-enter">DSCR Rental Property Loans · Texas</p>
+        <h1 class="font-display text-[clamp(2rem,4.6vw,4.1rem)] leading-[1.12] tracking-[-0.008em] [text-wrap:balance] hero-enter hero-enter-1">
+          Finance your next Texas rental <em class="font-display-wonk italic text-brass-2">on the rent alone.</em>
         </h1>
-        <p class="text-cream/70 text-lg leading-relaxed mt-6 max-w-md gs-reveal">
-          Purchase, refinance, or pull cash out of Texas investment property.
-          Rates from {brand.lenderCount} lenders, with closings in as little as {brand.avgDaysToClose} days.
+        <p class="hidden lg:block text-cream/70 text-lg leading-relaxed mt-6 max-w-md hero-enter hero-enter-2">
+          Credit from {brand.minCredit}, closings in as little as {brand.avgDaysToClose} days, and
+          never a tax return. Purchase, refinance, or pull cash out of Texas investment property.
         </p>
 
-        <!-- proof row -->
-        <div class="flex flex-wrap items-center gap-x-6 gap-y-3 mt-8 gs-reveal">
+        <!-- proof row (desktop only; on mobile every pixel goes to the form) -->
+        <div class="hidden lg:flex flex-wrap items-center gap-x-6 gap-y-3 mt-8 hero-enter hero-enter-3">
           <div class="flex items-center gap-2">
             <span class="text-brass-2 text-sm" aria-hidden>✓</span>
             <span class="text-sm text-cream/70">Same-day income &amp; credit approval</span>
@@ -41,7 +41,7 @@ import { brand, tickerItems, faqs } from '../config/funnel';
         </div>
 
         <!-- 3D property scene -->
-        <div class="tilt-scene mt-10 hidden lg:block gs-reveal" id="hero-scene">
+        <div class="tilt-scene mt-10 hidden lg:block hero-enter hero-enter-4" id="hero-scene">
           <div class="relative w-[440px]" id="hero-tilt" style="transform-style: preserve-3d;">
             <div class="arch overflow-hidden border border-cream/15 shadow-[var(--shadow-pop)]" style="transform: translateZ(0px);">
               <img
@@ -79,7 +79,7 @@ import { brand, tickerItems, faqs } from '../config/funnel';
           <div class="relative bg-paper text-ink rounded-3xl px-6 py-7 sm:px-8 sm:py-8 shadow-[var(--shadow-pop)]">
             <div class="flex items-center justify-center gap-2 mb-5">
               <span class="w-1.5 h-1.5 rounded-full bg-pine animate-pulse"></span>
-              <span class="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-pine">Your DSCR pricing options in 60 seconds</span>
+              <span class="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-pine">Pricing options in 60 seconds</span>
             </div>
             <FunnelForm client:load />
           </div>
@@ -134,12 +134,14 @@ import { brand, tickerItems, faqs } from '../config/funnel';
               Scale without hitting a bank's ten-property wall.
             </p>
           </div>
+          <!-- The ONE place on this page the lender count appears (said-once rule,
+               overhaul 2026-08-19): reframed from aggregator brag to concrete payoff. -->
           <div class="gs-reveal border-t-2 border-ink/80 pt-5">
             <div class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-ink/40 mb-3">03</div>
-            <h3 class="font-display text-xl mb-2.5">Rates from {brand.lenderCount} lenders</h3>
+            <h3 class="font-display text-xl mb-2.5">Priced across the market</h3>
             <p class="text-[0.94rem] leading-relaxed text-ink/65">
-              One application, priced across {brand.lenderCount} lenders. Same-day income and
-              credit approval, with closings in as little as {brand.avgDaysToClose} days.
+              Term sheets from {brand.lenderCount} DSCR lenders, best 2-3 in 24 hours.
+              One credit pull, no rate-shopping grind.
             </p>
           </div>
         </div>
@@ -226,8 +228,8 @@ import { brand, tickerItems, faqs } from '../config/funnel';
         <div class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-cream/50 mt-3">Day closings, fastest files</div>
       </div>
       <div class="text-center gs-reveal">
-        <div class="font-display text-[clamp(2.6rem,4.5vw,4rem)] leading-none text-brass-2"><span data-count="100">0</span>+</div>
-        <div class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-cream/50 mt-3">Lenders quoting your deal</div>
+        <div class="font-display text-[clamp(2.6rem,4.5vw,4rem)] leading-none text-brass-2">Same day</div>
+        <div class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-cream/50 mt-3">Income &amp; credit approval</div>
       </div>
       <div class="text-center gs-reveal">
         <div class="font-display text-[clamp(2.6rem,4.5vw,4rem)] leading-none text-brass-2"><span data-count="620">0</span></div>
@@ -247,11 +249,11 @@ import { brand, tickerItems, faqs } from '../config/funnel';
         <div class="lg:sticky lg:top-24 gs-reveal">
           <p class="eyebrow text-moss mb-4">How it works</p>
           <h2 class="font-display text-[clamp(2rem,3.6vw,3rem)] leading-[1.06] tracking-tight mb-6">
-            Sixty seconds now. <em class="italic text-pine">Priced on your call.</em>
+            Sixty seconds now. <em class="italic text-pine">Real numbers fast.</em>
           </h2>
           <p class="text-ink/65 leading-relaxed max-w-sm mb-8">
-            The eligibility check is instant: no credit pull, no documents, no obligation. It simply tells
-            us enough to price your deal across our lender network when we talk.
+            The check is instant: no credit pull, no documents, no obligation. It tells us enough
+            to price your deal across the wholesale market and text you what comes back.
           </p>
           <a href="#eligibility" class="btn-brass rounded-xl px-7 py-3.5 inline-flex">Get my pricing options →</a>
         </div>
@@ -260,19 +262,20 @@ import { brand, tickerItems, faqs } from '../config/funnel';
         <div class="gs-reveal bg-paper-2 border border-ink/10 rounded-2xl p-7 lg:p-9 flex gap-6 items-start">
           <span class="font-display text-[2.6rem] leading-none text-brass shrink-0">1</span>
           <div>
-            <h3 class="font-display text-[1.35rem] mb-2">Answer seven quick questions</h3>
+            <h3 class="font-display text-[1.35rem] mb-2">Answer a few quick questions</h3>
             <p class="text-[0.95rem] text-ink/65 leading-relaxed">
-              Deal type, property, credit range, numbers. Sixty seconds, no credit check of any kind.
+              Deal type, property, credit range, your numbers. About sixty seconds, no credit
+              check of any kind.
             </p>
           </div>
         </div>
         <div class="gs-reveal bg-paper-2 border border-ink/10 rounded-2xl p-7 lg:p-9 flex gap-6 items-start lg:translate-x-8">
           <span class="font-display text-[2.6rem] leading-none text-brass shrink-0">2</span>
           <div>
-            <h3 class="font-display text-[1.35rem] mb-2">We shop {brand.lenderCount} lenders</h3>
+            <h3 class="font-display text-[1.35rem] mb-2">We shop the whole market</h3>
             <p class="text-[0.95rem] text-ink/65 leading-relaxed">
-              On a quick call we price your scenario across the wholesale market and you see the
-              best terms (rate, points, and payment) side by side.
+              Reply to the text and your scenario gets priced across the wholesale market, best
+              terms (rate, points, and payment) side by side.
             </p>
           </div>
         </div>

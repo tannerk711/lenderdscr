@@ -20,6 +20,13 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ ok: true }, 200);
   }
 
+  // Sub-620 never reaches the CRM (620 is the program floor). The form kicks
+  // these to /not-yet before contact info is ever collected; this backstops a
+  // hand-built POST the same silent way the honeypot does.
+  if (data.credit === '<620') {
+    return json({ ok: true }, 200);
+  }
+
   // TCPA gate, server side. The checkbox in the form is the real UX, but a
   // client-only gate is bypassable and this is a legal consent record, so a
   // lead without affirmative consent never reaches the CRM.

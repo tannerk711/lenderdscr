@@ -55,31 +55,39 @@ export const fixedState = 'Texas';
 
 // ---------- form option sets ----------
 
+// 3 options, label-only, so the WHOLE step fits a 390px viewport (mobile fold
+// compression, overhaul 2026-08-19). Refinance + cash-out merged: same slider
+// branch, and the split cost a card of fold height for a distinction the call
+// resolves anyway. Sophisticated avatar, no subtitles needed.
 export const goals = [
   {
     value: 'purchase',
     label: 'Buy a rental',
-    sub: 'Purchase an investment property',
     icon: ['M3 10.5 12 3l9 7.5', 'M5 9.5V21h14V9.5', 'M9.5 21v-6h5v6'],
   },
   {
     value: 'refinance',
-    label: 'Refinance',
-    sub: 'Improve my rate or terms',
+    label: 'Refinance or pull cash out',
     icon: ['M21 2v6h-6', 'M3 12a9 9 0 0 1 15-6.7L21 8', 'M3 22v-6h6', 'M21 12a9 9 0 0 1-15 6.7L3 16'],
-  },
-  {
-    value: 'cashout',
-    label: 'Pull cash out',
-    sub: 'Tap equity for the next deal',
-    icon: ['M12 2v20', 'M17 6.5H9.5a3.25 3.25 0 0 0 0 6.5h5a3.25 3.25 0 0 1 0 6.5H6'],
   },
   {
     value: 'bridge',
     label: 'Fix & flip / bridge',
-    sub: 'Short-term or rehab money',
     icon: ['m14 6 8 8-2.5 2.5-8-8z', 'M12.5 7.5 10 5C8 3 5 3 3 5l4.5 4.5', 'm2 22 7.5-7.5'],
   },
+] as const;
+
+// Deal-stage question (overhaul 2026-08-19): the opener for Paul's first text.
+// "Under contract" texts different than "still running numbers".
+export const dealStages = [
+  { value: 'contract', label: 'Under contract' },
+  { value: 'offers', label: 'Making offers now' },
+  { value: 'research', label: 'Still running the numbers' },
+] as const;
+
+export const refiStages = [
+  { value: 'ready', label: 'Ready to move forward' },
+  { value: 'exploring', label: 'Comparing my options' },
 ] as const;
 
 export const propertyTypes = [

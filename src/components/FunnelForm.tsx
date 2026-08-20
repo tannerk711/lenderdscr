@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   brand,
   goals,
+  dealStages,
+  refiStages,
   propertyTypes,
   creditBands,
   usStates,
@@ -15,12 +17,14 @@ import {
 
 type Answers = {
   goal: string;
+  stage: string;
   propertyType: string;
   credit: string;
   price: number;
   downPct: number;
   balance: number;
   rehab: number;
+  city: string;
   state: string;
   firstName: string;
   email: string;
@@ -29,10 +33,12 @@ type Answers = {
 
 type StepId =
   | 'goal'
+  | 'stage'
   | 'propertyType'
   | 'credit'
   | 'price'
   | 'secondary'
+  | 'city'
   | 'state'
   | 'contact'
   | 'phone';
@@ -174,12 +180,14 @@ const Back = ({ show, onBack }: { show: boolean; onBack: () => void }) =>
 export default function FunnelForm() {
   const [answers, setAnswers] = useState<Answers>({
     goal: '',
+    stage: '',
     propertyType: '',
     credit: '',
     price: 350_000,
     downPct: 25,
     balance: 175_000,
     rehab: 75_000,
+    city: '',
     state: fixedState || '',
     firstName: '',
     email: '',
@@ -188,7 +196,6 @@ export default function FunnelForm() {
 
   const [stepIndex, setStepIndex] = useState(0);
   const [direction, setDirection] = useState<'fwd' | 'back'>('fwd');
-  const [declined, setDeclined] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(false);
@@ -205,6 +212,9 @@ export default function FunnelForm() {
   // capture gclid / utm params once
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
+    // ?qa=1 marks a QA walk: the lead still posts end to end, but the Ads
+    // conversion on /thank-you is suppressed so tests never pollute the data.
+    if (p.get('qa') === '1') sessionStorage.setItem('qa', '1');
     const keep = ['gclid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
     const found: Record<string, string> = {};
     keep.forEach((k) => {
@@ -219,10 +229,13 @@ export default function FunnelForm() {
 
   const steps: StepId[] = useMemo(() => {
     // single-state funnel: the state step is skipped and every lead is
-    // stamped with fixedState (see src/config/funnel.ts)
+    // stamped with fixedState (see src/config/funnel.ts). The city step
+    // (overhaul 2026-08-19) sits after the deal-structure step and right
+    // before contact info: it feeds the "[city] rental" opener in Paul's
+    // first text and is a low-friction commitment beat.
     return fixedState
-      ? ['goal', 'propertyType', 'credit', 'price', 'secondary', 'contact', 'phone']
-      : ['goal', 'propertyType', 'credit', 'price', 'secondary', 'state', 'contact', 'phone'];
+      ? ['goal', 'stage', 'propertyType', 'credit', 'price', 'secondary', 'city', 'contact', 'phone']
+      : ['goal', 'stage', 'propertyType', 'credit', 'price', 'secondary', 'city', 'state', 'contact', 'phone'];
   }, []);
 
   const step = steps[stepIndex];
@@ -249,7 +262,10 @@ export default function FunnelForm() {
     set(key, value);
     track('funnel_step', { step, value: String(value) });
     if (key === 'credit' && value === '<620') {
-      setDeclined(true);
+      // Hard exit (overhaul 2026-08-19): sub-620 goes to /not-yet, the honest
+      // no-with-a-path page, instead of a soft "change my answer" loop. The
+      // server side of this gate lives in /api/lead.
+      window.location.href = '/not-yet';
       return;
     }
     window.setTimeout(() => go('fwd'), 180);
@@ -269,6 +285,8 @@ export default function FunnelForm() {
     return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
   };
 
+  const stageOptions = answers.goal === 'refinance' ? refiStages : dealStages;
+
   // display-ready strings ride along so the CRM never has to format numbers
   // (GHL merge fields render these directly; see deliverables/WIRING.md)
   const buildLeadPayload = (honeypot = '') => {
@@ -287,11 +305,13 @@ export default function FunnelForm() {
 
     return {
       ...answers,
+      city: answers.city.trim(),
       phone: phoneDigits,
       partial: false,   // always false; partial captures removed, kept so the CRM field map never sees a missing key
       price: answers.price >= 2_000_000 ? '2000000+' : answers.price,
       downPayment,
       goalLabel: goals.find((g) => g.value === answers.goal)?.label ?? answers.goal,
+      stageLabel: stageOptions.find((s) => s.value === answers.stage)?.label ?? answers.stage,
       propertyTypeLabel:
         propertyTypes.find((p) => p.value === answers.propertyType)?.label ?? answers.propertyType,
       priceDisplay,
@@ -324,7 +344,7 @@ export default function FunnelForm() {
 
   const submit = async () => {
     if (phoneDigits.length !== 10) {
-      setError('Enter a 10-digit mobile number so your loan specialist can reach you.');
+      setError('Enter a 10-digit mobile number so we can text your pricing options.');
       return;
     }
     // TCPA gate. Consent must be affirmative, so this blocks submit outright
@@ -355,6 +375,7 @@ export default function FunnelForm() {
           propertyType: answers.propertyType,
           credit: answers.credit,
           price: answers.price,
+          city: answers.city.trim(),
           state: answers.state,
         })
       );
@@ -378,25 +399,27 @@ export default function FunnelForm() {
 
   const titles: Record<StepId, string> = {
     goal: 'What are you looking to do?',
+    stage: 'Where are you in the deal?',
     propertyType: 'What type of property?',
     credit: "Where's your credit sitting?",
     price: isPurchase || isBridge ? 'Estimated purchase price?' : 'Estimated property value?',
     secondary: isPurchase
-      ? 'How much are you putting down?'
+      ? 'How are you structuring the deal?'
       : isBridge
         ? 'Estimated rehab budget?'
         : 'Roughly what do you still owe?',
+    city: 'Which Texas city is the property in?',
     state: 'Where is the property?',
     contact: "What's your name and email?",
-    phone: "What's the best number to text your pricing options to?",
+    phone: 'Where should we text your pricing options?',
   };
 
   const subtitles: Partial<Record<StepId, string>> = {
     goal: 'Takes about 60 seconds. No credit pull, no obligation.',
     credit: 'A soft estimate is fine. This never touches your credit.',
-    secondary: isPurchase ? 'Most DSCR programs start at 20% down.' : undefined,
+    secondary: isPurchase ? 'More down usually means sharper pricing.' : undefined,
     contact: 'So your specialist knows who to follow up with.',
-    phone: "We won't sell your number. No games, no spam.",
+    phone: 'Text first. A call only if you ask for one.',
   };
 
   const filteredStates = usStates
@@ -407,6 +430,9 @@ export default function FunnelForm() {
     switch (step) {
       case 'goal':
         return <OptionGrid options={goals} onPick={(v) => pick('goal', v as never)} />;
+
+      case 'stage':
+        return <OptionGrid options={stageOptions} onPick={(v) => pick('stage', v as never)} />;
 
       case 'propertyType':
         return <OptionGrid options={propertyTypes} onPick={(v) => pick('propertyType', v as never)} cols={2} />;
@@ -477,6 +503,37 @@ export default function FunnelForm() {
             />
             <Continue onClick={() => go('fwd')} />
           </>
+        );
+
+      case 'city':
+        return (
+          <div className="grid gap-3">
+            <input
+              className="field-input rounded-xl"
+              placeholder="e.g. Fort Worth"
+              autoComplete="address-level2"
+              value={answers.city}
+              autoFocus
+              onChange={(e) => set('city', e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && answers.city.trim().length >= 2) {
+                  track('funnel_step', { step: 'city', value: answers.city.trim() });
+                  go('fwd');
+                }
+              }}
+            />
+            {error && <p className="text-sm text-blush font-medium">{error}</p>}
+            <Continue
+              onClick={() => {
+                if (answers.city.trim().length < 2) {
+                  setError('Add the city so your options get priced to the right market.');
+                  return;
+                }
+                track('funnel_step', { step: 'city', value: answers.city.trim() });
+                go('fwd');
+              }}
+            />
+          </div>
         );
 
       case 'state':
@@ -563,7 +620,7 @@ export default function FunnelForm() {
         const summaryBits = [
           goals.find((g) => g.value === answers.goal)?.label,
           propertyTypes.find((p) => p.value === answers.propertyType)?.label,
-          answers.state,
+          answers.city.trim() || answers.state,
           answers.price >= 2_000_000 ? '$2M+' : fmt(answers.price),
         ].filter(Boolean);
         return (
@@ -631,37 +688,6 @@ export default function FunnelForm() {
       }
     }
   };
-
-  // ----------------------------------------------------------------
-  // soft decline screen
-  // ----------------------------------------------------------------
-
-  if (declined) {
-    return (
-      <div ref={cardRef} className="relative">
-        <div className="text-center px-2 py-6 step-enter">
-          <div className="mx-auto w-12 h-12 rounded-full border border-ink/20 flex items-center justify-center text-xl mb-4">
-            ✕
-          </div>
-          <h3 className="font-display text-2xl leading-tight mb-3">We can&rsquo;t qualify below 620 yet.</h3>
-          <p className="text-ink/65 text-[0.95rem] leading-relaxed max-w-sm mx-auto">
-            Most DSCR programs require a 620+ score. If you&rsquo;re close, a few months of focused credit work
-            usually gets you there, and we&rsquo;d be glad to take another look when you are.
-          </p>
-          <button
-            type="button"
-            onClick={() => {
-              setDeclined(false);
-              set('credit', '');
-            }}
-            className="btn-brass rounded-xl px-6 py-3 mt-6"
-          >
-            ← Change my answer
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   // ----------------------------------------------------------------
   // card shell

@@ -183,8 +183,11 @@ import { brand } from '../config/funnel';
     // Google Ads conversion. Gated: fires for real submissions (lead-summary in
     // sessionStorage) and the ?demo=1 preview (Tag Assistant verification), never
     // on bare visits, so bots and accidental loads do not inflate conversions.
+    // A QA walk started with ?qa=1 posts a real lead but never fires the
+    // conversion, so test submits stay out of the Ads data.
     const isDemo = new URLSearchParams(window.location.search).get('demo') === '1';
-    if (brand.gtagConversion && (hasLead || isDemo) && typeof (window as any).gtag === 'function') {
+    const isQa = sessionStorage.getItem('qa') === '1';
+    if (brand.gtagConversion && (hasLead || isDemo) && !isQa && typeof (window as any).gtag === 'function') {
       (window as any).gtag('event', 'conversion', { send_to: brand.gtagConversion });
     }
   </script>
