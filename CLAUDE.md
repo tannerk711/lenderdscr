@@ -217,8 +217,9 @@ numbers get run only when the lead wants them. **Mike is on Paul's team (Tanner
 2026-08-24, last name/title unknown)**, named on the thank-you page alongside Paul;
 the specialist card still shows Paul only (never invent Mike's details). Reply-loop
 mechanics unchanged (text first from (855) 545-2022, save-the-number card, verdict
-withheld, conversion gating untouched). `deliverables/first-sms-draft.md` is v2,
-rewritten to this frame (city merge field removed; still needs Paul's sign-off). Same
+withheld, conversion gating untouched). **The GHL follow-up automation is 100%
+TANNER-SIDE (his call, 2026-08-24): never build, update, or track the first-text side
+again.** `deliverables/first-sms-draft.md` (v2, conversation frame) is REFERENCE ONLY. Same
 sweep earlier: Layout.astro default meta description, not-yet.astro, and privacy.astro
 all use eligibility-check language; thank-you headings are bold sans matching the LP.
 
