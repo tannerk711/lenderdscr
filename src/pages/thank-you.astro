@@ -5,13 +5,15 @@ import Footer from '../components/Footer.astro';
 import { brand } from '../config/funnel';
 ---
 
-<Layout title={`Your Numbers Are In | ${brand.name}`} description="Your DSCR pricing request is in. Watch for the text.">
+<Layout title={`Eligibility Check Received | ${brand.name}`} description="Your DSCR eligibility check is in. Your results come by text.">
   <Topbar />
 
   <!-- ============ RESULT HERO ============ -->
-  <!-- Verdict is deliberately WITHHELD here (no "you pre-qualify"). The page's one
-       job is priming the reply loop: Paul texts first, the lead replies to start.
-       Overhaul plan 2026-08-19, Phase 1. Paul is named on THIS page only. -->
+  <!-- PMF-model reframe 2026-08-24: language matches the LP's "Check My
+       Eligibility" promise. Verdict is still deliberately WITHHELD (no "you
+       pre-qualify"); the page's one job is priming the reply loop: Paul texts
+       first with the RESULTS, the lead replies to start. Paul is named on
+       THIS page only. -->
   <section class="bg-paper py-20 lg:py-24 relative overflow-hidden">
     <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-brass via-brass-2 to-brass"></div>
     <div class="max-w-3xl mx-auto px-5 lg:px-10 text-center relative z-10">
@@ -27,14 +29,14 @@ import { brand } from '../config/funnel';
         </svg>
       </div>
 
-      <p class="eyebrow text-moss mb-5">Pricing request received</p>
-      <h1 class="font-display text-[clamp(2.2rem,4.5vw,3.6rem)] leading-[1.05] tracking-tight">
-        <span id="ty-name">Your numbers are in.</span>
-        <em class="italic text-pine">Paul is pricing your deal now.</em>
+      <p class="eyebrow text-moss mb-5">Eligibility check received</p>
+      <h1 class="font-bold text-pine text-[clamp(2rem,4.2vw,3.2rem)] leading-[1.12] tracking-[-0.008em]">
+        <span id="ty-name">Your eligibility check is in.</span>
+        <em class="italic">Paul is reviewing your scenario now.</em>
       </h1>
       <p class="text-ink/65 text-lg leading-relaxed mt-5 max-w-xl mx-auto">
-        Paul Howarth will text you first from {brand.phone}. Reply to that text and the
-        conversation starts.
+        Paul Howarth will text you first from {brand.phone} with your results. Reply to
+        that text and the conversation starts.
       </p>
 
       <!-- scenario chips (filled from sessionStorage) -->
@@ -46,18 +48,18 @@ import { brand } from '../config/funnel';
   <section class="bg-paper-2 border-y border-ink/10 py-16 lg:py-20">
     <div class="max-w-4xl mx-auto px-5 lg:px-10">
       <div class="text-center mb-10">
-        <h2 class="font-display text-[clamp(1.7rem,3vw,2.4rem)] tracking-tight">
+        <h2 class="font-bold text-pine text-[clamp(1.7rem,3vw,2.4rem)] tracking-[-0.008em]">
           Watch for the text.
         </h2>
         <p class="text-ink/60 mt-3 max-w-xl mx-auto">
-          Your pricing options come by text first. When it lands, a reply is all it takes.
+          Your results come by text first. When it lands, a reply is all it takes.
           Paul handles the rest.
         </p>
       </div>
 
       <div class="bg-paper border border-ink/10 rounded-2xl shadow-[var(--shadow-card)] px-8 py-12 text-center">
         <p class="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-ink/45 mb-4">It will come from this number</p>
-        <a href={brand.phoneHref} class="font-display text-[clamp(2rem,4vw,3rem)] text-pine hover:text-ink transition-colors">
+        <a href={brand.phoneHref} class="font-bold text-[clamp(2rem,4vw,3rem)] tracking-[-0.008em] text-pine hover:text-ink transition-colors">
           {brand.phone}
         </a>
         <p class="text-ink/55 text-sm mt-4">
@@ -71,24 +73,24 @@ import { brand } from '../config/funnel';
   <section class="bg-paper py-16 lg:py-20 border-b border-ink/10">
     <div class="max-w-5xl mx-auto px-5 lg:px-10">
       <p class="eyebrow text-moss text-center mb-4">While you wait</p>
-      <h2 class="font-display text-[clamp(1.7rem,3vw,2.4rem)] tracking-tight text-center mb-12">
-        What Paul is pricing your deal against.
+      <h2 class="font-bold text-pine text-[clamp(1.7rem,3vw,2.4rem)] tracking-[-0.008em] text-center mb-12">
+        What your scenario is checked against.
       </h2>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="border border-ink/10 rounded-2xl bg-paper-2 px-6 py-7 text-center">
-          <div class="font-display text-[2rem] leading-none text-brass">{brand.lenderCount}</div>
-          <div class="text-sm text-ink/65 mt-2.5 leading-snug">Lenders your scenario gets priced across</div>
+          <div class="font-bold text-[2rem] leading-none text-brass">{brand.lenderCount}</div>
+          <div class="text-sm text-ink/65 mt-2.5 leading-snug">Lenders your scenario is checked against</div>
         </div>
         <div class="border border-ink/10 rounded-2xl bg-paper-2 px-6 py-7 text-center">
-          <div class="font-display text-[2rem] leading-none text-brass">Same day</div>
+          <div class="font-bold text-[2rem] leading-none text-brass">Same day</div>
           <div class="text-sm text-ink/65 mt-2.5 leading-snug">Income and credit approval on most files</div>
         </div>
         <div class="border border-ink/10 rounded-2xl bg-paper-2 px-6 py-7 text-center">
-          <div class="font-display text-[2rem] leading-none text-brass">{brand.closeRangeDays}</div>
+          <div class="font-bold text-[2rem] leading-none text-brass">{brand.closeRangeDays}</div>
           <div class="text-sm text-ink/65 mt-2.5 leading-snug">Days to close, typical DSCR file</div>
         </div>
         <div class="border border-ink/10 rounded-2xl bg-paper-2 px-6 py-7 text-center">
-          <div class="font-display text-[2rem] leading-none text-brass">$0</div>
+          <div class="font-bold text-[2rem] leading-none text-brass">$0</div>
           <div class="text-sm text-ink/65 mt-2.5 leading-snug">Tax returns and pay stubs required</div>
         </div>
       </div>
@@ -103,33 +105,33 @@ import { brand } from '../config/funnel';
   <section class="bg-paper py-20 lg:py-24">
     <div class="max-w-5xl mx-auto px-5 lg:px-10">
       <p class="eyebrow text-moss text-center mb-4">What happens next</p>
-      <h2 class="font-display text-[clamp(1.8rem,3vw,2.5rem)] tracking-tight text-center mb-14">
+      <h2 class="font-bold text-pine text-[clamp(1.8rem,3vw,2.5rem)] tracking-[-0.008em] text-center mb-14">
         From here, it&rsquo;s three steps to funded.
       </h2>
       <div class="grid sm:grid-cols-3 gap-5">
         <div class="border border-ink/10 rounded-2xl bg-paper-2 p-7">
-          <span class="font-display text-[2.2rem] text-brass leading-none">1</span>
-          <h3 class="font-display text-lg mt-4 mb-2">Reply to Paul&rsquo;s text</h3>
-          <p class="text-sm leading-relaxed text-ink/65">That reply is the green light. Paul prices your scenario across the lender network and comes back with real numbers.</p>
+          <span class="font-bold text-[2.2rem] text-brass leading-none">1</span>
+          <h3 class="font-bold text-lg mt-4 mb-2">Reply to Paul&rsquo;s text</h3>
+          <p class="text-sm leading-relaxed text-ink/65">That reply is the green light. Paul checks your scenario across the lender network and comes back with exactly where you stand.</p>
         </div>
         <div class="border border-ink/10 rounded-2xl bg-paper-2 p-7">
-          <span class="font-display text-[2.2rem] text-brass leading-none">2</span>
-          <h3 class="font-display text-lg mt-4 mb-2">Terms in writing</h3>
+          <span class="font-bold text-[2.2rem] text-brass leading-none">2</span>
+          <h3 class="font-bold text-lg mt-4 mb-2">Terms in writing</h3>
           <p class="text-sm leading-relaxed text-ink/65">You get the rate, the leverage, and the cash-to-close on paper, so you can write offers or lock your refi terms with real numbers.</p>
         </div>
         <div class="border border-ink/10 rounded-2xl bg-paper-2 p-7">
-          <span class="font-display text-[2.2rem] text-brass leading-none">3</span>
-          <h3 class="font-display text-lg mt-4 mb-2">Appraisal to funding</h3>
+          <span class="font-bold text-[2.2rem] text-brass leading-none">3</span>
+          <h3 class="font-bold text-lg mt-4 mb-2">Appraisal to funding</h3>
           <p class="text-sm leading-relaxed text-ink/65">Appraisal with a rent schedule, title, done. No tax returns, no pay stubs, no employment verification anywhere in the file.</p>
         </div>
       </div>
 
       <!-- specialist -->
       <div class="mt-14 max-w-md mx-auto text-center border border-ink/10 rounded-2xl bg-paper-2 px-8 py-8">
-        <div class="w-14 h-14 rounded-full bg-pine text-cream font-display text-xl flex items-center justify-center mx-auto mb-4" id="specialist-initial">
+        <div class="w-14 h-14 rounded-full bg-pine text-cream font-bold text-xl flex items-center justify-center mx-auto mb-4" id="specialist-initial">
           {brand.specialist.name.charAt(0)}
         </div>
-        <div class="font-display text-lg">{brand.specialist.name}</div>
+        <div class="font-bold text-lg">{brand.specialist.name}</div>
         <div class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-ink/50 mt-1.5">
           {brand.specialist.title}{brand.specialist.nmls ? ` · ${brand.specialist.nmls}` : ''}
         </div>
@@ -153,7 +155,7 @@ import { brand } from '../config/funnel';
         if (s.firstName) {
           const el = document.getElementById('ty-name');
           const first = String(s.firstName).trim().split(/\s+/)[0];
-          if (el) el.textContent = `${first}, your numbers are in.`;
+          if (el) el.textContent = `${first}, your eligibility check is in.`;
         }
         const labels: Record<string, string> = {
           purchase: 'Purchase', refinance: 'Refinance', cashout: 'Cash-out refi', bridge: 'Fix & flip',
