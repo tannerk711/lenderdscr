@@ -153,7 +153,62 @@ declined: inventing consumer endorsements for a lender is an FTC endorsement-gui
 problem and an ads-account risk. The proof band fills that trust slot instead. Re-add a
 reviews section ONLY if Paul supplies real, attributable feedback.
 
-## 2026-08-19 OVERHAUL EXECUTED (plan: dscr-overhaul-plan-2026-08-19.md)
+## 2026-08-24 PMF-MODEL REBUILD (CURRENT STATE, supersedes the 8/19 frame notes)
+
+**Tanner's call, verbatim intent: "model what has worked and stop assuming."** The LP and
+the ads now mirror Przemek's converting funnel (dscr.promortgagefunding.com + the PMF
+"DSCR - MI/CA" campaign, the 8.72% conv @ $70/lead baseline) as closely as Paul's real
+claims allow.
+
+**This EXPLICITLY overrides the 8/19 "never reuse the qualify frame" rule for this
+client.** PMF converts WITH eligibility framing ("Check Eligibility" everywhere); Tanner
+chose to model it 1:1 on 2026-08-24. Do not revert to the pricing-options frame without
+a new call from Tanner.
+
+**Landing page (index.astro), PMF structure section for section:**
+1. White topbar: logo + "Call: (855) 545-2022" (PMF header pattern).
+2. Centered navy H1 "DSCR Rental Property Loans for Texas Real Estate Investors" with the
+   FORM DIRECTLY UNDER IT (the form is the hero, PMF pattern). Full step 1 above the
+   390px fold.
+3. "Why Choose Our DSCR Investor Loans?" dark band, 3 cards, PMF copy near-verbatim.
+4. "Top DSCR Lender For Texas Real Estate Investors" photo band + white credibility card
+   (logo, "Top Rated Private Mortgage Lender", 5 check bullets from Paul's claims,
+   Check Eligibility + phone). No NMLS (Paul has none), NO STARS (no reviews).
+5. "Discover If You Qualify for DSCR Financing" / "Instant Qualification Check" section,
+   PMF copy verbatim.
+6. FAQ: PMF's exact 5 questions, answers adapted to Paul's published claims
+   (620 floor, 20-25% down, same-day approval, 15-25 days, 100+ lenders). NO RATES.
+7. Final "Check Eligibility" CTA. CTA buttons are PMF teal-green sitewide (`.btn-brass`
+   recolored; name kept so nothing else changed).
+- **`brand.eligibilityCount`** in funnel.ts gates the "N Investors Checked Their
+  Eligibility!" counter (PMF shows 3,189). Renders ONLY when set with a REAL number from
+  Paul. NEVER fabricate. Currently '' (hidden). Same rule as reviews.
+- Ticker, DSCR dial, stats band, how-it-works, GSAP page motion: REMOVED (PMF has none).
+
+**Form is now 7 steps, the PMF survey flow with PMF wording:** goal ("What Are You
+Looking To Do?": Purchase / Fix and Hold/Flip / Cash Out Refinance; values unchanged) →
+property ("What Type Of Property Is It?", PMF unit labels) → credit ("What's Your Credit
+Like?", "619 or less" hard-exits to /not-yet, server drop unchanged) → price (default
+$300K, PMF) → down payment ("(Minimum 20% for purchases)", 20-50%) → name+email → phone
+(TCPA gate + **"Check My Eligibility"** submit). The 8/19 `stage` and `city` steps are
+REMOVED (PMF has neither; neither was ever Zap-mapped) but their payload keys still ship
+as `''` so the CRM field map never breaks. TCPA, one-webhook-per-lead, honeypot, `?qa=1`
+suppression: all unchanged.
+
+**Ads (acct 340-440-3562, campaign `DSCR - TX` 24041061079, stays ENABLED):** all 7
+SKAGs (DSCR Loan / DSCR Loan Texas / DSCR Lender / Investment Property Loan / Investment
+Property Lender / Rental Property Loan / Rental Property Lender) now run ONE ad each with
+the PMF proven copy, Texas-ified: PMF's 6 headlines + 1 exact-keyword headline, PMF's 3
+descriptions with "Close in 14-21 Days" → "15-25 Days" (Paul's published claim; never
+inflate) and "Minimum 20% Down" KEPT (PMF-proven qualifier, matches the form). utm_content
+`*-pmf1`, `utm_term={keyword}` on every ad. The 8/19 rewrite ads are PAUSED. Bidding (Max
+Clicks + $6.50 ceiling), negatives, callouts untouched. Script + verify:
+`google-ads/clients/paul-howarth/pmf_model_swap.py` (--verify = ALL PASS 2026-08-24).
+
+**QA tools updated for the 7-step flow:** tcpa-test.mjs, prod-submit-qa.mjs (+ new
+step-walk-qa.mjs); all take `ILD_BASE` env for alt ports. All passing 2026-08-24.
+
+## 2026-08-19 OVERHAUL EXECUTED (plan: dscr-overhaul-plan-2026-08-19.md, PARTIALLY SUPERSEDED 2026-08-24, see above)
 
 All four phases shipped same day. Current state supersedes older form/page notes above.
 

@@ -136,7 +136,7 @@ const Slider = ({
 }) => (
   <div>
     <div className="text-center mb-5">
-      <div className="font-display text-[2.6rem] leading-none tracking-tight tabular-nums">{display}</div>
+      <div className="font-bold text-ink text-[2.3rem] leading-none tracking-[-0.008em] tabular-nums">{display}</div>
       {hint && <div className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-ink/50 mt-2">{hint}</div>}
     </div>
     <input
@@ -183,7 +183,7 @@ export default function FunnelForm() {
     stage: '',
     propertyType: '',
     credit: '',
-    price: 350_000,
+    price: 300_000, // PMF survey default
     downPct: 25,
     balance: 175_000,
     rehab: 75_000,
@@ -228,14 +228,16 @@ export default function FunnelForm() {
   }, []);
 
   const steps: StepId[] = useMemo(() => {
-    // single-state funnel: the state step is skipped and every lead is
-    // stamped with fixedState (see src/config/funnel.ts). The city step
-    // (overhaul 2026-08-19) sits after the deal-structure step and right
-    // before contact info: it feeds the "[city] rental" opener in Paul's
-    // first text and is a low-friction commitment beat.
+    // PMF-model rebuild 2026-08-24: step list mirrors the proven
+    // dscr.promortgagefunding.com survey (goal -> property -> credit ->
+    // price -> down payment -> name/email -> phone). The 8/19 stage and
+    // city steps are REMOVED (PMF has neither; neither was ever mapped in
+    // the Zap). Their payload keys still ship as '' so the CRM field map
+    // never sees a missing key. Single-state funnel: the state step is
+    // skipped and every lead is stamped with fixedState.
     return fixedState
-      ? ['goal', 'stage', 'propertyType', 'credit', 'price', 'secondary', 'city', 'contact', 'phone']
-      : ['goal', 'stage', 'propertyType', 'credit', 'price', 'secondary', 'city', 'state', 'contact', 'phone'];
+      ? ['goal', 'propertyType', 'credit', 'price', 'secondary', 'contact', 'phone']
+      : ['goal', 'propertyType', 'credit', 'price', 'secondary', 'state', 'contact', 'phone'];
   }, []);
 
   const step = steps[stepIndex];
@@ -344,7 +346,7 @@ export default function FunnelForm() {
 
   const submit = async () => {
     if (phoneDigits.length !== 10) {
-      setError('Enter a 10-digit mobile number so we can text your pricing options.');
+      setError('Enter a 10-digit mobile number so we can text you your results.');
       return;
     }
     // TCPA gate. Consent must be affirmative, so this blocks submit outright
@@ -397,28 +399,28 @@ export default function FunnelForm() {
   const isPurchase = answers.goal === 'purchase';
   const isBridge = answers.goal === 'bridge';
 
+  // PMF survey wording, verbatim where it exists (2026-08-24).
   const titles: Record<StepId, string> = {
-    goal: 'What are you looking to do?',
-    stage: 'Where are you in the deal?',
-    propertyType: 'What type of property?',
-    credit: "Where's your credit sitting?",
-    price: isPurchase || isBridge ? 'Estimated purchase price?' : 'Estimated property value?',
+    goal: 'What Are You Looking To Do?',
+    stage: 'Where are you in the deal?', // unused (step removed); key kept for the type
+    propertyType: 'What Type Of Property Is It?',
+    credit: "What's Your Credit Like?",
+    price: isPurchase || isBridge ? "What's The Estimated Purchase Price?" : "What's The Estimated Property Value?",
     secondary: isPurchase
-      ? 'How are you structuring the deal?'
+      ? 'Please Estimate Your Down Payment'
       : isBridge
-        ? 'Estimated rehab budget?'
-        : 'Roughly what do you still owe?',
-    city: 'Which Texas city is the property in?',
-    state: 'Where is the property?',
-    contact: "What's your name and email?",
-    phone: 'Where should we text your pricing options?',
+        ? "What's The Estimated Rehab Budget?"
+        : 'Roughly What Do You Still Owe?',
+    city: 'Which Texas city is the property in?', // unused (step removed); key kept for the type
+    state: 'What State Are You Looking To Do This In?',
+    contact: "What's Your Name?",
+    phone: "What's The Best Number To Reach You?",
   };
 
   const subtitles: Partial<Record<StepId, string>> = {
-    goal: 'Takes about 60 seconds. No credit pull, no obligation.',
+    goal: 'Check your eligibility in about a minute. No credit pull, no obligation.',
     credit: 'A soft estimate is fine. This never touches your credit.',
-    secondary: isPurchase ? 'More down usually means sharper pricing.' : undefined,
-    contact: 'So your specialist knows who to follow up with.',
+    secondary: isPurchase ? '(Minimum 20% for purchases)' : undefined,
     phone: 'Text first. A call only if you ask for one.',
   };
 
@@ -463,13 +465,13 @@ export default function FunnelForm() {
               <Slider
                 value={answers.downPct}
                 min={20}
-                max={60}
+                max={50}
                 stepSize={5}
                 onChange={(v) => set('downPct', v)}
                 display={`${answers.downPct}%`}
                 hint={`≈ ${fmt(dollars)} down`}
                 minLabel="20%"
-                maxLabel="60%+"
+                maxLabel="50%+"
               />
               <Continue onClick={() => go('fwd')} />
             </>
@@ -681,7 +683,7 @@ export default function FunnelForm() {
               disabled={submitting}
               className="btn-brass w-full rounded-xl py-4 text-[1.08rem] mt-4 disabled:opacity-60 disabled:cursor-wait"
             >
-              {submitting ? 'Pulling your pricing options…' : 'Get My DSCR Pricing Options'}
+              {submitting ? 'Checking your eligibility…' : 'Check My Eligibility'}
             </button>
           </div>
         );
@@ -721,7 +723,7 @@ export default function FunnelForm() {
 
       {/* step body */}
       <div key={`${step}-${direction}`} className={direction === 'fwd' ? 'step-enter' : 'step-enter-back'}>
-        <h3 className="font-display text-[1.45rem] leading-tight text-center mb-1.5">{titles[step]}</h3>
+        <h3 className="font-bold text-pine text-[1.35rem] leading-tight tracking-[-0.008em] text-center mb-1.5">{titles[step]}</h3>
         {subtitles[step] && (
           <p className="text-center text-[0.88rem] text-ink/55 mb-5">{subtitles[step]}</p>
         )}

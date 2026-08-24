@@ -8,7 +8,7 @@ import puppeteer from 'puppeteer-core';
 import { fileURLToPath } from 'node:url';
 import { mkdirSync } from 'node:fs';
 
-const base = 'http://localhost:4321';
+const base = process.env.ILD_BASE || 'http://localhost:4321';
 const outDir = fileURLToPath(new URL('./shots/', import.meta.url));
 mkdirSync(outDir, { recursive: true });   // shots/ is gitignored, so it may not exist on a fresh clone
 
@@ -56,14 +56,12 @@ const fillInput = async (idx, val) => {
   }, { i: idx, v: val });
   await settle(300);
 };
-await clickByText('Buy a rental');
-await clickByText('Making offers');
-await clickByText('Single family');
+// PMF-model flow (2026-08-24): goal -> property -> credit -> price -> down -> name/email -> phone
+await clickByText('Purchase');
+await clickByText('Single Family');
 await clickByText('700');
 await clickByText('Continue');   // price
-await clickByText('Continue');   // deal structure (down %)
-await fillInput(0, 'Fort Worth');  // city
-await clickByText('Continue');
+await clickByText('Continue');   // down payment
 await fillInput(0, 'GateTest');
 await fillInput(1, 'tanner@creloanpro.com');
 await clickByText('Continue');
@@ -83,7 +81,7 @@ console.log('checkbox initial checked =', initial, '(expect false)');
 
 const order = await page.evaluate(() => {
   const cb = document.querySelector('#ff-tcpa');
-  const btn = [...document.querySelectorAll('#eligibility button')].find((b) => b.textContent.includes('Get My DSCR Pricing Options'));
+  const btn = [...document.querySelectorAll('#eligibility button')].find((b) => b.textContent.includes('Check My Eligibility'));
   if (!cb || !btn) return 'missing';
   return cb.getBoundingClientRect().top < btn.getBoundingClientRect().top ? 'ABOVE' : 'BELOW';
 });
@@ -91,7 +89,7 @@ console.log('checkbox is', order, 'the submit button (expect ABOVE)');
 await page.screenshot({ path: `${outDir}tcpa-mobile-phone-step.png` });
 
 // TEST 1: unchecked submit must be blocked
-await clickByText('Get My DSCR Pricing Options');
+await clickByText('Check My Eligibility');
 await settle(1000);
 console.log('TEST 1 unchecked -> POSTs:', posts.length, '(expect 0)');
 console.log('TEST 1 error shown:', await page.evaluate(() => {
@@ -103,7 +101,7 @@ await page.screenshot({ path: `${outDir}tcpa-mobile-blocked.png` });
 // TEST 2: checked submit goes through with the consent record
 await page.click('#ff-tcpa');
 await settle(400);
-await clickByText('Get My DSCR Pricing Options');
+await clickByText('Check My Eligibility');
 await settle(1800);
 console.log('TEST 2 checked -> POSTs:', posts.length, '(expect 1)');
 if (posts[0]) {

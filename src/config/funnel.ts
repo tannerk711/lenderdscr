@@ -47,6 +47,12 @@ export const brand = {
     title: 'DSCR Loan Specialist',
     nmls: '',                               // open item for Paul
   },
+
+  // Social-proof counter under the form (PMF-model rebuild 2026-08-24).
+  // PMF shows "3,189 Investors Checked Their Eligibility!". Renders ONLY when
+  // set, and ONLY with a REAL number from Paul (all-time inquiry count).
+  // NEVER fabricate this. '' hides the line entirely.
+  eligibilityCount: '',
 };
 
 // Texas-only funnel: the form skips the state step and stamps every
@@ -55,25 +61,25 @@ export const fixedState = 'Texas';
 
 // ---------- form option sets ----------
 
-// 3 options, label-only, so the WHOLE step fits a 390px viewport (mobile fold
-// compression, overhaul 2026-08-19). Refinance + cash-out merged: same slider
-// branch, and the split cost a card of fold height for a distinction the call
-// resolves anyway. Sophisticated avatar, no subtitles needed.
+// PMF-model rebuild 2026-08-24: labels and order match the proven
+// dscr.promortgagefunding.com survey verbatim (Purchase / Fix and Hold/Flip /
+// Cash Out Refinance). VALUES unchanged so the Zap -> GHL field map and the
+// downstream slider branches never break.
 export const goals = [
   {
     value: 'purchase',
-    label: 'Buy a rental',
+    label: 'Purchase',
     icon: ['M3 10.5 12 3l9 7.5', 'M5 9.5V21h14V9.5', 'M9.5 21v-6h5v6'],
   },
   {
-    value: 'refinance',
-    label: 'Refinance or pull cash out',
-    icon: ['M21 2v6h-6', 'M3 12a9 9 0 0 1 15-6.7L21 8', 'M3 22v-6h6', 'M21 12a9 9 0 0 1-15 6.7L3 16'],
+    value: 'bridge',
+    label: 'Fix and Hold/Flip',
+    icon: ['m14 6 8 8-2.5 2.5-8-8z', 'M12.5 7.5 10 5C8 3 5 3 3 5l4.5 4.5', 'm2 22 7.5-7.5'],
   },
   {
-    value: 'bridge',
-    label: 'Fix & flip / bridge',
-    icon: ['m14 6 8 8-2.5 2.5-8-8z', 'M12.5 7.5 10 5C8 3 5 3 3 5l4.5 4.5', 'm2 22 7.5-7.5'],
+    value: 'refinance',
+    label: 'Cash Out Refinance',
+    icon: ['M21 2v6h-6', 'M3 12a9 9 0 0 1 15-6.7L21 8', 'M3 22v-6h6', 'M21 12a9 9 0 0 1-15 6.7L3 16'],
   },
 ] as const;
 
@@ -90,21 +96,22 @@ export const refiStages = [
   { value: 'exploring', label: 'Comparing my options' },
 ] as const;
 
+// Labels match the PMF survey; values unchanged for the Zap field map.
 export const propertyTypes = [
-  { value: 'sfr', label: 'Single family' },
-  { value: '2-4', label: '2–4 units' },
-  { value: '5-9', label: '5–9 units' },
-  { value: '10+', label: '10+ units' },
+  { value: 'sfr', label: 'Single Family' },
+  { value: '2-4', label: '2-4 Units' },
+  { value: '5-9', label: '5-9 Units' },
+  { value: '10+', label: '10-15 Units' },
   { value: 'commercial', label: 'Commercial' },
   { value: 'other', label: 'Other' },
 ] as const;
 
 export const creditBands = [
-  { value: '740+', label: '740+', note: 'Excellent' },
-  { value: '700-739', label: '700–739', note: 'Great' },
-  { value: '660-699', label: '660–699', note: 'Good' },
-  { value: '620-659', label: '620–659', note: 'Fair' },
-  { value: '<620', label: 'Below 620', note: '' },
+  { value: '740+', label: '740+' },
+  { value: '700-739', label: '700-739' },
+  { value: '660-699', label: '660-699' },
+  { value: '620-659', label: '620-659' },
+  { value: '<620', label: '619 or less' },
 ] as const;
 
 // Minimum credit gate. Selecting below this shows the soft-stop screen.
@@ -142,37 +149,29 @@ export const tickerItems = [
 // Reviews: the client has no published testimonials. The reviews section is
 // removed from index.astro until Paul supplies real ones. NEVER fabricate.
 
+// PMF-model rebuild 2026-08-24: the five questions from the proven PMF page,
+// answers adapted to Paul's PUBLISHED claims only (620 floor, 20-25% down,
+// same-day income & credit approval, 15-25 day closings, 100+ lenders).
+// NO interest rates anywhere, ever (standing rule, Tanner 2026-08-19).
 export const faqs = [
   {
-    q: "Aren't DSCR loan rates higher than conventional loans?",
-    a: 'Typically 1 to 2 percent higher, and for investors the trade is usually worth it. A DSCR loan lets you qualify on the property instead of your personal income, close in an LLC, and keep scaling without your debt-to-income ratio getting in the way. Conventional loans simply cannot do that.',
+    q: 'Is it harder to get approved for a DSCR loan as a real estate investor?',
+    a: 'Not with a DSCR program. While traditional lenders focus heavily on personal income verification, DSCR (Debt Service Coverage Ratio) loans are designed specifically for real estate investors. You qualify based on the rental income potential of the investment property, not your personal W-2s or tax returns. That makes the process much simpler for investors who want to grow a portfolio without the income-documentation circus. Programs start at a 620 credit score with 20 to 25 percent down, and your scenario gets priced across 100+ lenders.',
   },
   {
-    q: 'What credit score do I need?',
-    a: 'Programs start at 620. Pricing improves meaningfully at 680 and again at 740, so a 680+ score with 20 to 25 percent down puts you in the most competitive tier. The property carries more of the weight than your personal credit history.',
+    q: 'What credit score do I need for a DSCR loan?',
+    a: "Programs are available down to a 620 credit score. Pricing improves meaningfully at 680 and again above 720, so a 680+ score with 20 to 25 percent down puts you in the most competitive tier for investment property financing. The property's rental income carries more of the weight than your personal credit history.",
   },
   {
-    q: 'How much do I need to put down?',
-    a: 'Plan on 20 to 25 percent for most purchases. A larger down payment means lower payments and stronger cash flow, and many investors use a cash-out refinance after seasoning to recover the down payment for the next property.',
+    q: 'What down payment is required for DSCR loans?',
+    a: 'Plan on a minimum of 20 percent down for purchases, with 20 to 25 percent being the standard range for investment property financing. For cash-out refinances, roughly 25 percent equity left in the property is the typical requirement. A larger down payment usually means stronger cash flow and sharper pricing, and many investors later use a cash-out refinance to recover the down payment for the next deal.',
   },
   {
-    q: 'How is the DSCR calculated?',
-    a: 'Monthly rent divided by the full monthly payment (principal, interest, taxes, insurance, and any HOA). A ratio of 1.0 means the rent exactly covers the payment; most lenders want 1.0 to 1.25 or better, and stronger ratios earn better pricing.',
+    q: 'How long does the DSCR loan approval process take?',
+    a: "Faster than a traditional investment property loan, because there is no income documentation to verify. Income and credit approval typically happens the same day, and most files close in 15 to 25 days from application to funding. Since qualification is based on the property's rental income rather than your personal financials, the appraisal with a rent schedule is usually the longest step. That speed matters when you are making offers: sellers take a fast, reliable close seriously.",
   },
   {
-    q: 'How fast can I close?',
-    a: 'Income and credit approval the same day, and most files close in 15 to 25 days. There are no tax returns or pay stubs to verify, so the appraisal with a rent schedule is usually the longest step.',
-  },
-  {
-    q: "What if the property doesn't have rental income yet?",
-    a: "No problem. For purchases without rental history, the appraiser's market rent estimate does the qualifying. That works for vacant properties, renovations, and homes being converted to rentals for the first time.",
-  },
-  {
-    q: 'Do short-term rentals like Airbnb qualify?',
-    a: 'Yes. Programs exist specifically for Airbnb and VRBO properties, qualifying on either market rent or documented short-term rental income, including income methods that account for seasonality.',
-  },
-  {
-    q: 'Can I close in an LLC?',
-    a: 'Yes, many investors do. DSCR loans are built for LLC vesting, and with most programs closing in an entity does not affect your rate.',
+    q: 'Can I qualify for a DSCR loan without showing personal income?',
+    a: "Absolutely. That is the whole point of a DSCR loan. Qualification is based on the debt service coverage ratio: whether the property's rental income covers the mortgage payment plus taxes and insurance. No tax returns, no pay stubs, no employment verification. That is perfect for investors with complex income situations, multiple LLCs, or those who simply want privacy in their financing. An appraisal or rent roll establishes the property's income potential, with most programs looking for a DSCR around 1.0 to 1.25 depending on the loan.",
   },
 ];

@@ -48,14 +48,12 @@ console.log(`walking ${base}/?qa=1 ...`);
 await page.goto(`${base}/?qa=1`, { waitUntil: 'networkidle0', timeout: 45000 });
 await settle(2000);
 
-await clickByText('Buy a rental');
-await clickByText('Making offers');
-await clickByText('Single family');
+// PMF-model flow (2026-08-24): goal -> property -> credit -> price -> down -> name/email -> phone
+await clickByText('Purchase');
+await clickByText('Single Family');
 await clickByText('700');
 await clickByText('Continue');           // price
-await clickByText('Continue');           // deal structure
-await fillInput(0, 'Fort Worth');        // city
-await clickByText('Continue');
+await clickByText('Continue');           // down payment
 await fillInput(0, 'TEST ProdQA DeleteMe');
 await fillInput(1, 'tanner@creloanpro.com');
 await clickByText('Continue');
@@ -69,7 +67,7 @@ await page.evaluate(() => {
 await settle(400);
 await page.click('#ff-tcpa');
 await settle(400);
-await clickByText('Get My DSCR Pricing Options');
+await clickByText('Check My Eligibility');
 
 // wait for the redirect to /thank-you
 try {

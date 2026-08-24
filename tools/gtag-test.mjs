@@ -7,7 +7,7 @@
 // Run with the dev server up: node tools/gtag-test.mjs
 import puppeteer from 'puppeteer-core';
 
-const base = 'http://localhost:4321';
+const base = process.env.ILD_BASE || 'http://localhost:4321';
 const CONV = 'AW-16956033989/cwbHCNCflbAaEMWXopU_';
 const TAG = 'AW-16956033989';
 
