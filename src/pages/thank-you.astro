@@ -5,14 +5,15 @@ import Footer from '../components/Footer.astro';
 import { brand } from '../config/funnel';
 ---
 
-<Layout title={`Eligibility Check Received | ${brand.name}`} description="Your DSCR eligibility check is in. Your results come by text.">
+<Layout title={`Eligibility Check Received | ${brand.name}`} description="Your DSCR eligibility check is in. Watch for a text.">
   <Topbar />
 
   <!-- ============ RESULT HERO ============ -->
-  <!-- PMF-model reframe 2026-08-24: language matches the LP's "Check My
-       Eligibility" promise. Verdict is still deliberately WITHHELD (no "you
-       pre-qualify"); the page's one job is priming the reply loop: Paul texts
-       first with the RESULTS, the lead replies to start. Paul is named on
+  <!-- Conversation frame (Tanner, 2026-08-24): the text is a CONVERSATION
+       OPENER, not a results delivery. Paul or Mike reaches out to chat about
+       the deal, answer questions, and run numbers IF the lead is interested.
+       Never promise "results are coming" (that frames a verdict we don't
+       render). Verdict still deliberately withheld. Paul/Mike are named on
        THIS page only. -->
   <section class="bg-paper py-20 lg:py-24 relative overflow-hidden">
     <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-brass via-brass-2 to-brass"></div>
@@ -32,11 +33,11 @@ import { brand } from '../config/funnel';
       <p class="eyebrow text-moss mb-5">Eligibility check received</p>
       <h1 class="font-bold text-pine text-[clamp(2rem,4.2vw,3.2rem)] leading-[1.12] tracking-[-0.008em]">
         <span id="ty-name">Your eligibility check is in.</span>
-        <em class="italic">Paul is reviewing your scenario now.</em>
+        <em class="italic">A text is on the way.</em>
       </h1>
       <p class="text-ink/65 text-lg leading-relaxed mt-5 max-w-xl mx-auto">
-        Paul Howarth will text you first from {brand.phone} with your results. Reply to
-        that text and the conversation starts.
+        Paul or Mike will text you from {brand.phone} to answer any questions you have
+        and, if you&rsquo;re interested, run some numbers for you.
       </p>
 
       <!-- scenario chips (filled from sessionStorage) -->
@@ -52,8 +53,8 @@ import { brand } from '../config/funnel';
           Watch for the text.
         </h2>
         <p class="text-ink/60 mt-3 max-w-xl mx-auto">
-          Your results come by text first. When it lands, a reply is all it takes.
-          Paul handles the rest.
+          When it lands, just reply. Ask anything about your deal, the programs, or the
+          process, and when you&rsquo;re ready, they&rsquo;ll run your numbers.
         </p>
       </div>
 
@@ -63,7 +64,7 @@ import { brand } from '../config/funnel';
           {brand.phone}
         </a>
         <p class="text-ink/55 text-sm mt-4">
-          Save it so you know it&rsquo;s Paul. Rather talk it through live? Call the same number.
+          Save it so you know it&rsquo;s Paul or Mike. Rather talk it through live? Call the same number.
         </p>
       </div>
     </div>
@@ -95,7 +96,7 @@ import { brand } from '../config/funnel';
         </div>
       </div>
       <p class="text-center text-ink/50 text-sm mt-8 max-w-2xl mx-auto leading-relaxed">
-        Have your rent numbers and target purchase price handy. Everything else, Paul pulls.
+        Have your rent numbers and target purchase price handy. Everything else, they pull.
         <a href="/call-prep" class="text-pine underline underline-offset-4 hover:text-ink transition-colors ml-1">See the two-minute prep sheet</a>.
       </p>
     </div>
@@ -111,8 +112,8 @@ import { brand } from '../config/funnel';
       <div class="grid sm:grid-cols-3 gap-5">
         <div class="border border-ink/10 rounded-2xl bg-paper-2 p-7">
           <span class="font-bold text-[2.2rem] text-brass leading-none">1</span>
-          <h3 class="font-bold text-lg mt-4 mb-2">Reply to Paul&rsquo;s text</h3>
-          <p class="text-sm leading-relaxed text-ink/65">That reply is the green light. Paul checks your scenario across the lender network and comes back with exactly where you stand.</p>
+          <h3 class="font-bold text-lg mt-4 mb-2">Reply to the text</h3>
+          <p class="text-sm leading-relaxed text-ink/65">That reply starts the conversation. Ask questions, talk through the deal, and when you&rsquo;re interested, your scenario gets priced across the lender network.</p>
         </div>
         <div class="border border-ink/10 rounded-2xl bg-paper-2 p-7">
           <span class="font-bold text-[2.2rem] text-brass leading-none">2</span>
