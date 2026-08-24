@@ -208,6 +208,14 @@ Clicks + $6.50 ceiling), negatives, callouts untouched. Script + verify:
 **QA tools updated for the 7-step flow:** tcpa-test.mjs, prod-submit-qa.mjs (+ new
 step-walk-qa.mjs); all take `ILD_BASE` env for alt ports. All passing 2026-08-24.
 
+**Thank-you page reframed to the eligibility promise (2026-08-24, same session):**
+"Eligibility check received" / "Your eligibility check is in. Paul is reviewing your
+scenario now." / "Your results come by text first" / "What your scenario is checked
+against." The reply-loop mechanics are UNCHANGED (Paul texts first from (855) 545-2022,
+verdict still withheld, conversion gating untouched). Same sweep hit the Layout.astro
+default meta description, not-yet.astro ("60-second eligibility check"), and privacy.astro
+("eligibility check form"). Thank-you headings switched to bold sans to match the LP.
+
 ## 2026-08-19 OVERHAUL EXECUTED (plan: dscr-overhaul-plan-2026-08-19.md, PARTIALLY SUPERSEDED 2026-08-24, see above)
 
 All four phases shipped same day. Current state supersedes older form/page notes above.
