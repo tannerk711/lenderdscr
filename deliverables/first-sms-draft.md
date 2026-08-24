@@ -1,46 +1,49 @@
-# First-Text Draft for Paul's Existing GHL Automation (Phase 1, 2026-08-19)
+# First-Text Draft for Paul's Existing GHL Automation (v2, 2026-08-24)
 
 Paul already HAS a follow-up automation in GHL. Nothing here is a new build. This is
-the copy + settings to align his existing first touch with what the funnel now promises,
-because the thank-you page tells every lead: "Paul Howarth will text you first from
-(855) 545-2022. Reply to that text and the conversation starts."
+the copy + settings to align his existing first touch with what the funnel now promises.
+The thank-you page tells every lead: "Paul or Mike will text you from (855) 545-2022 to
+answer any questions you have and, if you're interested, run some numbers for you."
+
+**The frame is a CONVERSATION OPENER (Tanner's call, 2026-08-24): reach out, chat about
+the deal, answer questions. NOT "here are your results" and NOT an approval verdict.**
 
 **NEEDS PAUL'S SIGN-OFF on the framing before Tanner pastes it in.**
 
-## The first text (primary draft, once the city field is mapped)
+## The first text
 
-> Hey {{contact.first_name}}, Paul Howarth with Internet Loans Direct. Got your details
-> on the {{contact.city}} rental. I can have DSCR pricing options from my top lenders
-> back to you today. Want me to run your numbers? Reply YES and I'll get started.
+> Hey {{contact.first_name}}, Paul Howarth with Internet Loans Direct. Your eligibility
+> check on the Texas rental just came through. Happy to answer any questions about the
+> programs or your deal, and if you're interested I can run your numbers across my
+> lenders. What questions can I answer for you?
 
-## Variant to use TODAY (until the new city question is mapped in the Zap)
+If the automation sends as Mike instead, swap the name; the thank-you page names both
+Paul and Mike, so either lands as the person the lead was told to expect.
 
-> Hey {{contact.first_name}}, Paul Howarth with Internet Loans Direct. Got your details
-> on the Texas rental. I can have DSCR pricing options from my top lenders back to you
-> today. Want me to run your numbers? Reply YES and I'll get started.
-
-The funnel's Phase 3 deploy adds a `city` question (answered right before contact info),
-so the payload now carries `city`. As soon as Tanner maps it into GHL, switch to the
-primary draft. If city can ever be blank, set the merge field's fallback to "Texas".
+(The 8/19 city question was removed in the 2026-08-24 PMF-model rebuild, so `city` in
+the payload is always blank now. "the Texas rental" is the permanent wording; do not
+use a {{contact.city}} merge field.)
 
 ## Non-negotiable settings (this is the engagement machine, not just copy)
 
 1. **SMS first.** Not email first, not a call first. The thank-you page scripts the lead
    to watch for a text.
-2. **Fires within minutes of the lead landing.** The page says Paul is pricing the deal
-   NOW. A next-morning text breaks the promise.
+2. **Fires within minutes of the lead landing.** The page says a text is on the way.
+   A next-morning text breaks the promise.
 3. **From (855) 545-2022.** The thank-you page displays this exact number and tells the
    lead to save it. A different sending number lands as a stranger.
-4. **The ask is a reply, not a click and not a booking link.** Reply YES starts the
-   conversation; Paul takes it manual from there.
-5. **Pricing-options frame, never approval frame.** Investors want their numbers.
-   "Want me to run your numbers?" not "Congrats, you're pre-qualified."
+4. **The ask is a reply, not a click and not a booking link.** An open question starts
+   the conversation; Paul takes it manual from there.
+5. **Conversation frame, never approval frame.** Answer questions, talk the deal, offer
+   to run numbers when they're interested. Never "Congrats, you're pre-qualified" and
+   never "here are your results."
 6. **No rates in the text. Ever.** Speed to real numbers is the certainty signal.
 
 ## Why this text (for Paul, one paragraph)
 
 The LeaderOne funnel got 11 of 13 leads texting back within days because every step made
 one promise: a named human is about to text you, watch for it, reply to it. The same
-automation firing into an unprimed lead gets silence. The funnel now makes the promise;
-this text is the payoff. Same structure: named human, their deal ("the Fort Worth
-rental"), a concrete today-outcome (pricing options from my top lenders), one-word ask.
+automation firing into an unprimed lead gets silence. The funnel now makes exactly this
+promise (questions answered, numbers run if you want them); this text is the payoff.
+Same structure: named human, their deal (the Texas rental), a genuine offer with zero
+pressure, and an open question that is easy to answer.

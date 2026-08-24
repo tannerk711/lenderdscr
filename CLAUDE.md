@@ -208,13 +208,19 @@ Clicks + $6.50 ceiling), negatives, callouts untouched. Script + verify:
 **QA tools updated for the 7-step flow:** tcpa-test.mjs, prod-submit-qa.mjs (+ new
 step-walk-qa.mjs); all take `ILD_BASE` env for alt ports. All passing 2026-08-24.
 
-**Thank-you page reframed to the eligibility promise (2026-08-24, same session):**
-"Eligibility check received" / "Your eligibility check is in. Paul is reviewing your
-scenario now." / "Your results come by text first" / "What your scenario is checked
-against." The reply-loop mechanics are UNCHANGED (Paul texts first from (855) 545-2022,
-verdict still withheld, conversion gating untouched). Same sweep hit the Layout.astro
-default meta description, not-yet.astro ("60-second eligibility check"), and privacy.astro
-("eligibility check form"). Thank-you headings switched to bold sans to match the LP.
+**Thank-you page frame (2026-08-24, Tanner-corrected same day): CONVERSATION OPENER,
+not results delivery.** The promise, verbatim from Tanner: "Paul or Mike will text you
+from (855) 545-2022 to answer any questions you have and, if you're interested, run some
+numbers for you." Never write "your results are coming" / "Paul is pricing your deal
+now"; the text starts a conversation (chat about the deal, answer questions), and
+numbers get run only when the lead wants them. **Mike is on Paul's team (Tanner
+2026-08-24, last name/title unknown)**, named on the thank-you page alongside Paul;
+the specialist card still shows Paul only (never invent Mike's details). Reply-loop
+mechanics unchanged (text first from (855) 545-2022, save-the-number card, verdict
+withheld, conversion gating untouched). `deliverables/first-sms-draft.md` is v2,
+rewritten to this frame (city merge field removed; still needs Paul's sign-off). Same
+sweep earlier: Layout.astro default meta description, not-yet.astro, and privacy.astro
+all use eligibility-check language; thank-you headings are bold sans matching the LP.
 
 ## 2026-08-19 OVERHAUL EXECUTED (plan: dscr-overhaul-plan-2026-08-19.md, PARTIALLY SUPERSEDED 2026-08-24, see above)
 
