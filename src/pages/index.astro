@@ -8,11 +8,45 @@
 // Reviews section deliberately ABSENT: Paul has no real reviews yet
 // (PMF shows real Google reviews; never fabricate). The eligibility
 // counter renders only when brand.eligibilityCount holds a REAL number.
+//
+// DESIGN PASS 2026-08-24 (design-enhancement-plan-2026-08-24.md): visual
+// treatment, imagery, and a lazy GSAP motion spine layered onto the locked
+// PMF structure. ZERO copy changes. Reveal states are applied FROM JS so a
+// failed GSAP load can never hide content; the hero entrance stays CSS-only.
 import Layout from '../layouts/Layout.astro';
 import Topbar from '../components/Topbar.astro';
 import Footer from '../components/Footer.astro';
 import FunnelForm from '../components/FunnelForm';
 import { brand, faqs } from '../config/funnel';
+
+// Bespoke Why-Choose icon suite (design pass): motifs mapped to each claim,
+// 1.8 round-cap strokes, drawn-in by the motion spine as each card lands.
+const whyIcons = [
+  // folded tax-return sheet with one clean strike
+  ['M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z', 'M14 3v5h5', 'M9 12.5h4', 'M9 16h6', 'M4.5 21 19.5 5'],
+  // house key over a calendar tile (fast, scheduled closings)
+  ['M5.5 6h13A1.5 1.5 0 0 1 20 7.5V19a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19V7.5A1.5 1.5 0 0 1 5.5 6z', 'M8.5 3.5V8', 'M15.5 3.5V8', 'M4 10.5h16', 'M11.3 15.7a2 2 0 1 1-2.6-2.6 2 2 0 0 1 2.6 2.6z', 'M11.5 15.5H16', 'M14.5 15.5v1.8'],
+  // ascending property tiles breaking through a dashed ceiling
+  ['M3 20.5h18', 'M4.5 20.5V16h4v4.5', 'M10 20.5V12h4v8.5', 'M15.5 20.5V6.5h4v14', 'M3 9h2.5', 'M8 9h2.5', 'M13 9h1'],
+];
+
+const whyCards = [
+  {
+    icon: whyIcons[0],
+    title: "No Tax Returns or W-2's Required",
+    body: 'Qualify based on rental income from the property. Perfect for the real estate investor who maximizes tax write-offs.',
+  },
+  {
+    icon: whyIcons[1],
+    title: 'Fast, Streamlined Closings',
+    body: 'We move fast. Our investor loan team knows exactly what to ask for and what to ignore. You close in weeks, not months.',
+  },
+  {
+    icon: whyIcons[2],
+    title: 'Scale Without Hitting a Ceiling',
+    body: "There's no limit on your personal debt. That means you can keep buying, refinancing, and growing your portfolio.",
+  },
+];
 ---
 
 <Layout
@@ -22,17 +56,19 @@ import { brand, faqs } from '../config/funnel';
   <Topbar />
 
   <!-- ============ H1 + SURVEY (the form IS the hero) ============ -->
-  <section class="bg-white pt-10 pb-14 lg:pt-14 lg:pb-20">
-    <div class="max-w-3xl mx-auto px-5">
-      <h1 class="text-center font-bold text-pine text-[clamp(1.7rem,4.2vw,2.6rem)] leading-[1.18] tracking-[-0.008em] [text-wrap:balance] hero-enter">
+  <!-- hero-atmo is background-only decoration: zero height added, so the
+       full step 1 stays above the 390x844 fold and the entrance stays CSS. -->
+  <section class="hero-atmo relative overflow-hidden pt-10 pb-14 lg:pt-14 lg:pb-20">
+    <div class="relative max-w-3xl mx-auto px-5">
+      <h1 class="text-center font-bold text-pine text-[clamp(1.7rem,4.2vw,2.6rem)] leading-[1.18] tracking-[-0.008em] [text-wrap:balance]">
         DSCR Rental Property Loans for Texas Real Estate Investors
       </h1>
 
       <div class="mt-8 lg:mt-10 hero-enter hero-enter-1" id="eligibility">
-        <div class="bg-paper border border-ink/10 rounded-2xl px-5 py-6 sm:px-8 sm:py-8 shadow-[var(--shadow-card)]">
+        <div class="hero-card card-hero rounded-2xl px-5 py-6 sm:px-8 sm:py-8">
           <FunnelForm client:load />
         </div>
-        <p class="text-center text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/45 mt-4">
+        <p class="text-center text-[0.78rem] font-semibold uppercase tracking-[0.14em] max-[400px]:tracking-[0.1em] [text-wrap:balance] text-ink/45 mt-4">
           No credit pull · No documents · No obligation
         </p>
         {brand.eligibilityCount && (
@@ -45,71 +81,54 @@ import { brand, faqs } from '../config/funnel';
   </section>
 
   <!-- ============ WHY CHOOSE (dark band, 3 cards) ============ -->
-  <section class="bg-ink text-cream py-16 lg:py-20">
-    <div class="max-w-6xl mx-auto px-5 lg:px-10">
-      <h2 class="text-center font-bold text-[clamp(1.5rem,3vw,2.1rem)] leading-[1.18] tracking-[-0.008em] mb-10 lg:mb-12">
+  <section class="relative bg-ink text-cream py-16 lg:py-20 contours overflow-hidden">
+    <span class="seam" aria-hidden="true"></span>
+    <div class="relative max-w-6xl mx-auto px-5 lg:px-10">
+      <h2 class="text-center font-bold text-[clamp(1.5rem,3vw,2.1rem)] leading-[1.18] tracking-[-0.008em] mb-10 lg:mb-12" data-reveal="up">
         Why Choose Our DSCR Investor Loans?
       </h2>
       <div class="grid sm:grid-cols-3 gap-5">
-        <div class="bg-ink-2 border border-cream/10 rounded-2xl px-6 py-8 text-center">
-          <span class="mx-auto mb-5 w-14 h-14 rounded-full bg-brass-2/10 border border-brass-2/30 text-brass-2 flex items-center justify-center">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden>
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <path d="M14 2v6h6" />
-              <path d="m9.5 12.5 5 5m0-5-5 5" />
+        {whyCards.map((c) => (
+          <div class="why-card card-dark rounded-2xl px-6 py-8 text-center" data-reveal="card">
+            <svg class="why-ghost" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              {c.icon.map((d) => (
+                <path d={d} />
+              ))}
             </svg>
-          </span>
-          <h3 class="font-bold text-[1.08rem] mb-2.5">No Tax Returns or W-2's Required</h3>
-          <p class="text-[0.92rem] leading-relaxed text-cream/70">
-            Qualify based on rental income from the property. Perfect for the real estate
-            investor who maximizes tax write-offs.
-          </p>
-        </div>
-        <div class="bg-ink-2 border border-cream/10 rounded-2xl px-6 py-8 text-center">
-          <span class="mx-auto mb-5 w-14 h-14 rounded-full bg-brass-2/10 border border-brass-2/30 text-brass-2 flex items-center justify-center">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden>
-              <path d="M13 2 3 14h7l-1 8 10-12h-7z" />
-            </svg>
-          </span>
-          <h3 class="font-bold text-[1.08rem] mb-2.5">Fast, Streamlined Closings</h3>
-          <p class="text-[0.92rem] leading-relaxed text-cream/70">
-            We move fast. Our investor loan team knows exactly what to ask for and what to
-            ignore. You close in weeks, not months.
-          </p>
-        </div>
-        <div class="bg-ink-2 border border-cream/10 rounded-2xl px-6 py-8 text-center">
-          <span class="mx-auto mb-5 w-14 h-14 rounded-full bg-brass-2/10 border border-brass-2/30 text-brass-2 flex items-center justify-center">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden>
-              <path d="M3 21h18" />
-              <path d="M5 21v-8h4v8" />
-              <path d="M10.5 21V7h4v14" />
-              <path d="M16 21V11h4v10" />
-              <path d="m6 6 4-4 3.5 3.5L18 1" />
-            </svg>
-          </span>
-          <h3 class="font-bold text-[1.08rem] mb-2.5">Scale Without Hitting a Ceiling</h3>
-          <p class="text-[0.92rem] leading-relaxed text-cream/70">
-            There's no limit on your personal debt. That means you can keep buying,
-            refinancing, and growing your portfolio.
-          </p>
-        </div>
+            <span class="relative mx-auto mb-5 w-16 h-16 rounded-full bg-brass-2/10 border border-brass-2/30 text-brass-2 flex items-center justify-center [background-image:radial-gradient(circle_at_35%_30%,rgba(41,163,224,0.16),transparent_70%)]">
+              <svg class="why-icon" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                {c.icon.map((d) => (
+                  <path d={d} />
+                ))}
+              </svg>
+            </span>
+            <h3 class="font-bold text-[1.08rem] mb-2.5">{c.title}</h3>
+            <p class="text-[0.92rem] leading-relaxed text-cream/70">{c.body}</p>
+          </div>
+        ))}
       </div>
     </div>
   </section>
 
   <!-- ============ TOP DSCR LENDER (photo band + credibility card) ============ -->
+  <!-- Directional scrim + pine duotone pull replace the old flat white veil:
+       the headline sits on near-solid paper, the golden aerial breathes
+       behind the card, and the H2 text-shadow hack is gone. -->
   <section class="relative py-16 lg:py-24 overflow-hidden">
-    <img src="/images/aerial-golden.webp" alt="" class="absolute inset-0 w-full h-full object-cover" loading="lazy" />
-    <div class="absolute inset-0 bg-white/55"></div>
+    <img src="/images/aerial-golden.webp" alt="" class="absolute inset-0 w-full h-full object-cover" loading="lazy" width="1600" height="900" />
+    <div class="absolute inset-0 bg-gradient-to-b from-paper/95 via-paper/35 to-paper/70" aria-hidden="true"></div>
+    <div class="absolute inset-0 bg-pine/10 mix-blend-multiply" aria-hidden="true"></div>
     <div class="relative z-10 max-w-4xl mx-auto px-5 lg:px-10">
-      <h2 class="text-center font-bold text-pine text-[clamp(1.5rem,3vw,2.1rem)] leading-[1.18] tracking-[-0.008em] mb-8 lg:mb-10 [text-shadow:0_1px_10px_rgba(255,255,255,0.85)]">
+      <h2 class="text-center font-bold text-pine text-[clamp(1.5rem,3vw,2.1rem)] leading-[1.18] tracking-[-0.008em] mb-8 lg:mb-10">
         Top DSCR Lender For Texas Real Estate Investors
       </h2>
-      <div class="bg-white rounded-2xl shadow-[var(--shadow-card)] px-6 py-8 sm:px-10 sm:py-9 grid sm:grid-cols-[auto_1fr] gap-7 sm:gap-10 items-center">
+      <div class="card-hero rounded-2xl px-6 py-8 sm:px-10 sm:py-9 grid sm:grid-cols-[auto_1fr] gap-7 sm:gap-8 items-center" data-reveal="scale">
         <div class="text-center sm:w-44">
-          <img src={brand.logo} alt={`${brand.name} logo`} class="h-20 w-auto mx-auto" loading="lazy" />
+          <div class="inline-flex items-center justify-center rounded-xl bg-paper border border-ink/10 shadow-[inset_0_1px_3px_rgba(18,36,49,0.06)] px-5 py-5">
+            <img src={brand.logo} alt={`${brand.name} logo`} class="h-16 w-auto" loading="lazy" />
+          </div>
         </div>
-        <div>
+        <div class="sm:border-l sm:border-ink/10 sm:pl-8">
           <h3 class="font-bold text-[1.15rem] text-ink">{brand.name}</h3>
           <p class="font-bold text-[0.95rem] text-pine mb-4">Top Rated Private Mortgage Lender</p>
           <ul class="grid gap-2 mb-6">
@@ -121,7 +140,9 @@ import { brand, faqs } from '../config/funnel';
               'No Tax Returns Required!',
             ].map((item) => (
               <li class="flex items-start gap-2.5 text-[0.95rem] text-ink/80">
-                <span class="text-[var(--color-cta)] font-bold mt-[1px]" aria-hidden>✓</span>
+                <span class="mt-[2px] w-[18px] h-[18px] shrink-0 rounded-full bg-[var(--color-cta)]/10 text-[var(--color-cta)] flex items-center justify-center" aria-hidden="true">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 5l8 6" /><path d="m8 14 3 3 5.5-6.5" /></svg>
+                </span>
                 {item}
               </li>
             ))}
@@ -136,55 +157,75 @@ import { brand, faqs } from '../config/funnel';
   </section>
 
   <!-- ============ DISCOVER IF YOU QUALIFY ============ -->
-  <section class="bg-paper-2 border-y border-ink/10 py-16 lg:py-20">
+  <section class="relative bg-paper-2 border-y border-ink/10 py-16 lg:py-20 cv-auto overflow-hidden">
+    <span class="seam" aria-hidden="true"></span>
     <div class="max-w-5xl mx-auto px-5 lg:px-10 grid lg:grid-cols-2 gap-10 items-center">
       <div>
-        <h2 class="font-bold text-pine text-[clamp(1.5rem,3vw,2.1rem)] leading-[1.18] tracking-[-0.008em] mb-3">
+        <h2 class="font-bold text-pine text-[clamp(1.5rem,3vw,2.1rem)] leading-[1.18] tracking-[-0.008em] mb-3" data-reveal="up">
           Discover If You Qualify for DSCR Financing
         </h2>
-        <p class="font-bold text-[var(--color-cta)] text-[1.02rem] mb-5">Instant Qualification Check</p>
+        <p class="font-bold text-[var(--color-cta)] text-[1.02rem] mb-5" data-reveal="up">Instant Qualification Check</p>
         <ul class="grid gap-3 mb-8">
           {[
             'Find out in minutes if you meet the DSCR loan requirements.',
             'No obligation and no impact on your credit score.',
             'Get personalized results tailored to your financial situation.',
           ].map((item) => (
-            <li class="flex items-start gap-2.5 text-[0.98rem] text-ink/75 leading-relaxed">
-              <span class="text-[var(--color-cta)] font-bold mt-[1px]" aria-hidden>✓</span>
+            <li class="flex items-start gap-2.5 text-[0.98rem] text-ink/75 leading-relaxed" data-reveal="left">
+              <span class="mt-[2px] w-[18px] h-[18px] shrink-0 rounded-full bg-[var(--color-cta)]/10 text-[var(--color-cta)] flex items-center justify-center" data-check aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 5l8 6" /><path d="m8 14 3 3 5.5-6.5" /></svg>
+              </span>
               {item}
             </li>
           ))}
         </ul>
-        <a href="#eligibility" class="btn-brass rounded-xl px-7 py-3.5">Check Your Eligibility</a>
+        <a href="#eligibility" class="btn-brass rounded-xl px-7 py-3.5" data-reveal="up">Check Your Eligibility</a>
       </div>
       <div class="order-first lg:order-none">
-        <img
-          src="/images/hero-property.webp"
-          alt="Texas rental property financed with a DSCR loan"
-          class="w-full h-[240px] lg:h-[340px] object-cover rounded-2xl shadow-[var(--shadow-card)]"
-          loading="lazy"
-        />
+        <div class="relative" data-reveal="scale">
+          <div class="absolute inset-0 translate-x-2.5 translate-y-2.5 rounded-2xl border-2 border-pine/20" aria-hidden="true"></div>
+          <div class="kb-frame relative rounded-2xl shadow-[var(--shadow-card)]">
+            <img
+              src="/images/hero-property.webp"
+              alt="Texas rental property financed with a DSCR loan"
+              class="w-full h-[240px] lg:h-[340px] object-cover"
+              loading="lazy"
+              width="1280"
+              height="960"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- ============ FAQ (PMF style: questions open, card per Q) ============ -->
-  <section class="bg-paper py-16 lg:py-24">
+  <section class="relative bg-paper py-16 lg:py-24 cv-auto overflow-hidden">
+    <span class="seam" aria-hidden="true"></span>
     <div class="max-w-3xl mx-auto px-5 lg:px-10">
-      <h2 class="text-center font-bold text-[var(--color-cta)] text-[clamp(1.5rem,3vw,2.1rem)] leading-[1.18] tracking-[-0.008em] mb-10">
+      <h2 class="text-center font-bold text-pine text-[clamp(1.5rem,3vw,2.1rem)] leading-[1.18] tracking-[-0.008em] mb-10" data-reveal="up">
         Frequently Asked Questions
       </h2>
       <div class="grid gap-5">
         {faqs.map((f) => (
-          <div class="bg-white border border-ink/10 rounded-2xl px-6 py-6 sm:px-8 sm:py-7 shadow-[0_2px_12px_rgba(18,36,49,0.06)]">
-            <h3 class="font-bold text-[var(--color-cta)] text-[1.1rem] leading-snug mb-3">{f.q}</h3>
+          <div class="faq-card card-quiet rounded-2xl px-6 py-6 sm:px-8 sm:py-7" data-reveal="card">
+            <span class="faq-accent" aria-hidden="true"></span>
+            <h3 class="font-bold text-pine text-[1.1rem] leading-snug mb-3">{f.q}</h3>
             <p class="text-[0.95rem] leading-relaxed text-ink/70">{f.a}</p>
           </div>
         ))}
       </div>
 
-      <div class="text-center mt-12">
-        <a href="#eligibility" class="btn-brass rounded-xl px-8 py-4 text-[1.05rem]">Check Eligibility</a>
+      <!-- final CTA staging: roofline divider, Texas watermark, spotlight -->
+      <div class="relative text-center mt-12 pt-2 pb-6">
+        <svg class="w-full max-w-md h-5 mx-auto text-ink/20 mb-8" viewBox="0 0 200 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 15h86l14-10 14 10h86" />
+        </svg>
+        <svg class="absolute left-1/2 top-[62%] -translate-x-[42%] -translate-y-1/2 w-[280px] max-w-[70vw] h-auto text-pine opacity-[0.06] pointer-events-none" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+          <path d="M32 0 H50 V33 L64 34 L76 33 L88 36 L97 40 L93 47 L96 54 L90 60 L92 66 L84 72 L74 78 L66 86 L61 93 L60 97 L55 92 L52 84 L46 80 L44 76 L38 72 L34 74 L30 77 L25 72 L22 64 L14 57 L6 50 L2 47 V33 H32 Z" />
+        </svg>
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] max-w-[90vw] h-[200px] rounded-full bg-[radial-gradient(closest-side,rgba(14,124,105,0.13),transparent)] pointer-events-none" aria-hidden="true"></div>
+        <a href="#eligibility" class="btn-brass relative rounded-xl px-10 py-4 text-[1.08rem]" data-reveal="scale">Check Eligibility</a>
       </div>
     </div>
   </section>
@@ -194,10 +235,10 @@ import { brand, faqs } from '../config/funnel';
   <!-- ============ MOBILE STICKY CTA ============ -->
   <div
     id="sticky-cta"
-    class="lg:hidden fixed bottom-0 inset-x-0 z-40 translate-y-full transition-transform duration-300 ease-out"
+    class="lg:hidden fixed bottom-0 inset-x-0 z-40 translate-y-full transition-transform duration-300 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)]"
   >
-    <div class="bg-ink/95 backdrop-blur border-t border-brass-2/30 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
-      <a href="#eligibility" class="btn-brass w-full rounded-xl py-3.5 text-[1.02rem]">
+    <div class="bg-ink/95 backdrop-blur border-t border-cream/10 shadow-[0_-10px_30px_rgba(10,22,32,0.28)] px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+      <a id="sticky-cta-btn" href="#eligibility" class="btn-brass w-full rounded-xl py-3.5 text-[1.02rem]">
         Check My Eligibility →
       </a>
     </div>
@@ -208,13 +249,168 @@ import { brand, faqs } from '../config/funnel';
     // Tailwind v4 translate-* utilities use the CSS `translate` property.
     const stickyCta = document.getElementById('sticky-cta');
     const formCard = document.getElementById('eligibility');
+    let sheened = false;
     if (stickyCta && formCard && 'IntersectionObserver' in window) {
       new IntersectionObserver(
         ([entry]) => {
-          stickyCta.style.translate = entry.isIntersecting ? '0 100%' : '0 0';
+          const showing = !entry.isIntersecting;
+          stickyCta.style.translate = showing ? '0 0' : '0 100%';
+          // one-shot sheen the first time the bar appears; never loops
+          if (showing && !sheened) {
+            sheened = true;
+            const btn = document.getElementById('sticky-cta-btn');
+            if (btn) {
+              btn.classList.add('sheen-once');
+              btn.addEventListener('animationend', () => btn.classList.remove('sheen-once'), { once: true });
+            }
+          }
         },
         { rootMargin: '0px 0px -80px 0px' }
       ).observe(formCard);
+    }
+
+    // mobile Ken Burns on the discover photo: drift only while in view
+    const kb = document.querySelector('.kb-frame');
+    if (kb && 'IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => kb.classList.toggle('in-view', e.isIntersecting)).observe(kb);
+    }
+
+    // ============ MOTION SPINE (design pass 2026-08-24) ============
+    // Lazy GSAP after window load, so nothing here can touch LCP or the
+    // critical chain. Initial reveal states are applied FROM JS: if this
+    // import never runs, every section simply renders visible and static.
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      window.addEventListener('load', async () => {
+        try {
+          // small post-load delay keeps the gsap parse/eval out of the TTI
+          // window so the motion layer never costs interactivity points
+          await new Promise((r) => setTimeout(r, 1200));
+          const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
+            import('gsap'),
+            import('gsap/ScrollTrigger'),
+          ]);
+          gsap.registerPlugin(ScrollTrigger);
+
+          // content-visibility sections settle their real height lazily;
+          // one refresh on first scroll keeps trigger positions honest
+          addEventListener('scroll', () => ScrollTrigger.refresh(), { once: true, passive: true });
+
+          const ease = 'power3.out';
+
+          // Anything already in (or near) the viewport is left untouched:
+          // hiding an on-screen element after load repaints it late and
+          // re-triggers LCP, which is exactly what tanked the mobile score.
+          const belowFold = (el: Element) => el.getBoundingClientRect().top > window.innerHeight * 1.05;
+
+          // directional reveals
+          const dirs: Record<string, Record<string, number>> = { up: { y: 26 }, left: { x: -30 }, scale: { scale: 0.94 } };
+          for (const [name, vars] of Object.entries(dirs)) {
+            gsap.utils.toArray<HTMLElement>(`[data-reveal="${name}"]`).filter(belowFold).forEach((el) => {
+              gsap.set(el, { opacity: 0, ...vars });
+              ScrollTrigger.create({
+                trigger: el,
+                start: 'top 88%',
+                once: true,
+                onEnter: () => gsap.to(el, { opacity: 1, x: 0, y: 0, scale: 1, duration: 0.7, ease }),
+              });
+            });
+          }
+
+          // card grids rise in a stagger
+          const cards = gsap.utils.toArray<HTMLElement>('[data-reveal="card"]').filter(belowFold);
+          gsap.set(cards, { opacity: 0, y: 28 });
+          ScrollTrigger.batch(cards, {
+            start: 'top 88%',
+            once: true,
+            onEnter: (batch) => gsap.to(batch, { opacity: 1, y: 0, duration: 0.7, ease, stagger: 0.1 }),
+          });
+
+          // why-choose signature: each icon draws itself as its card lands
+          document.querySelectorAll('.why-card').forEach((card, i) => {
+            if (!belowFold(card)) return;
+            const paths = Array.from(card.querySelectorAll<SVGPathElement>('.why-icon path'));
+            paths.forEach((p) => {
+              const len = p.getTotalLength();
+              gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
+            });
+            ScrollTrigger.create({
+              trigger: card,
+              start: 'top 88%',
+              once: true,
+              onEnter: () =>
+                gsap.to(paths, { strokeDashoffset: 0, duration: 0.6, ease: 'power2.inOut', delay: 0.2 + i * 0.12, stagger: 0.05 }),
+            });
+          });
+
+          // FAQ accent bars draw down after their card lands
+          document.querySelectorAll('.faq-card').forEach((card) => {
+            if (!belowFold(card)) return;
+            const bar = card.querySelector('.faq-accent');
+            if (!bar) return;
+            gsap.set(bar, { scaleY: 0 });
+            ScrollTrigger.create({
+              trigger: card,
+              start: 'top 88%',
+              once: true,
+              onEnter: () => gsap.to(bar, { scaleY: 1, duration: 0.4, ease, delay: 0.45 }),
+            });
+          });
+
+          // discover checks pop as their rows land
+          gsap.utils.toArray<HTMLElement>('[data-check]').filter(belowFold).forEach((el) => {
+            gsap.set(el, { scale: 0.5, opacity: 0 });
+            ScrollTrigger.create({
+              trigger: el,
+              start: 'top 90%',
+              once: true,
+              onEnter: () => gsap.to(el, { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(2)' }),
+            });
+          });
+
+          // seams draw across each band boundary
+          gsap.utils.toArray<HTMLElement>('.seam').filter(belowFold).forEach((el) => {
+            gsap.set(el, { scaleX: 0 });
+            ScrollTrigger.create({
+              trigger: el,
+              start: 'top 82%',
+              once: true,
+              onEnter: () => gsap.to(el, { scaleX: 1, duration: 0.8, ease }),
+            });
+          });
+
+          const mm = gsap.matchMedia();
+
+          // desktop: scrubbed contained Ken Burns on the discover photo
+          mm.add('(min-width: 1024px)', () => {
+            const img = document.querySelector('.kb-frame img');
+            if (!img) return;
+            gsap.fromTo(
+              img,
+              { scale: 1.08 },
+              { scale: 1, ease: 'none', scrollTrigger: { trigger: '.kb-frame', start: 'top bottom', end: 'bottom top', scrub: 0.6 } }
+            );
+          });
+
+          // desktop pointer devices: capped magnetic pull on the anchor CTAs
+          mm.add('(hover: hover) and (pointer: fine)', () => {
+            document.querySelectorAll<HTMLElement>('a.btn-brass').forEach((btn) => {
+              const qx = gsap.quickTo(btn, 'x', { duration: 0.4, ease: 'power3.out' });
+              const qy = gsap.quickTo(btn, 'y', { duration: 0.4, ease: 'power3.out' });
+              btn.addEventListener('pointermove', (e) => {
+                const r = btn.getBoundingClientRect();
+                qx(((e.clientX - r.left) / r.width - 0.5) * 12);
+                qy(((e.clientY - r.top) / r.height - 0.5) * 8);
+              });
+              btn.addEventListener('pointerleave', () => {
+                qx(0);
+                qy(0);
+              });
+            });
+          });
+        } catch {
+          /* motion is optional; the page is fully usable without it */
+        }
+      });
     }
   </script>
 </Layout>

@@ -126,18 +126,15 @@ const fillInput = async (idx, val) => {
   }, { i: idx, v: val });
   await settle(300);
 };
-await clickByText('Buy a rental');
-await page.screenshot({ path: `${outDir}${prefix}-form-stage.png` });
-await clickByText('Making offers');
-await clickByText('Single family');
-await clickByText('700');
+// 7-step PMF flow (2026-08-24): goal -> property -> credit -> price -> down -> contact -> phone
+await clickByText('Purchase');
+await page.screenshot({ path: `${outDir}${prefix}-form-property.png` });
+await clickByText('Single Family');
+await page.screenshot({ path: `${outDir}${prefix}-form-credit.png` });
+await clickByText('700-739');
 await page.screenshot({ path: `${outDir}${prefix}-form-price.png` });
 await clickByText('Continue');
-await page.screenshot({ path: `${outDir}${prefix}-form-structure.png` });
-await clickByText('Continue');
-// Texas-only funnel: no state step; deal-structure Continue lands on city
-await page.screenshot({ path: `${outDir}${prefix}-form-city.png` });
-await fillInput(0, 'Fort Worth');
+await page.screenshot({ path: `${outDir}${prefix}-form-down.png` });
 await clickByText('Continue');
 await page.screenshot({ path: `${outDir}${prefix}-form-contact.png` });
 await fillInput(0, 'Tanner');
@@ -160,10 +157,9 @@ const clickByText2 = async (text) => {
   }, text);
   await settle(700);
 };
-await clickByText2('Refinance');
-await clickByText2('Comparing my options');
-await clickByText2('Single family');
-await clickByText2('Below 620');
+await clickByText2('Cash Out Refinance');
+await clickByText2('Single Family');
+await clickByText2('619 or less');
 await settle(2000);
 console.log('after sub-620 pick, url =', page.url(), '(expect /not-yet)');
 await page.screenshot({ path: `${outDir}${prefix}-form-decline.png`, fullPage: true });
@@ -179,6 +175,20 @@ await page.evaluate(() => {
 });
 await page.goto(`${base}/thank-you`, { waitUntil: 'networkidle0', timeout: 30000 });
 await settle(2200);
+// scroll through so the ScrollTrigger reveals fire before the full capture
+await page.evaluate(async () => {
+  await new Promise((resolve) => {
+    let y = 0;
+    const step = () => {
+      y += 500;
+      window.scrollTo(0, y);
+      if (y < document.body.scrollHeight) setTimeout(step, 100);
+      else resolve(null);
+    };
+    step();
+  });
+});
+await settle(1500);
 await page.screenshot({ path: `${outDir}${prefix}-thankyou.png`, fullPage: true });
 await page.close();
 

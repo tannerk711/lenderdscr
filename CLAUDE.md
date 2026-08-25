@@ -223,6 +223,60 @@ again.** `deliverables/first-sms-draft.md` (v2, conversation frame) is REFERENCE
 sweep earlier: Layout.astro default meta description, not-yet.astro, and privacy.astro
 all use eligibility-check language; thank-you headings are bold sans matching the LP.
 
+## Design pass EXECUTED 2026-08-24 (plan: design-enhancement-plan-2026-08-24.md)
+
+All six phases shipped same day as the PMF rebuild, ZERO copy changes, PMF structure
+locked. What's now live:
+
+- **System:** three card recipes (`.card-hero/.card-quiet/.card-dark` in global.css),
+  green-is-action-only grammar (FAQ headings recolored pine; green only on buttons,
+  checks, and the one kicker), roof-check SVG bullets sitewide, single-family Hanken
+  type system (Fraunces + Fragment Mono GONE; serif renders nowhere).
+- **Fonts are SELF-HOSTED**: latin woff2 in `public/fonts/` (sources: fontsource pkg),
+  `@font-face` with **font-display: optional** in global.css + preloads in Layout. Do
+  not reintroduce a Google Fonts stylesheet link; the third-party CSS chain cost ~1.5s
+  of mobile render-block.
+- **LP:** tinted hero ground + white form card with brand gradient top edge; Why Choose
+  cards layered (contours band, ghost icons, bespoke drawn icon suite); aerial band
+  directional scrim + pine duotone (text-shadow hack gone); credibility card plaque
+  (logo chip + divider); Discover photo mounted with offset frame; FAQ cascade with pine
+  accent bars; final CTA staged (roofline divider, Texas watermark, spotlight); sticky
+  bar neutral border + one-shot sheen.
+- **Form:** selected-state tap feedback (`.is-selected`, 180ms timing UNCHANGED),
+  touch-visible arrows, TCPA container restyle (white card + custom checkbox visual on
+  the SAME native input; text/gating untouched, tests pass), icons through steps 2-3
+  (property glyphs + credit gauge in funnel.ts), flat slider thumb with 44px hit area,
+  step height tween + perspective fix, deal-ticket chips, submit sheen.
+- **Thank-you:** dark save-the-number band with the white phone card as sole focal;
+  CSS-only seal draw (survives JS failure, obeys reduced motion); PMF-language harmonized
+  (no serif italic, no legacy gradient strip, proof-line eyebrows); step-1 emphasis card
+  + dashed connector; specialist brand medallion; stat tiles with icons + nowrap values;
+  dusk photo (A3) behind steps. **Conversion gating code untouched and verified.**
+- **not-yet:** bold sans retype (serif violated tracking floors), brass rail through the
+  five moves to a teal destination card, route glyph instead of alarm. **call-prep:**
+  white sheet on paper-2/3 desk, cool-ink palette purge. legal/privacy headings retyped.
+- **Images:** fal flux-pro set (aerial-golden regen with pale-sky headline zone,
+  hero-property brick-ranch-under-oak re-shot, dusk-home for thank-you), q70 webp.
+  PNG sources in `assets-src/` (not served). Duplicate logo removed from public/.
+- **Motion spine (both LP + thank-you):** GSAP + ScrollTrigger via dynamic import on
+  window load + 1.2s delay, reveal states applied FROM JS via data-reveal (failed load
+  can never hide content), `belowFold()` guard so nothing already in the viewport is
+  ever touched, reduced-motion bails entirely.
+
+**PAGESPEED (mobile, median of 5 Lighthouse runs on built output): 92, up from 64 on
+the pre-design live site.** The three fixes that mattered, keep all of them:
+1. **H1 carries NO entrance animation.** A fade/transform H1 is excluded or re-timed as
+   the LCP candidate; a smaller later element then defines LCP (~5s). Static H1 = LCP 2.0s.
+2. **Self-hosted fonts, font-display: optional** (see above).
+3. **gtag.js injected on window load** (Layout.astro): the inline `gtag()` dataLayer
+   stub queues config/events, so tracking data is identical while 146KB leaves the
+   startup path. gtag-test passes; conversion behavior unchanged.
+- Gotcha hit during QA: after `npm install`, stale Vite dep-cache broke React hydration
+  in DEV ONLY (`jsxDEV is not a function`, island renders then vanishes). Fix:
+  `rm -rf node_modules/.vite .astro` and restart the dev server.
+- QA harnesses (shoot.mjs/shoot-live.mjs) updated to the 7-step PMF labels; thank-you
+  shot now scrolls first so ScrollTrigger reveals fire before capture.
+
 ## 2026-08-19 OVERHAUL EXECUTED (plan: dscr-overhaul-plan-2026-08-19.md, PARTIALLY SUPERSEDED 2026-08-24, see above)
 
 All four phases shipped same day. Current state supersedes older form/page notes above.

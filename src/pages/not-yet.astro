@@ -35,17 +35,19 @@ const moves = [
   <Topbar />
 
   <section class="bg-paper py-20 lg:py-24 relative overflow-hidden">
-    <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-brass via-brass-2 to-brass"></div>
     <div class="max-w-3xl mx-auto px-5 lg:px-10 text-center relative z-10">
-      <div class="mx-auto w-16 h-16 rounded-full border-2 border-brass/50 flex items-center justify-center mb-8">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-brass)" stroke-width="2" stroke-linecap="round" aria-hidden>
-          <path d="M12 8v5" /><circle cx="12" cy="16.5" r="0.5" fill="var(--color-brass)" />
-          <circle cx="12" cy="12" r="10" />
+      <!-- detour, not error: a route pictogram instead of an alarm glyph -->
+      <div class="mx-auto w-16 h-16 rounded-full border-2 border-brass/50 bg-white flex items-center justify-center mb-8">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-brass)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden>
+          <path d="M6 20h9a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h4.5" />
+          <path d="M5.5 20h.01" />
+          <path d="M17.5 2.8a2.6 2.6 0 0 1 2.6 2.6c0 1.9-2.6 4.2-2.6 4.2s-2.6-2.3-2.6-4.2a2.6 2.6 0 0 1 2.6-2.6z" />
+          <path d="M17.5 5.4h.01" />
         </svg>
       </div>
-      <p class="eyebrow text-moss mb-5">Not yet, and that's okay</p>
-      <h1 class="font-display text-[clamp(2.1rem,4.5vw,3.3rem)] leading-[1.12] tracking-tight">
-        Below 620, no DSCR lender can say yes yet. Here's the <em class="italic text-pine">fastest way back.</em>
+      <p class="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/45 mb-5">Not yet, and that's okay</p>
+      <h1 class="font-bold text-pine text-[clamp(2.1rem,4.5vw,3.3rem)] leading-[1.12] tracking-[-0.008em]">
+        Below 620, no DSCR lender can say yes yet. Here's the <em class="not-italic text-brass">fastest way back.</em>
       </h1>
       <p class="text-ink/65 text-lg leading-relaxed mt-5 max-w-xl mx-auto">
         We'd rather tell you the truth now than waste your time: DSCR programs start at a 620
@@ -58,23 +60,26 @@ const moves = [
 
   <section class="bg-paper-2 border-y border-ink/10 py-20 lg:py-24">
     <div class="max-w-3xl mx-auto px-5 lg:px-10">
-      <h2 class="font-display text-[clamp(1.7rem,3vw,2.3rem)] leading-[1.12] tracking-tight text-center mb-12">
+      <h2 class="font-bold text-pine text-[clamp(1.7rem,3vw,2.3rem)] leading-[1.12] tracking-[-0.008em] text-center mb-12">
         The five moves that raise scores fastest
       </h2>
-      <div class="grid gap-5">
+      <!-- the layout depicts the way back: a rail runs through the numbered
+           nodes and terminates at the destination card below -->
+      <div class="relative grid gap-5">
+        <div class="absolute left-[47px] top-10 bottom-10 w-[2px] bg-brass/25 hidden sm:block" aria-hidden></div>
         {moves.map((m, i) => (
-          <div class="bg-paper border border-ink/10 rounded-2xl p-7 flex gap-6 items-start">
-            <span class="font-display text-[2rem] leading-none text-brass shrink-0">{i + 1}</span>
+          <div class="card-quiet relative rounded-2xl p-7 flex gap-6 items-start">
+            <span class="w-10 h-10 shrink-0 rounded-full border-2 border-brass/40 bg-white text-brass font-bold text-lg flex items-center justify-center">{i + 1}</span>
             <div>
-              <h3 class="font-display text-[1.2rem] mb-2">{m.title}</h3>
+              <h3 class="font-bold text-[1.2rem] mb-2">{m.title}</h3>
               <p class="text-[0.95rem] text-ink/65 leading-relaxed">{m.body}</p>
             </div>
           </div>
         ))}
       </div>
 
-      <div class="text-center mt-14 bg-paper border border-brass/30 rounded-2xl px-8 py-10">
-        <h3 class="font-display text-[1.5rem] leading-[1.15] mb-3">When you cross 620, come back.</h3>
+      <div class="text-center mt-14 bg-white border-[1.5px] border-[var(--color-cta)]/50 rounded-2xl px-8 py-10 shadow-[var(--shadow-card)]">
+        <h3 class="font-bold text-pine text-[1.5rem] leading-[1.15] tracking-[-0.008em] mb-3">When you cross 620, come back.</h3>
         <p class="text-ink/65 leading-relaxed max-w-md mx-auto mb-7">
           The 60-second eligibility check will be right here, and the door stays open. Investors
           who work the list above are often DSCR-ready in six months to a year.

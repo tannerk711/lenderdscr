@@ -11,15 +11,16 @@ import { brand } from '../config/funnel';
   title={`What to Have Ready for Your Call | ${brand.name}`}
   description="A one-page prep sheet for your DSCR strategy call. Nothing required; bring what you have."
 >
-  <div class="print-bar max-w-[8.5in] mx-auto px-1 py-3.5 flex justify-end">
+  <div class="prep-desk">
+  <div class="print-bar max-w-[8.5in] mx-auto px-1 pt-4 pb-2 flex justify-end">
     <button class="btn-brass rounded-[10px] px-5 py-2.5 text-[0.85rem]" onclick="window.print()">Print this sheet</button>
   </div>
 
-  <main class="sheet max-w-[8.5in] mx-auto bg-paper min-h-screen px-[0.65in] pt-[0.55in] pb-[0.4in] shadow-[0_8px_40px_rgba(15,35,28,0.14)] max-[700px]:px-5 max-[700px]:pt-7 max-[700px]:pb-6 max-[700px]:min-h-0">
+  <main class="sheet max-w-[8.5in] mx-auto bg-white min-h-screen px-[0.65in] pt-[0.55in] pb-[0.4in] shadow-[0_8px_40px_rgba(18,36,49,0.14)] max-[700px]:px-5 max-[700px]:pt-7 max-[700px]:pb-6 max-[700px]:min-h-0">
 
     <header class="flex justify-between items-end gap-4 pb-3.5 border-b-2 border-ink max-[700px]:flex-col max-[700px]:items-start max-[700px]:gap-2">
       <div>
-        <div class="font-display text-[1.25rem]">{brand.name}</div>
+        <div class="font-bold tracking-tight text-pine text-[1.25rem]">{brand.name}</div>
         <div class="font-mono text-[0.6rem] tracking-[0.18em] text-ink/60 mt-0.5">{brand.nmls || brand.site}</div>
       </div>
       <div class="text-right max-[700px]:text-left">
@@ -30,8 +31,8 @@ import { brand } from '../config/funnel';
     <div class="h-[3px] mt-[3px] bg-gradient-to-r from-brass via-brass-2 to-brass"></div>
 
     <div class="pt-[22px] pb-[18px]">
-      <h1 class="font-display text-[1.85rem] leading-[1.12] tracking-tight font-medium">
-        What to have ready <em class="italic text-pine">for your call.</em>
+      <h1 class="font-bold text-pine text-[1.85rem] leading-[1.12] tracking-[-0.008em]">
+        What to have ready <em class="not-italic text-brass">for your call.</em>
       </h1>
       <p class="max-w-[42rem] mt-2.5 text-[0.86rem] leading-[1.55] text-ink/60">
         Thirty minutes goes a long way when the numbers are on the table. Nothing here is
@@ -44,7 +45,7 @@ import { brand } from '../config/funnel';
 
       <section class="prep-card">
         <div class="flex items-baseline gap-2.5 mb-1">
-          <span class="font-display text-[1.3rem] text-brass leading-none">01</span>
+          <span class="font-bold text-[1.3rem] text-brass leading-none">01</span>
           <span class="font-mono text-[0.66rem] tracking-[0.2em] uppercase text-pine">The Property</span>
         </div>
         <p class="prep-note">An address if you have one. A target market if you don't. Both work.</p>
@@ -60,7 +61,7 @@ import { brand } from '../config/funnel';
 
       <section class="prep-card">
         <div class="flex items-baseline gap-2.5 mb-1">
-          <span class="font-display text-[1.3rem] text-brass leading-none">02</span>
+          <span class="font-bold text-[1.3rem] text-brass leading-none">02</span>
           <span class="font-mono text-[0.66rem] tracking-[0.2em] uppercase text-pine">The Rent Line</span>
         </div>
         <p class="prep-note">Current lease, market estimate, or short-term rental history. If you don't know it, we pull comps together on the call.</p>
@@ -75,7 +76,7 @@ import { brand } from '../config/funnel';
 
       <section class="prep-card">
         <div class="flex items-baseline gap-2.5 mb-1">
-          <span class="font-display text-[1.3rem] text-brass leading-none">03</span>
+          <span class="font-bold text-[1.3rem] text-brass leading-none">03</span>
           <span class="font-mono text-[0.66rem] tracking-[0.2em] uppercase text-pine">The Credit Picture</span>
         </div>
         <p class="prep-note">A ballpark band is plenty. We never pull credit without your explicit go-ahead.</p>
@@ -90,7 +91,7 @@ import { brand } from '../config/funnel';
 
       <section class="prep-card">
         <div class="flex items-baseline gap-2.5 mb-1">
-          <span class="font-display text-[1.3rem] text-brass leading-none">04</span>
+          <span class="font-bold text-[1.3rem] text-brass leading-none">04</span>
           <span class="font-mono text-[0.66rem] tracking-[0.2em] uppercase text-pine">The Entity</span>
         </div>
         <p class="prep-note">Plenty of investors close in an LLC; with most DSCR programs it does not change your rate.</p>
@@ -104,7 +105,7 @@ import { brand } from '../config/funnel';
 
       <section class="prep-card col-span-full">
         <div class="flex items-baseline gap-2.5 mb-1">
-          <span class="font-display text-[1.3rem] text-brass leading-none">05</span>
+          <span class="font-bold text-[1.3rem] text-brass leading-none">05</span>
           <span class="font-mono text-[0.66rem] tracking-[0.2em] uppercase text-pine">The Timeline</span>
         </div>
         <p class="prep-note">What has to be true, and by when? A close date, a balloon coming due, a contractor waiting on funds. Deadlines change which lenders we shortlist.</p>
@@ -116,7 +117,7 @@ import { brand } from '../config/funnel';
 
       <section class="prep-card col-span-full">
         <div class="flex items-baseline gap-2.5 mb-1">
-          <span class="font-display text-[1.3rem] text-brass leading-none">06</span>
+          <span class="font-bold text-[1.3rem] text-brass leading-none">06</span>
           <span class="font-mono text-[0.66rem] tracking-[0.2em] uppercase text-pine">Your Questions</span>
         </div>
         <p class="prep-note">The call is yours. Write down the two or three questions you would want answered even if you never work with us.</p>
@@ -128,7 +129,7 @@ import { brand } from '../config/funnel';
     </div>
 
     <footer class="mt-4 border-t border-ink/15 pt-3 flex justify-between items-start gap-4 max-[700px]:flex-col max-[700px]:gap-2.5">
-      <div class="font-display text-[0.9rem] text-pine whitespace-nowrap">Keep this beside you on the call.</div>
+      <div class="font-bold text-[0.9rem] text-pine whitespace-nowrap">Keep this beside you on the call.</div>
       <p class="text-[0.56rem] leading-[1.55] text-ink/60 text-right max-w-[34rem] max-[700px]:text-left">
         {brand.name}. {brand.nmls}. {brand.address}. For licensing information visit
         www.nmlsconsumeraccess.org. This is not a commitment to lend. All loans are subject to
@@ -138,11 +139,18 @@ import { brand } from '../config/funnel';
     </footer>
 
   </main>
+  </div>
 </Layout>
 
 <style>
+  /* quiet designed desk surface under the sheet (2026-08-24 retheme) */
+  .prep-desk {
+    min-height: 100vh;
+    background: linear-gradient(180deg, var(--color-paper-2), var(--color-paper-3));
+    padding-bottom: 2.5rem;
+  }
   .prep-card {
-    background: #fffdf6;
+    background: #ffffff;
     border: 1px solid var(--line-ink);
     border-radius: 12px;
     padding: 13px 16px 14px;
@@ -151,7 +159,7 @@ import { brand } from '../config/funnel';
   .prep-note {
     font-size: 0.76rem;
     line-height: 1.5;
-    color: rgba(15, 35, 28, 0.62);
+    color: rgba(18, 36, 49, 0.62);
     margin-bottom: 9px;
   }
   .write-line { display: flex; align-items: flex-end; gap: 8px; margin-top: 12px; }
@@ -160,11 +168,11 @@ import { brand } from '../config/funnel';
     font-size: 0.58rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: rgba(15, 35, 28, 0.62);
+    color: rgba(18, 36, 49, 0.62);
     white-space: nowrap;
     padding-bottom: 2px;
   }
-  .write-line .line { flex: 1; border-bottom: 1px solid rgba(15, 35, 28, 0.4); height: 1.05rem; }
+  .write-line .line { flex: 1; border-bottom: 1px solid rgba(18, 36, 49, 0.4); height: 1.05rem; }
   .checks { display: flex; flex-wrap: wrap; gap: 7px 14px; margin-top: 10px; }
   .check { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--color-ink); }
   .box { width: 11px; height: 11px; border: 1.4px solid var(--color-pine); border-radius: 3px; display: inline-block; flex: none; }
@@ -173,6 +181,7 @@ import { brand } from '../config/funnel';
   @page { size: letter; margin: 0.35in; }
   @media print {
     .print-bar { display: none; }
+    .prep-desk { background: none !important; padding: 0 !important; min-height: 0 !important; }
     .sheet { box-shadow: none !important; max-width: none !important; min-height: 0 !important; padding: 0.15in 0.1in 0 !important; }
   }
 </style>

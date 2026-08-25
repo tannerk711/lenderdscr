@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   brand,
   goals,
@@ -66,6 +66,7 @@ const OptionGrid = ({
   options,
   onPick,
   cols = 1,
+  selected = '',
 }: {
   options: ReadonlyArray<{
     value: string;
@@ -76,6 +77,7 @@ const OptionGrid = ({
   }>;
   onPick: (value: string) => void;
   cols?: 1 | 2;
+  selected?: string;
 }) => (
   <div className={cols === 2 ? 'grid grid-cols-2 gap-2.5' : 'grid gap-2.5'}>
     {options.map((o) => (
@@ -83,11 +85,13 @@ const OptionGrid = ({
         key={o.value}
         type="button"
         onClick={() => onPick(o.value)}
-        className="opt-btn rounded-xl px-4 py-3.5 flex items-center justify-between gap-3"
+        className={`opt-btn rounded-xl px-4 py-3.5 flex items-center justify-between gap-3${
+          selected === o.value ? ' is-selected' : ''
+        }`}
       >
         <span className="flex items-center gap-3.5">
           {o.icon && (
-            <span className="w-10 h-10 shrink-0 rounded-full border border-pine/25 bg-pine/5 text-pine flex items-center justify-center">
+            <span className="opt-coin w-10 h-10 shrink-0 rounded-full border border-pine/25 bg-pine/5 text-pine flex items-center justify-center">
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 {o.icon.map((d) => (
                   <path key={d} d={d} />
@@ -96,16 +100,21 @@ const OptionGrid = ({
             </span>
           )}
           <span>
-            <span className="block font-semibold text-[1.02rem] leading-snug">{o.label}</span>
+            <span className="block font-semibold text-[1.02rem] leading-snug [text-wrap:balance]">{o.label}</span>
             {o.sub && <span className="block text-sm text-ink/55 mt-0.5">{o.sub}</span>}
           </span>
         </span>
-        <span className="flex items-center gap-2 shrink-0">
+        <span className="relative flex items-center gap-2 shrink-0">
           {o.note && (
             <span className="font-mono text-[0.62rem] uppercase tracking-widest text-moss">{o.note}</span>
           )}
           <span className="opt-arrow text-brass text-lg" aria-hidden>
             →
+          </span>
+          <span className="opt-check absolute right-0" aria-hidden>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m5 13 5 5L20 7" />
+            </svg>
           </span>
         </span>
       </button>
@@ -136,7 +145,7 @@ const Slider = ({
 }) => (
   <div>
     <div className="text-center mb-5">
-      <div className="font-bold text-ink text-[2.3rem] leading-none tracking-[-0.008em] tabular-nums">{display}</div>
+      <div key={display} className="value-pop font-bold text-ink text-[2.3rem] leading-none tracking-[-0.008em] tabular-nums">{display}</div>
       {hint && <div className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-ink/50 mt-2">{hint}</div>}
     </div>
     <input
@@ -248,6 +257,8 @@ export default function FunnelForm() {
 
   const go = (dir: 'fwd' | 'back') => {
     setError('');
+    // capture the outgoing step's height so the shell can tween instead of snap
+    outgoingH.current = stepShellRef.current?.offsetHeight ?? null;
     setDirection(dir);
     setStepIndex((i) => Math.min(steps.length - 1, Math.max(0, i + (dir === 'fwd' ? 1 : -1))));
     // keep the card in view on mobile as steps change height
@@ -255,6 +266,34 @@ export default function FunnelForm() {
       cardRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     });
   };
+
+  // tween the card shell between step heights so the reassurance line and the
+  // band below stop jumping on every step change (design pass 2026-08-24)
+  const stepShellRef = useRef<HTMLDivElement>(null);
+  const outgoingH = useRef<number | null>(null);
+
+  useLayoutEffect(() => {
+    const shell = stepShellRef.current;
+    const from = outgoingH.current;
+    outgoingH.current = null;
+    if (!shell || from == null) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const to = shell.offsetHeight;
+    if (Math.abs(to - from) < 2) return;
+    shell.style.height = `${from}px`;
+    shell.style.overflow = 'hidden';
+    shell.style.transition = 'none';
+    void shell.offsetHeight;
+    shell.style.transition = 'height 0.32s cubic-bezier(0.22, 1, 0.36, 1)';
+    shell.style.height = `${to}px`;
+    const done = () => {
+      shell.style.height = '';
+      shell.style.overflow = '';
+      shell.style.transition = '';
+      shell.removeEventListener('transitionend', done);
+    };
+    shell.addEventListener('transitionend', done);
+  }, [stepIndex]);
 
   const pick = <K extends keyof Answers>(key: K, value: Answers[K]) => {
     if (!startedAt.current) {
@@ -431,16 +470,16 @@ export default function FunnelForm() {
   const renderStep = () => {
     switch (step) {
       case 'goal':
-        return <OptionGrid options={goals} onPick={(v) => pick('goal', v as never)} />;
+        return <OptionGrid options={goals} onPick={(v) => pick('goal', v as never)} selected={answers.goal} />;
 
       case 'stage':
-        return <OptionGrid options={stageOptions} onPick={(v) => pick('stage', v as never)} />;
+        return <OptionGrid options={stageOptions} onPick={(v) => pick('stage', v as never)} selected={answers.stage} />;
 
       case 'propertyType':
-        return <OptionGrid options={propertyTypes} onPick={(v) => pick('propertyType', v as never)} cols={2} />;
+        return <OptionGrid options={propertyTypes} onPick={(v) => pick('propertyType', v as never)} cols={2} selected={answers.propertyType} />;
 
       case 'credit':
-        return <OptionGrid options={creditBands} onPick={(v) => pick('credit', v as never)} />;
+        return <OptionGrid options={creditBands} onPick={(v) => pick('credit', v as never)} selected={answers.credit} />;
 
       case 'price':
         return (
@@ -619,21 +658,31 @@ export default function FunnelForm() {
         );
 
       case 'phone': {
+        // deal-ticket recap: same data-driven values as before, now designed
+        // (white pills, hairline, glyph per value; balanced 2+2 wrap at 390px)
+        const chipGlyphs: Record<string, ReadonlyArray<string>> = {
+          goal: ['M20 12.5 11.5 21 3 12.5V4h8.5z', 'M7.5 7.5h.01'],
+          property: ['M3 11 12 4l9 7', 'M5 10v10h14V10'],
+          place: ['M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z', 'M12 10h.01'],
+          price: ['M12 3v18', 'M16.5 6.8c-1-1.1-2.5-1.6-4.5-1.6-2.4 0-4.3 1.1-4.3 3.2 0 4.3 8.8 2.5 8.8 6.8 0 2.2-1.9 3.4-4.5 3.4-2 0-3.6-.6-4.7-1.8'],
+        };
         const summaryBits = [
-          goals.find((g) => g.value === answers.goal)?.label,
-          propertyTypes.find((p) => p.value === answers.propertyType)?.label,
-          answers.city.trim() || answers.state,
-          answers.price >= 2_000_000 ? '$2M+' : fmt(answers.price),
-        ].filter(Boolean);
+          { k: 'goal', label: goals.find((g) => g.value === answers.goal)?.label },
+          { k: 'property', label: propertyTypes.find((p) => p.value === answers.propertyType)?.label },
+          { k: 'place', label: answers.city.trim() || answers.state },
+          { k: 'price', label: answers.price >= 2_000_000 ? '$2M+' : fmt(answers.price) },
+        ].filter((b) => b.label);
         return (
           <div>
-            <div className="flex flex-wrap gap-1.5 justify-center mb-4">
+            <div className="flex flex-wrap gap-1.5 justify-center mb-4 max-w-[320px] mx-auto">
               {summaryBits.map((b) => (
-                <span
-                  key={String(b)}
-                  className="font-mono text-[0.62rem] uppercase tracking-[0.14em] bg-pine/10 text-pine border border-pine/20 rounded-full px-2.5 py-1"
-                >
-                  {b}
+                <span key={b.k} className="deal-chip">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    {chipGlyphs[b.k].map((d) => (
+                      <path key={d} d={d} />
+                    ))}
+                  </svg>
+                  {b.label}
                 </span>
               ))}
             </div>
@@ -659,7 +708,7 @@ export default function FunnelForm() {
                 unchecked, and MUST gate submit. Never pre-check it. */}
             <label
               htmlFor="ff-tcpa"
-              className="flex gap-3 mt-4 cursor-pointer select-none rounded-xl border border-ink/12 bg-paper-2/60 px-3.5 py-3 transition-colors hover:border-ink/25"
+              className={`tcpa-box flex gap-3 mt-4 cursor-pointer select-none rounded-xl px-3.5 py-3${tcpaConsent ? ' is-consented' : ''}`}
             >
               <input
                 id="ff-tcpa"
@@ -672,7 +721,7 @@ export default function FunnelForm() {
                   tcpaConsentAt.current = next ? new Date().toISOString() : null;
                   if (next) setError('');
                 }}
-                className="mt-0.5 h-[1.15rem] w-[1.15rem] shrink-0 cursor-pointer accent-[var(--color-pine)]"
+                className="tcpa-check mt-0.5"
               />
               <span className="text-[0.68rem] leading-relaxed text-ink/55">{tcpaCopy}</span>
             </label>
@@ -721,14 +770,17 @@ export default function FunnelForm() {
         />
       </div>
 
-      {/* step body */}
-      <div key={`${step}-${direction}`} className={direction === 'fwd' ? 'step-enter' : 'step-enter-back'}>
-        <h3 className="font-bold text-pine text-[1.35rem] leading-tight tracking-[-0.008em] text-center mb-1.5">{titles[step]}</h3>
-        {subtitles[step] && (
-          <p className="text-center text-[0.88rem] text-ink/55 mb-5">{subtitles[step]}</p>
-        )}
-        {!subtitles[step] && <div className="mb-5" />}
-        {renderStep()}
+      {/* step body: the shell tweens height between steps; step-stage carries
+          the perspective that makes the rotateY page-turn actually render */}
+      <div ref={stepShellRef} className="step-stage">
+        <div key={`${step}-${direction}`} className={direction === 'fwd' ? 'step-enter' : 'step-enter-back'}>
+          <h3 className="font-bold text-pine text-[1.35rem] leading-tight tracking-[-0.008em] text-center mb-1.5">{titles[step]}</h3>
+          {subtitles[step] && (
+            <p className="text-center text-[0.88rem] text-ink/55 mb-5">{subtitles[step]}</p>
+          )}
+          {!subtitles[step] && <div className="mb-5" />}
+          {renderStep()}
+        </div>
       </div>
 
       <Back show={stepIndex > 0} onBack={() => go('back')} />

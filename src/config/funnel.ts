@@ -97,21 +97,25 @@ export const refiStages = [
 ] as const;
 
 // Labels match the PMF survey; values unchanged for the Zap field map.
+// Icons added 2026-08-24 (design pass): the form's icon grammar continues
+// through steps 2-3 instead of downgrading to bare text rows.
 export const propertyTypes = [
-  { value: 'sfr', label: 'Single Family' },
-  { value: '2-4', label: '2-4 Units' },
-  { value: '5-9', label: '5-9 Units' },
-  { value: '10+', label: '10-15 Units' },
-  { value: 'commercial', label: 'Commercial' },
-  { value: 'other', label: 'Other' },
+  { value: 'sfr', label: 'Single Family', icon: ['M3 11 12 4l9 7', 'M5 10v10h14V10', 'M9.5 20v-5h5v5'] },
+  { value: '2-4', label: '2-4 Units', icon: ['M2 10.5 7 6.5l5 4', 'M12 10.5l5-4 5 4', 'M4 10v10h16V10', 'M12 11v9', 'M7 14h.01', 'M17 14h.01'] },
+  { value: '5-9', label: '5-9 Units', icon: ['M4 21V8h10v13', 'M14 21v-9h6v9', 'M4 21h16', 'M7.5 11h.01', 'M10.5 11h.01', 'M7.5 14h.01', 'M10.5 14h.01', 'M17 15h.01'] },
+  { value: '10+', label: '10-15 Units', icon: ['M3 21h18', 'M5 21V4h9v17', 'M14 21V9h5v12', 'M8 8h.01', 'M11 8h.01', 'M8 12h.01', 'M11 12h.01', 'M8 16h.01', 'M11 16h.01', 'M16.5 13h.01', 'M16.5 17h.01'] },
+  { value: 'commercial', label: 'Commercial', icon: ['M4 5h16l1.5 4h-19z', 'M5 9v11h14V9', 'M9.5 20v-5.5h5V20', 'M4 20h16'] },
+  { value: 'other', label: 'Other', icon: ['M5 12h.01', 'M12 12h.01', 'M19 12h.01'] },
 ] as const;
 
+// Credit bands carry a gauge glyph whose needle steps down with the band:
+// data styling on real answers, not a rating claim.
 export const creditBands = [
-  { value: '740+', label: '740+' },
-  { value: '700-739', label: '700-739' },
-  { value: '660-699', label: '660-699' },
-  { value: '620-659', label: '620-659' },
-  { value: '<620', label: '619 or less' },
+  { value: '740+', label: '740+', icon: ['M4 16a8 8 0 0 1 16 0', 'M12 16l5.2-4.2', 'M12 16h.01'] },
+  { value: '700-739', label: '700-739', icon: ['M4 16a8 8 0 0 1 16 0', 'M12 16l2.8-6', 'M12 16h.01'] },
+  { value: '660-699', label: '660-699', icon: ['M4 16a8 8 0 0 1 16 0', 'M12 16v-7', 'M12 16h.01'] },
+  { value: '620-659', label: '620-659', icon: ['M4 16a8 8 0 0 1 16 0', 'M12 16l-2.8-6', 'M12 16h.01'] },
+  { value: '<620', label: '619 or less', icon: ['M4 16a8 8 0 0 1 16 0', 'M12 16l-5.2-4.2', 'M12 16h.01'] },
 ] as const;
 
 // Minimum credit gate. Selecting below this shows the soft-stop screen.

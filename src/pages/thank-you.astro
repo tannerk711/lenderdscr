@@ -3,6 +3,14 @@ import Layout from '../layouts/Layout.astro';
 import Topbar from '../components/Topbar.astro';
 import Footer from '../components/Footer.astro';
 import { brand } from '../config/funnel';
+
+// DESIGN PASS 2026-08-24 (design-enhancement-plan-2026-08-24.md):
+// harmonized to the LP's PMF visual language (bold sans, no serif accents,
+// no legacy gradient strip), the "Watch for the text" band flipped dark so
+// the phone card is the page's single focal object, the seal rebuilt as
+// CSS-only (survives JS failure, respects reduced motion), and GSAP moved
+// behind a window-load dynamic import. ZERO copy changes; the conversion
+// gating below is untouched and never waits on animation code.
 ---
 
 <Layout title={`Eligibility Check Received | ${brand.name}`} description="Your DSCR eligibility check is in. Watch for a text.">
@@ -16,26 +24,27 @@ import { brand } from '../config/funnel';
        render). Verdict still deliberately withheld. Paul/Mike are named on
        THIS page only. -->
   <section class="bg-paper py-20 lg:py-24 relative overflow-hidden">
-    <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-brass via-brass-2 to-brass"></div>
+    <div class="seal-bloom absolute left-1/2 top-10 -translate-x-1/2 w-[440px] max-w-[90vw] h-[280px] rounded-full bg-[radial-gradient(closest-side,rgba(41,163,224,0.16),transparent)] pointer-events-none" aria-hidden="true"></div>
     <div class="max-w-3xl mx-auto px-5 lg:px-10 text-center relative z-10">
 
-      <!-- brass seal -->
-      <div class="mx-auto w-20 h-20 mb-8 relative">
+      <!-- seal: CSS-only draw (a failed script can never blank the win moment) -->
+      <div class="mx-auto w-28 h-28 mb-8 relative hero-enter">
         <svg viewBox="0 0 80 80" class="w-full h-full">
+          <circle cx="40" cy="40" r="39" fill="none" stroke="var(--color-brass)" stroke-width="1" opacity="0.25" />
           <circle cx="40" cy="40" r="37" fill="none" stroke="var(--color-brass)" stroke-width="2.5"
-            stroke-dasharray="233" stroke-dashoffset="233" id="seal-ring" />
+            stroke-dasharray="233" class="seal-ring" id="seal-ring" />
           <circle cx="40" cy="40" r="30" fill="var(--color-pine)" opacity="0.08" />
           <path d="M26 41 l10 10 l19 -21" fill="none" stroke="var(--color-pine)" stroke-width="4.5"
-            stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="46" stroke-dashoffset="46" id="seal-check" />
+            stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="46" class="seal-check" id="seal-check" />
         </svg>
       </div>
 
-      <p class="eyebrow text-moss mb-5">Eligibility check received</p>
-      <h1 class="font-bold text-pine text-[clamp(2rem,4.2vw,3.2rem)] leading-[1.12] tracking-[-0.008em]">
+      <p class="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/45 mb-5 hero-enter hero-enter-1">Eligibility check received</p>
+      <h1 class="font-bold text-pine text-[clamp(2rem,4.2vw,3.2rem)] leading-[1.12] tracking-[-0.008em] hero-enter hero-enter-2">
         <span id="ty-name">Your eligibility check is in.</span>
-        <em class="italic">A text is on the way.</em>
+        <em class="not-italic text-brass">A text is on the way.</em>
       </h1>
-      <p class="text-ink/65 text-lg leading-relaxed mt-5 max-w-xl mx-auto">
+      <p class="text-ink/65 text-lg leading-relaxed mt-5 max-w-xl mx-auto hero-enter hero-enter-3">
         Paul or Mike will text you from {brand.phone} to answer any questions you have
         and, if you&rsquo;re interested, run some numbers for you.
       </p>
@@ -45,25 +54,36 @@ import { brand } from '../config/funnel';
     </div>
   </section>
 
-  <!-- ============ WATCH FOR THE TEXT ============ -->
-  <section class="bg-paper-2 border-y border-ink/10 py-16 lg:py-20">
-    <div class="max-w-4xl mx-auto px-5 lg:px-10">
+  <!-- ============ WATCH FOR THE TEXT (dark band; the phone card is the ONE
+       white object on it: the page's job is SAVE THE NUMBER) ============ -->
+  <section class="relative bg-ink text-cream contours border-y border-cream/10 py-16 lg:py-20 overflow-hidden">
+    <div class="max-w-4xl mx-auto px-5 lg:px-10 relative">
       <div class="text-center mb-10">
-        <h2 class="font-bold text-pine text-[clamp(1.7rem,3vw,2.4rem)] tracking-[-0.008em]">
+        <h2 class="font-bold text-cream text-[clamp(1.7rem,3vw,2.4rem)] leading-[1.15] tracking-[-0.008em]">
           Watch for the text.
         </h2>
-        <p class="text-ink/60 mt-3 max-w-xl mx-auto">
+        <p class="text-cream/70 mt-3 max-w-xl mx-auto">
           When it lands, just reply. Ask anything about your deal, the programs, or the
           process, and when you&rsquo;re ready, they&rsquo;ll run your numbers.
         </p>
       </div>
 
-      <div class="bg-paper border border-ink/10 rounded-2xl shadow-[var(--shadow-card)] px-8 py-12 text-center">
-        <p class="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-ink/45 mb-4">It will come from this number</p>
-        <a href={brand.phoneHref} class="font-bold text-[clamp(2rem,4vw,3rem)] tracking-[-0.008em] text-pine hover:text-ink transition-colors">
+      <div id="phone-card" class="relative bg-white border border-ink/10 rounded-2xl shadow-[var(--shadow-pop)] px-8 py-12 text-center max-w-2xl mx-auto overflow-hidden">
+        <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-brass to-brass-2" aria-hidden="true"></div>
+        <span class="inline-flex w-11 h-11 rounded-full bg-pine/5 border border-pine/20 text-pine items-center justify-center mb-4" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13.5 8.5h-8A1.6 1.6 0 0 0 4 10.1v8A1.6 1.6 0 0 0 5.5 19.7h8a1.6 1.6 0 0 0 1.6-1.6v-8a1.6 1.6 0 0 0-1.6-1.6z" fill="rgba(41,163,224,0.12)" stroke="none" />
+            <path d="M13.5 8.5h-8A1.6 1.6 0 0 0 4 10.1v8a1.6 1.6 0 0 0 1.5 1.6h8a1.6 1.6 0 0 0 1.6-1.6v-8a1.6 1.6 0 0 0-1.6-1.6z" />
+            <path d="M8.5 17.2h2" />
+            <path d="M14.5 3.5h5a1.2 1.2 0 0 1 1.2 1.2v2.6a1.2 1.2 0 0 1-1.2 1.2h-1l-1.7 1.7V8.5h-1.3a1.2 1.2 0 0 1-1.2-1.2V4.7a1.2 1.2 0 0 1 1.2-1.2z" />
+            <path d="M16 5.6h2.4" />
+          </svg>
+        </span>
+        <p class="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-ink/45 mb-4">It will come from this number</p>
+        <a href={brand.phoneHref} class="tel-link font-bold text-[clamp(2.2rem,5vw,3.4rem)] leading-[1.12] tracking-[-0.008em] tabular-nums text-ink inline-block">
           {brand.phone}
         </a>
-        <p class="text-ink/55 text-sm mt-4">
+        <p class="text-ink/55 text-sm mt-5">
           Save it so you know it&rsquo;s Paul or Mike. Rather talk it through live? Call the same number.
         </p>
       </div>
@@ -73,25 +93,47 @@ import { brand } from '../config/funnel';
   <!-- ============ WHY INVESTORS USE US (published capability proof only) ============ -->
   <section class="bg-paper py-16 lg:py-20 border-b border-ink/10">
     <div class="max-w-5xl mx-auto px-5 lg:px-10">
-      <p class="eyebrow text-moss text-center mb-4">While you wait</p>
-      <h2 class="font-bold text-pine text-[clamp(1.7rem,3vw,2.4rem)] tracking-[-0.008em] text-center mb-12">
+      <p class="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/45 text-center mb-4">While you wait</p>
+      <h2 class="font-bold text-pine text-[clamp(1.7rem,3vw,2.4rem)] leading-[1.15] tracking-[-0.008em] text-center mb-12">
         What your scenario is checked against.
       </h2>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="border border-ink/10 rounded-2xl bg-paper-2 px-6 py-7 text-center">
-          <div class="font-bold text-[2rem] leading-none text-brass">{brand.lenderCount}</div>
+        <div class="ty-tile card-quiet rounded-2xl px-5 py-7 text-center">
+          <span class="inline-flex text-brass-2 mb-3" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="2.2" /><circle cx="5" cy="6" r="1.6" /><circle cx="19" cy="6" r="1.6" /><circle cx="5" cy="18" r="1.6" /><circle cx="19" cy="18" r="1.6" />
+              <path d="M6.3 7.1 10.3 10.4" /><path d="M17.7 7.1 13.7 10.4" /><path d="M6.3 16.9 10.3 13.6" /><path d="M17.7 16.9 13.7 13.6" />
+            </svg>
+          </span>
+          <div id="stat-lenders" class="font-bold text-[clamp(1.5rem,4.5vw,2rem)] leading-none text-brass tabular-nums whitespace-nowrap">{brand.lenderCount}</div>
           <div class="text-sm text-ink/65 mt-2.5 leading-snug">Lenders your scenario is checked against</div>
         </div>
-        <div class="border border-ink/10 rounded-2xl bg-paper-2 px-6 py-7 text-center">
-          <div class="font-bold text-[2rem] leading-none text-brass">Same day</div>
+        <div class="ty-tile card-quiet rounded-2xl px-5 py-7 text-center">
+          <span class="inline-flex text-brass-2 mb-3" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" />
+            </svg>
+          </span>
+          <div class="font-bold text-[clamp(1.5rem,4.5vw,2rem)] leading-none text-brass whitespace-nowrap">Same day</div>
           <div class="text-sm text-ink/65 mt-2.5 leading-snug">Income and credit approval on most files</div>
         </div>
-        <div class="border border-ink/10 rounded-2xl bg-paper-2 px-6 py-7 text-center">
-          <div class="font-bold text-[2rem] leading-none text-brass">{brand.closeRangeDays}</div>
+        <div class="ty-tile card-quiet rounded-2xl px-5 py-7 text-center">
+          <span class="inline-flex text-brass-2 mb-3" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5.5 6h13A1.5 1.5 0 0 1 20 7.5V19a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19V7.5A1.5 1.5 0 0 1 5.5 6z" />
+              <path d="M8.5 3.5V8" /><path d="M15.5 3.5V8" /><path d="M4 10.5h16" /><path d="M8.5 14.5h.01" /><path d="M12 14.5h.01" /><path d="M15.5 14.5h.01" /><path d="M8.5 17.5h.01" />
+            </svg>
+          </span>
+          <div class="font-bold text-[clamp(1.5rem,4.5vw,2rem)] leading-none text-brass tabular-nums whitespace-nowrap">{brand.closeRangeDays}</div>
           <div class="text-sm text-ink/65 mt-2.5 leading-snug">Days to close, typical DSCR file</div>
         </div>
-        <div class="border border-ink/10 rounded-2xl bg-paper-2 px-6 py-7 text-center">
-          <div class="font-bold text-[2rem] leading-none text-brass">$0</div>
+        <div class="ty-tile card-quiet rounded-2xl px-5 py-7 text-center">
+          <span class="inline-flex text-brass-2 mb-3" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5" /><path d="M5 20.5 19 5.5" />
+            </svg>
+          </span>
+          <div id="stat-zero" class="font-bold text-[clamp(1.5rem,4.5vw,2rem)] leading-none text-brass tabular-nums whitespace-nowrap">$0</div>
           <div class="text-sm text-ink/65 mt-2.5 leading-snug">Tax returns and pay stubs required</div>
         </div>
       </div>
@@ -103,37 +145,59 @@ import { brand } from '../config/funnel';
   </section>
 
   <!-- ============ WHAT HAPPENS NEXT ============ -->
-  <section class="bg-paper py-20 lg:py-24">
-    <div class="max-w-5xl mx-auto px-5 lg:px-10">
-      <p class="eyebrow text-moss text-center mb-4">What happens next</p>
-      <h2 class="font-bold text-pine text-[clamp(1.8rem,3vw,2.5rem)] tracking-[-0.008em] text-center mb-14">
+  <!-- A3 dusk exterior (lit windows: someone is home and reachable) sits at
+       low opacity under a paper scrim; design weight points at step 1, the
+       one behavior that produces revenue. -->
+  <section class="relative bg-paper py-20 lg:py-24 overflow-hidden">
+    <img src="/images/dusk-home.webp" alt="" class="absolute inset-0 w-full h-full object-cover opacity-[0.2]" loading="lazy" width="1600" height="900" />
+    <div class="absolute inset-0 bg-gradient-to-b from-paper via-paper/65 to-paper" aria-hidden="true"></div>
+    <div class="relative max-w-5xl mx-auto px-5 lg:px-10">
+      <p class="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink/45 text-center mb-4">What happens next</p>
+      <h2 class="font-bold text-pine text-[clamp(1.8rem,3vw,2.5rem)] leading-[1.15] tracking-[-0.008em] text-center mb-14">
         From here, it&rsquo;s three steps to funded.
       </h2>
-      <div class="grid sm:grid-cols-3 gap-5">
-        <div class="border border-ink/10 rounded-2xl bg-paper-2 p-7">
-          <span class="font-bold text-[2.2rem] text-brass leading-none">1</span>
+      <div class="relative grid sm:grid-cols-3 gap-5">
+        <div class="hidden sm:block absolute top-[3.05rem] left-[14%] right-[14%] border-t-2 border-dashed border-brass/30" aria-hidden="true"></div>
+        <div class="ty-step relative bg-white border-[1.5px] border-[var(--color-cta)]/55 rounded-2xl p-7 shadow-[var(--shadow-card)]">
+          <span class="w-10 h-10 rounded-full bg-[var(--color-cta)] text-white font-bold text-lg flex items-center justify-center">1</span>
           <h3 class="font-bold text-lg mt-4 mb-2">Reply to the text</h3>
           <p class="text-sm leading-relaxed text-ink/65">That reply starts the conversation. Ask questions, talk through the deal, and when you&rsquo;re interested, your scenario gets priced across the lender network.</p>
         </div>
-        <div class="border border-ink/10 rounded-2xl bg-paper-2 p-7">
-          <span class="font-bold text-[2.2rem] text-brass leading-none">2</span>
+        <div class="ty-step relative border border-ink/10 rounded-2xl bg-paper-2 p-7">
+          <span class="w-10 h-10 rounded-full border-2 border-brass/50 bg-paper text-brass font-bold text-lg flex items-center justify-center">2</span>
           <h3 class="font-bold text-lg mt-4 mb-2">Terms in writing</h3>
           <p class="text-sm leading-relaxed text-ink/65">You get the rate, the leverage, and the cash-to-close on paper, so you can write offers or lock your refi terms with real numbers.</p>
         </div>
-        <div class="border border-ink/10 rounded-2xl bg-paper-2 p-7">
-          <span class="font-bold text-[2.2rem] text-brass leading-none">3</span>
+        <div class="ty-step relative border border-ink/10 rounded-2xl bg-paper-2 p-7">
+          <span class="w-10 h-10 rounded-full border-2 border-brass/50 bg-paper text-brass font-bold text-lg flex items-center justify-center">3</span>
           <h3 class="font-bold text-lg mt-4 mb-2">Appraisal to funding</h3>
           <p class="text-sm leading-relaxed text-ink/65">Appraisal with a rent schedule, title, done. No tax returns, no pay stubs, no employment verification anywhere in the file.</p>
         </div>
       </div>
 
-      <!-- specialist -->
-      <div class="mt-14 max-w-md mx-auto text-center border border-ink/10 rounded-2xl bg-paper-2 px-8 py-8">
-        <div class="w-14 h-14 rounded-full bg-pine text-cream font-bold text-xl flex items-center justify-center mx-auto mb-4" id="specialist-initial">
-          {brand.specialist.name.charAt(0)}
+      <!-- specialist: designed brand medallion (nothing invented; the initial
+           is real). Swap in a real headshot only if Paul ever supplies one. -->
+      <div class="mt-14 max-w-md mx-auto text-center bg-white border border-ink/10 rounded-2xl px-8 py-8 shadow-[var(--shadow-card-sm)] relative overflow-hidden">
+        <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-brass to-brass-2" aria-hidden="true"></div>
+        <div class="relative w-16 h-16 mx-auto mb-4" id="specialist-initial">
+          <svg viewBox="0 0 64 64" class="w-full h-full" aria-hidden="true">
+            <defs>
+              <radialGradient id="medGrad" cx="0.5" cy="0.3" r="0.85">
+                <stop offset="0%" stop-color="#1d3c50" />
+                <stop offset="100%" stop-color="#122431" />
+              </radialGradient>
+            </defs>
+            <circle cx="32" cy="32" r="30.5" fill="none" stroke="var(--color-brass)" stroke-width="2.4" stroke-dasharray="1.6 14.35" opacity="0.8" />
+            <circle cx="32" cy="32" r="27" fill="none" stroke="var(--color-brass)" stroke-width="1" opacity="0.5" />
+            <circle cx="32" cy="32" r="24" fill="url(#medGrad)" />
+            <circle cx="32" cy="32" r="20.5" fill="none" stroke="var(--color-brass-2)" stroke-width="0.7" opacity="0.5" />
+          </svg>
+          <span class="absolute inset-0 flex items-center justify-center font-bold text-xl text-cream">
+            {brand.specialist.name.charAt(0)}
+          </span>
         </div>
         <div class="font-bold text-lg">{brand.specialist.name}</div>
-        <div class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-ink/50 mt-1.5">
+        <div class="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-ink/50 mt-1.5">
           {brand.specialist.title}{brand.specialist.nmls ? ` · ${brand.specialist.nmls}` : ''}
         </div>
       </div>
@@ -143,7 +207,6 @@ import { brand } from '../config/funnel';
   <Footer />
 
   <script>
-    import gsap from 'gsap';
     import { brand } from '../config/funnel';
 
     // personalize from the form summary
@@ -169,9 +232,10 @@ import { brand } from '../config/funnel';
         const chips = [labels[s.goal], labels[s.propertyType], s.city || s.state, price, s.credit ? `Credit ${s.credit}` : null].filter(Boolean);
         const wrap = document.getElementById('ty-chips');
         if (wrap) {
-          chips.forEach((c) => {
+          chips.forEach((c, i) => {
             const span = document.createElement('span');
-            span.className = 'font-mono text-[0.62rem] uppercase tracking-[0.14em] bg-pine/10 text-pine border border-pine/20 rounded-full px-3 py-1.5';
+            span.className = 'deal-chip chip-in';
+            span.style.animationDelay = `${0.9 + i * 0.06}s`;
             span.textContent = String(c);
             wrap.appendChild(span);
           });
@@ -179,19 +243,99 @@ import { brand } from '../config/funnel';
       }
     } catch { /* fine */ }
 
-    // seal animation
-    gsap.to('#seal-ring', { strokeDashoffset: 0, duration: 1.1, ease: 'power2.inOut', delay: 0.2 });
-    gsap.to('#seal-check', { strokeDashoffset: 0, duration: 0.7, ease: 'power2.out', delay: 1.0 });
-
     // Google Ads conversion. Gated: fires for real submissions (lead-summary in
     // sessionStorage) and the ?demo=1 preview (Tag Assistant verification), never
     // on bare visits, so bots and accidental loads do not inflate conversions.
     // A QA walk started with ?qa=1 posts a real lead but never fires the
     // conversion, so test submits stay out of the Ads data.
+    // This block runs synchronously on page load and NEVER waits on animation.
     const isDemo = new URLSearchParams(window.location.search).get('demo') === '1';
     const isQa = sessionStorage.getItem('qa') === '1';
     if (brand.gtagConversion && (hasLead || isDemo) && !isQa && typeof (window as any).gtag === 'function') {
       (window as any).gtag('event', 'conversion', { send_to: brand.gtagConversion });
+    }
+
+    // Arrival choreography (design pass 2026-08-24): the seal and hero are
+    // CSS-only; GSAP loads lazily after window load for the below-fold beats.
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      window.addEventListener('load', async () => {
+        try {
+          const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
+            import('gsap'),
+            import('gsap/ScrollTrigger'),
+          ]);
+          gsap.registerPlugin(ScrollTrigger);
+          const ease = 'power3.out';
+
+          // never touch anything already in view: hiding an on-screen element
+          // after load repaints it late and re-triggers LCP
+          const belowFold = (el: Element) => el.getBoundingClientRect().top > window.innerHeight * 1.05;
+
+          // phone card settles into the dark band
+          const pc = document.getElementById('phone-card');
+          if (pc && belowFold(pc)) {
+            gsap.set(pc, { scale: 0.965, opacity: 0 });
+            ScrollTrigger.create({
+              trigger: pc,
+              start: 'top 88%',
+              once: true,
+              onEnter: () => gsap.to(pc, { scale: 1, opacity: 1, duration: 0.7, ease }),
+            });
+          }
+
+          // proof tiles stagger in
+          const tiles = gsap.utils.toArray<HTMLElement>('.ty-tile').filter(belowFold);
+          gsap.set(tiles, { y: 22, opacity: 0 });
+          ScrollTrigger.batch(tiles, {
+            start: 'top 88%',
+            once: true,
+            onEnter: (b) => gsap.to(b, { y: 0, opacity: 1, duration: 0.6, ease, stagger: 0.08 }),
+          });
+
+          // count-ups strictly on the two REAL numeric strings (100+ and $0);
+          // "Same day" and "15 to 25" stay static, nothing is invented
+          const lenders = document.getElementById('stat-lenders');
+          const finalText = lenders?.textContent?.trim() ?? '';
+          const numMatch = finalText.match(/^(\d+)\+$/);
+          if (lenders && numMatch) {
+            const n = parseInt(numMatch[1], 10);
+            const obj = { v: 0 };
+            ScrollTrigger.create({
+              trigger: lenders,
+              start: 'top 90%',
+              once: true,
+              onEnter: () =>
+                gsap.to(obj, {
+                  v: n,
+                  duration: 1,
+                  ease: 'power2.out',
+                  onUpdate: () => { lenders.textContent = `${Math.round(obj.v)}+`; },
+                  onComplete: () => { lenders.textContent = finalText; },
+                }),
+            });
+          }
+          const zero = document.getElementById('stat-zero');
+          if (zero) {
+            ScrollTrigger.create({
+              trigger: zero,
+              start: 'top 90%',
+              once: true,
+              onEnter: () => gsap.from(zero, { scale: 0.6, duration: 0.5, ease: 'back.out(2)' }),
+            });
+          }
+
+          // step cards rise, active card first
+          const steps = gsap.utils.toArray<HTMLElement>('.ty-step').filter(belowFold);
+          gsap.set(steps, { y: 22, opacity: 0 });
+          ScrollTrigger.batch(steps, {
+            start: 'top 88%',
+            once: true,
+            onEnter: (b) => gsap.to(b, { y: 0, opacity: 1, duration: 0.6, ease, stagger: 0.09 }),
+          });
+        } catch {
+          /* animation is optional; content is fully visible without it */
+        }
+      });
     }
   </script>
 </Layout>
