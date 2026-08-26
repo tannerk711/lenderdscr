@@ -460,7 +460,8 @@ export default function FunnelForm() {
     goal: 'Check your eligibility in about a minute. No credit pull, no obligation.',
     credit: 'A soft estimate is fine. This never touches your credit.',
     secondary: isPurchase ? '(Minimum 20% for purchases)' : undefined,
-    phone: 'Text first. A call only if you ask for one.',
+    // phone step subtitle ("Text first. A call only if you ask for one.")
+    // REMOVED 2026-08-26, Tanner's call. Do not re-add.
   };
 
   const filteredStates = usStates

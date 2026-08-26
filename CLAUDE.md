@@ -352,6 +352,12 @@ before linking.**
 
 ## Lessons Learned
 
+- **[2026-08-24] Read `reference_astro_perf_pagespeed_gotchas` BEFORE Lighthouse debugging,
+  not after:** the design-pass perf loop burned three diagnosis cycles rediscovering
+  fixes that memory already documented (font-display optional, no opacity entrance on
+  hero text, fontsource over Google Fonts). The memory file is the first stop for any
+  mobile-score work on any funnel.
+
 - **[2026-07-27] `vercel link` with a guessed project name creates a duplicate:** linking
   with `--project internet-loans-direct` silently CREATED a new project instead of failing,
   and the webhook env var plus two production deploys landed in it. Nothing appeared in the
