@@ -296,6 +296,16 @@ before linking.**
   sources in `public/images/*.png`, served as `.webp` (hero 200KB desktop-only, aerial
   205KB lazy).
 
+## Perf state (2026-09-07)
+
+- The 2026-08-24 design/animation pass was reverted on 2026-09-07 (Tanner's call). Two of
+  its perf fixes were re-applied on their own: self-hosted fonts (Hanken 400/500/600/700
+  with font-display optional, Fraunces variable with swap, files in `public/fonts/`, faces
+  in `global.css`, no Google Fonts request) and a static H1 (no `hero-enter` on the LCP
+  candidate). Mobile Lighthouse median 85 across 3 runs (64 before, 93 best run).
+- **gtag stays as the standard async `<script>` in the head.** Tanner explicitly declined
+  the deferred-to-window-load variant on 2026-09-07. Do not re-add it.
+
 ## Lessons Learned
 
 - **[2026-08-24] Read `reference_astro_perf_pagespeed_gotchas` BEFORE Lighthouse debugging,

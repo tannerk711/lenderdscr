@@ -11,6 +11,8 @@
   "dependencies": {
     "@astrojs/react": "^4.2.0",
     "@astrojs/vercel": "^8.1.0",
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource/hanken-grotesk": "^5.3.0",
     "@tailwindcss/vite": "^4.1.0",
     "astro": "^5.7.0",
     "gsap": "^3.12.7",

@@ -24,7 +24,9 @@ import { brand, faqs } from '../config/funnel';
   <!-- ============ H1 + SURVEY (the form IS the hero) ============ -->
   <section class="bg-white pt-10 pb-14 lg:pt-14 lg:pb-20">
     <div class="max-w-3xl mx-auto px-5">
-      <h1 class="text-center font-bold text-pine text-[clamp(1.7rem,4.2vw,2.6rem)] leading-[1.18] tracking-[-0.008em] [text-wrap:balance] hero-enter">
+      <!-- H1 is static (no hero-enter): it is the LCP candidate, and an
+           opacity-0 entrance delays the LCP paint on mobile. -->
+      <h1 class="text-center font-bold text-pine text-[clamp(1.7rem,4.2vw,2.6rem)] leading-[1.18] tracking-[-0.008em] [text-wrap:balance]">
         DSCR Rental Property Loans for Texas Real Estate Investors
       </h1>
 

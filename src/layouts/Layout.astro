@@ -23,12 +23,11 @@ const gtagSnippet = brand.gtagId
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&family=Hanken+Grotesk:ital,wght@0,300..800;1,300..800&family=Fragment+Mono:ital@0;1&display=swap"
-    />
+    <!-- Self-hosted fonts (perf, 2026-09-07): Google Fonts removed, faces
+         declared in global.css. Preload the two Hanken weights the first
+         paint uses so they land inside the font-display: optional window. -->
+    <link rel="preload" href="/fonts/hanken-grotesk-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/hanken-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
     {brand.gtagId && (
       <script async src={`https://www.googletagmanager.com/gtag/js?id=${brand.gtagId}`}></script>
     )}
