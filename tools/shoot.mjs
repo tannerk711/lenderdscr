@@ -170,8 +170,8 @@ for (const vp of Object.values(VIEWPORTS)) {
     });
   }
 
-  // 6. legal pages
-  for (const [path, name] of [['/privacy', 'privacy'], ['/legal', 'legal']]) {
+  // 6. legal pages + the 404
+  for (const [path, name] of [['/privacy', 'privacy'], ['/legal', 'legal'], ['/nope-404', '404']]) {
     await run(vp, name, async () => {
       const page = await open(path);
       await settle(500);
@@ -179,6 +179,21 @@ for (const vp of Object.values(VIEWPORTS)) {
       await page.close();
     });
   }
+
+  // 7. FAQ open state (first two questions expanded, in viewport)
+  await run(vp, 'faq-open', async () => {
+    const page = await open('/');
+    await settle(500);
+    await page.evaluate(() => {
+      const items = document.querySelectorAll('#faq details');
+      items[0]?.setAttribute('open', '');
+      items[1]?.setAttribute('open', '');
+      document.getElementById('faq')?.scrollIntoView({ block: 'start' });
+    });
+    await settle(900);
+    await snap(page, vp, 'faq-open');
+    await page.close();
+  });
 
   await browser.close();
 }

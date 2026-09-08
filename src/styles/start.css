@@ -29,10 +29,13 @@
   text-wrap: balance;
 }
 
+/* The outline follows each element's own radius (cards 14px, buttons 14px).
+   The V1 source also set border-radius: 6px here, which reshaped a 14px card
+   the moment it took keyboard focus; the radius-less Back button carries its
+   own rounded-[6px] instead. */
 .v1lo-root :focus-visible {
   outline: 2px solid #c89334;
   outline-offset: 2px;
-  border-radius: 6px;
 }
 
 /* honeypot: off-canvas, present for bots, invisible to people and screen readers */
@@ -146,10 +149,15 @@
   transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, background-color 0.18s ease;
 }
 
-.v1lo-card:hover {
-  border-color: #dcc084;
-  transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(30, 58, 95, 0.06), 0 10px 24px rgba(30, 58, 95, 0.09);
+/* Hover states only on devices that hover. On touch, a tapped card keeps its
+   :hover until the next tap (sticky hover), so after Back a second card wore
+   the gold border next to the real selection (QA stage, mobile back-nav). */
+@media (hover: hover) {
+  .v1lo-card:hover {
+    border-color: #dcc084;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(30, 58, 95, 0.06), 0 10px 24px rgba(30, 58, 95, 0.09);
+  }
 }
 
 .v1lo-card:active {
@@ -170,11 +178,13 @@
   transition: filter 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
 }
 
-.v1lo-gold-btn:hover:enabled,
-a.v1lo-gold-btn:hover {
-  filter: brightness(1.06);
-  transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(165, 114, 9, 0.28), 0 12px 26px rgba(165, 114, 9, 0.2);
+@media (hover: hover) {
+  .v1lo-gold-btn:hover:enabled,
+  a.v1lo-gold-btn:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(165, 114, 9, 0.28), 0 12px 26px rgba(165, 114, 9, 0.2);
+  }
 }
 
 .v1lo-gold-btn:active:enabled,
@@ -194,10 +204,12 @@ a.v1lo-gold-btn:active {
   transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
 }
 
-.v1lo-gold-outline:hover {
-  background-color: rgba(200, 147, 52, 0.09);
-  border-color: #a57209;
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .v1lo-gold-outline:hover {
+    background-color: rgba(200, 147, 52, 0.09);
+    border-color: #a57209;
+    transform: translateY(-1px);
+  }
 }
 
 /* ---------- text inputs ---------- */
@@ -212,8 +224,10 @@ a.v1lo-gold-btn:active {
   color: #8f8a7c;
 }
 
-.v1lo-input:hover {
-  border-color: #dcc084;
+@media (hover: hover) {
+  .v1lo-input:hover {
+    border-color: #dcc084;
+  }
 }
 
 .v1lo-input:focus {

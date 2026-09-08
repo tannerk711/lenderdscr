@@ -239,4 +239,66 @@ Server adds `tcpaConsentIp`, `tcpaConsentUserAgent`, `tcpaConsentReceivedAt`.
   the summary email ILD cannot send). Port `_ref/ild-main/call-prep.astro` onto template 4's
   tokens if Tanner wants it.
 
+### Stage 2 re-verification (form), 2026-09-08
+
+The workflow re-ran the stage 2 brief against the branch, which already carried the
+form (c8c3df6) and the thank-you page (1d7f87c). Nothing was rebuilt; the form was
+re-read against BRIEF sections 3, 4, 5 and 10 and walked again in a real browser.
+
+- Contract read: eight steps and three paths per section 4 (goal, process per path,
+  seven property types, credit with the in-form Below 620 kick-out, price slider $100K
+  to $3M+, buy down slider / refi balance options / flip rehab options, first + last +
+  email, phone + ONE gated TCPA box), no state step, no phone-step subtitle, "Step n of
+  8", `?goal=` preselect opening on step 2, ~250 ms auto-advance, Enter guard on the
+  typed steps, `submit()` re-validation, V1's own submit label, inline error + retry,
+  navigation to `/thank-you`, hidden `website` honeypot, first-touch attribution on both
+  the LP and `/start` (Layout head script), `?qa=1`, `secondsToComplete`. Payload keys
+  in `src/lib/flow.ts` `buildPayload()` are section 5 verbatim, in order, then `variant`
+  + `source`; `tcpaConsentText` is the ILD `tcpaCopy` constant (one source, rendered
+  next to the box and shipped). Test mode per section 3: `localStorage`
+  `ild_variant_test_leads`, `[variant TEST LEAD]` log, `sessionStorage['lead-summary']`,
+  `/test-leads` inspector (noindex, filtered out of the sitemap). No `EligibilityForm`
+  import survives; no Playfair, no Google Fonts link, no dscrbroker `PHONE_SUB` or
+  `CONSENT_TEXT`.
+- Pass 1, `tools/form-walk.mjs` on the dev server (desktop 1440x900 dsf 1, mobile
+  390x844 dsf 2 + touch): 268/268. Captured `/api/lead` bodies for buy (desktop with
+  gclid + utm, mobile bare), refi ($3M+ edge, balance option) and flip (rehab option)
+  were diffed key by key against section 5: 40 keys with attribution, 37 without, order
+  exact, none missing. Response `{ok:true, forwarded:false, testMode:true}` every time;
+  every request on localhost; unchecked consent and the kick-out produce zero POSTs; a
+  500 shows the inline error and the retry lands on `/thank-you`; the double Enter on
+  the contact step advances once; hand-built POSTs hit every server gate. Payloads are
+  in `tools/shots/walk-payload-<viewport>-<path>.json`.
+- Pass 2 (edges the walk skips): 320 px wide, step 1 / property grid / phone step have
+  no horizontal overflow and every interactive target is 44 px or taller; keyboard Tab
+  reaches the first card with the gold ring and Enter selects it; the $3M+ buy path
+  shows "$3M+", "About $750,000 or more", chips `Buy a rental | 10 to 15 units | Texas |
+  $3M+`, ships `price '3000000+'`, `downPct 25`, `downPayment null`, `scenarioDetail
+  '25% down'`, and the lead-summary carries the same price; `prefers-reduced-motion:
+  reduce` still advances and mounts steps at full opacity. 19/19.
+- Pass 3 after the one defect found by reading the shots: the V1 source's
+  `.v1lo-root :focus-visible { border-radius: 6px }` reshaped a 14 px card the moment it
+  took keyboard focus (corners visibly tightened in the focus shot). The radius is gone
+  from the generic focus rule (the outline now follows each element's own radius) and
+  the radius-less Back text button carries `rounded-[6px]` itself. Re-checked at both
+  viewports: card 14 px, Continue 14 px, Back 6 px, all with the 2 px gold ring. 8/8.
+- Read and cleared: the "50%+" slider cap label looked two-toned in the desktop shot;
+  a 6x crop shows it is subpixel antialiasing of the thin "+" at 11 px (clean at dsf 2),
+  not a color split. `overflow-check` OK on all nine routes at 390 and 320; `check-links`
+  PASS (8 html files, 107 hrefs); `dist/client` carries no zapier / googletagmanager
+  string; no em dash anywhere in the tree.
+- Folded into this commit (found uncommitted in the worktree from the interrupted QA
+  stage, reviewed line by line, all in-contract): hover styles behind `@media (hover:
+  hover)` in `start.css` (sticky touch hover painted a second gold border after Back),
+  label alphas raised for AA on the LP topbar tagline and the thank-you page's small
+  labels, `tools/form-walk.mjs` gained the back-navigation, mobile-fold and hand-built
+  POST walks, `tools/shoot.mjs` gained the 404 + open-FAQ shots, and the three
+  template-4 island scripts (`step-walk-qa`, `tcpa-test`, `gtag-test`) were retired in
+  favor of `npm run qa` (`form-walk` + `thank-you-shoot` + `overflow-check` +
+  `check-links`).
+- Deliberate delta from the BRIEF's font note: Fraunces is served from `public/fonts/`
+  with `font-display: optional` (the fontsource CSS ships `swap`, which repaints the
+  headline late and moves LCP; memory `reference_astro_perf_pagespeed_gotchas`). Same
+  files, same axes, no Google Fonts request.
+
 ### QA: pending (`QA-REPORT.md`)

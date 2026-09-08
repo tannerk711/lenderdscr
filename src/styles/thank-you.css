@@ -80,13 +80,15 @@
   color: var(--lo-moss);
 }
 
-/* LO's small mono label (team card role, "Rather not wait?") */
+/* LO's small mono label (team card role, "Rather not wait?"). LO ran these at
+   ink/50 (about 3:1 on paper); 0.68 measures 5.2:1 so the 10px labels clear AA
+   (BRIEF section 8). Same alpha on the topbar tag below. */
 .lo-label {
   font-weight: 600;
   font-size: 0.62rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(17, 38, 71, 0.5);
+  color: rgba(17, 38, 71, 0.68);
 }
 
 /* ---------- topbar (LO: white, h-16, hairline bottom, logo left, phone right) ---------- */
@@ -148,7 +150,7 @@
   font-size: 0.62rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(17, 38, 71, 0.5);
+  color: rgba(17, 38, 71, 0.68);
   white-space: nowrap;
 }
 
@@ -446,7 +448,6 @@
   margin-bottom: 0.75rem;
   font-size: 0.65rem;
   letter-spacing: 0.2em;
-  color: rgba(17, 38, 71, 0.45);
 }
 
 .lo-tel {

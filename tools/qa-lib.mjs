@@ -1,10 +1,11 @@
-// Shared helpers for the QA tools in tools/ (shoot, step-walk-qa, tcpa-test, gtag-test, lh).
-// puppeteer-core + node built-ins only. Every tool reads QA_BASE + CHROME_PATH from the
-// environment, regex-reads brand.name / gtagId / gtagConversion from src/config/site.ts,
-// and refuses to trust a server whose <title> lacks brand.name (port-squatter check).
+// Shared helpers for the QA tools in tools/ (shoot, thank-you-shoot, lh; form-walk carries
+// its own drivers). puppeteer-core + node built-ins only. Every tool reads QA_BASE +
+// CHROME_PATH from the environment, regex-reads brand.name / gtagId / gtagConversion from
+// src/config/site.ts, and refuses to trust a server whose <title> lacks brand.name
+// (port-squatter check).
 //
-// Selector source of truth: BRIEF.md section 6 "DOM contract". Tools click by
-// [data-value] / [data-action] and read h2[data-step-title]; never by visible text.
+// Selector source of truth: the /start DOM contract in tools/README.md. Tools click by
+// [data-value] / [data-action] and read [data-step-title]; never by visible text.
 import puppeteer from 'puppeteer-core';
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -286,82 +287,6 @@ export async function visibleError(page) {
     });
     return vis.map((el) => el.textContent.trim()).join(' | ');
   });
-}
-
-// In-page: no VISIBLE "Step N of T" text inside #start (the sr-only label is allowed).
-export const noVisibleStepText = () => {
-  const root = document.querySelector('#start');
-  if (!root) return { ok: false, why: 'no #start' };
-  const re = /\bStep\s+\d+\s+of\s+\d+\b/i;
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-  let label = null;
-  while (walker.nextNode()) {
-    const t = walker.currentNode.nodeValue || '';
-    if (!re.test(t)) continue;
-    const el = walker.currentNode.parentElement;
-    const r = el.getBoundingClientRect();
-    const cs = getComputedStyle(el);
-    const visible = r.width > 1 && r.height > 1 && cs.visibility !== 'hidden' && cs.display !== 'none' && cs.clip !== 'rect(0px, 0px, 0px, 0px)';
-    if (visible) return { ok: false, why: `visible "${t.trim()}" in <${el.tagName.toLowerCase()}>` };
-    label = t.trim();
-  }
-  return { ok: true, label, hasLabelAttr: !!root.querySelector('[data-step-label]') };
-};
-
-export const DEFAULT_LEAD = {
-  name: 'Quinn Walker',
-  email: 'qa@example.com',
-  phone: '5555550123',
-};
-
-// Purchase path: purchase -> sfr -> 700-739 -> price Continue -> down Continue ->
-// [state: type "tex" + click texas] -> name/email Continue -> phone (+ consent).
-// `onStep(name)` fires once per mounted step (after it settles) so callers can shoot/assert.
-export async function walkPurchase(page, opts = {}) {
-  const { fixedState = false, lead = DEFAULT_LEAD, consent = false, onStep = async () => {} } = opts;
-  await waitStep(page, 'goal');
-  await onStep('goal');
-  await clickValue(page, 'purchase');
-  await waitStep(page, 'propertyType');
-  await onStep('propertyType');
-  await clickValue(page, 'sfr');
-  await waitStep(page, 'credit');
-  await onStep('credit');
-  await clickValue(page, '700-739');
-  await waitStep(page, 'price');
-  await onStep('price');
-  await clickAction(page, 'continue');
-  await waitStep(page, 'secondary');
-  await onStep('secondary');
-  await clickAction(page, 'continue');
-  if (!fixedState) {
-    await waitStep(page, 'state');
-    await onStep('state');
-    await typeInto(page, '#ff-state', 'tex');
-    try {
-      await page.waitForSelector('#start .opt-btn[data-value="texas"]', { timeout: 6000 });
-    } catch {
-      throw new Error('typing "tex" into #ff-state never produced .opt-btn[data-value="texas"]');
-    }
-    await settle(150);
-    await onStep('state-typed');
-    await clickValue(page, 'texas');
-  }
-  await waitStep(page, 'contact');
-  await onStep('contact');
-  await typeInto(page, '#ff-name', lead.name);
-  await typeInto(page, '#ff-email', lead.email);
-  await clickAction(page, 'continue');
-  await waitStep(page, 'phone');
-  await typeInto(page, '#ff-phone', lead.phone);
-  await settle(150);
-  await onStep('phone');
-  if (consent) {
-    const checked = await toggleTcpa(page);
-    if (checked !== true) throw new Error(`#ff-tcpa did not become checked (got ${checked})`);
-    await settle(150);
-    await onStep('phone-consented');
-  }
 }
 
 // Clicks submit and resolves when the browser lands on /thank-you (or throws).

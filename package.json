@@ -8,7 +8,7 @@
     "build": "astro build",
     "shoot": "node tools/shoot.mjs",
     "walk": "node tools/form-walk.mjs",
-    "qa": "node tools/step-walk-qa.mjs && node tools/tcpa-test.mjs && node tools/gtag-test.mjs && node scripts/check-links.mjs",
+    "qa": "node tools/form-walk.mjs && node tools/thank-you-shoot.mjs && node tools/overflow-check.mjs && node scripts/check-links.mjs",
     "lh": "node tools/lh.mjs",
     "images": "node scripts/convert-images.mjs"
   },

@@ -9,6 +9,11 @@
 //   - a double Enter on the contact step advances exactly once
 //   - an unchecked consent box blocks submit with zero POSTs
 //   - a failed POST shows the inline error and the retry lands on /thank-you
+//   - Back from steps 2 to 7 returns to the previous step with the pick still
+//     highlighted (and slider / typed values retained)
+//   - hand-built POSTs to /api/lead (QA stage): no consent = 400, honeypot and
+//     sub-620 = silent 200 without testMode, incomplete lead = 400
+//   - mobile fold on /start: the step-1 question and all three options above 844px
 //   - no request leaves localhost during any walk (TEST MODE contract)
 // Exit 1 on any failed check. Needs the dev server: CI=true npx astro dev --port 4332
 //
@@ -102,12 +107,15 @@ async function newPage(browser, vp, sink) {
   });
   page.on('pageerror', (e) => sink.errors.push(`[pageerror ${name}] ${e.message}`));
   page.on('console', (m) => {
-    if (m.type() === 'error') sink.errors.push(`[console ${name}] ${m.text()}`);
+    if (m.type() !== 'error') return;
+    // a deliberate 400 from the hand-built POSTs logs "Failed to load resource"; not a page error
+    if (sink.expect400 && /status of 400/.test(m.text())) return;
+    sink.errors.push(`[console ${name}] ${m.text()}`);
   });
   return page;
 }
 
-const makeSink = () => ({ requests: [], posts: [], responses: [], errors: [] });
+const makeSink = () => ({ requests: [], posts: [], responses: [], errors: [], expect400: false });
 
 async function open(page, path) {
   await page.goto(BASE + path, { waitUntil: 'networkidle0', timeout: 45000 });
@@ -238,6 +246,7 @@ function checkPayloadShape(label, p) {
   check(`${label}: phone is 10 digits`, /^\d{10}$/.test(String(p.phone)), String(p.phone));
   check(`${label}: secondsToComplete is a number`, typeof p.secondsToComplete === 'number', String(p.secondsToComplete));
   check(`${label}: submittedAt ISO`, ISO.test(String(p.submittedAt)));
+  check(`${label}: consent click precedes submit`, ISO.test(String(p.tcpaConsentAt)) && ISO.test(String(p.submittedAt)) && Date.parse(p.tcpaConsentAt) <= Date.parse(p.submittedAt), `${p.tcpaConsentAt} <= ${p.submittedAt}`);
 }
 
 async function checkResponse(label, page, sink) {
@@ -288,6 +297,15 @@ async function buyWalk(browser, vp) {
   await waitStep(page, 'goal');
   await shot('01-goal');
   check(`${label}: step 1 label reads "Step 1 of 8"`, (await stepLabel(page)) === 'Step 1 of 8', await stepLabel(page));
+  if (vp.name === 'mobile') {
+    // BRIEF section 8: /start at 390x844 shows the question and all of step 1's options
+    const fold = await page.evaluate((h) => {
+      const title = document.querySelector('#start [data-step-title]')?.getBoundingClientRect();
+      const cards = [...document.querySelectorAll('#start [data-step="goal"] [data-value]')].map((c) => Math.round(c.getBoundingClientRect().bottom));
+      return { titleBottom: title ? Math.round(title.bottom) : null, cardBottoms: cards, inFold: cards.length === 3 && cards.every((b) => b <= h) };
+    }, vp.height);
+    check(`${label}: mobile fold shows the question and all three step-1 options`, fold.inFold, JSON.stringify(fold));
+  }
   await clickValue(page, 'purchase');
   await waitStep(page, 'stage');
   await shot('02-stage');
@@ -597,6 +615,178 @@ async function failedPostRetry(browser, vp) {
   await page.close();
 }
 
+// Back from every step 2..7 returns to the previous step with the pick still
+// highlighted; slider and typed values survive a round trip.
+async function backNavigation(browser, vp) {
+  const label = `${vp.name} back-nav`;
+  console.log(`\n-- ${label}`);
+  const sink = makeSink();
+  const page = await newPage(browser, vp, sink);
+  const shot = shooter(page, vp);
+  const selectedOn = (step) => page.evaluate((s) => document.querySelector(`#start [data-step="${s}"] [data-selected="true"]`)?.getAttribute('data-value') ?? null, step);
+  await open(page, '/start');
+  await waitStep(page, 'goal');
+  await clickValue(page, 'purchase');
+  await waitStep(page, 'stage');
+  await clickValue(page, 'actively-looking-at-properties');
+  await waitStep(page, 'propertyType');
+  await clickValue(page, 'condo');
+  await waitStep(page, 'credit');
+  await clickValue(page, '740+');
+  await waitStep(page, 'price');
+  await setRange(page, 400000);
+  await clickAction(page, 'continue');
+  await waitStep(page, 'secondary');
+  await setRange(page, 30);
+  await clickAction(page, 'continue');
+  await waitStep(page, 'contact');
+  await typeInto(page, '#ff-first', 'Back');
+  await typeInto(page, '#ff-last', 'Walker');
+  await typeInto(page, '#ff-email', 'back@example.com');
+  await clickAction(page, 'continue');
+  await waitStep(page, 'phone');
+  check(`${label}: reached the phone step`, (await stepLabel(page)) === 'Step 8 of 8', await stepLabel(page));
+
+  await clickAction(page, 'back');
+  await waitStep(page, 'contact');
+  const contact = await page.evaluate(() => ({
+    first: document.querySelector('#ff-first')?.value,
+    last: document.querySelector('#ff-last')?.value,
+    email: document.querySelector('#ff-email')?.value,
+  }));
+  check(`${label}: Back from phone keeps the typed contact fields`, contact.first === 'Back' && contact.last === 'Walker' && contact.email === 'back@example.com', JSON.stringify(contact));
+  check(`${label}: contact step reads Step 7 of 8`, (await stepLabel(page)) === 'Step 7 of 8', await stepLabel(page));
+  await shot('back-07-contact');
+
+  await clickAction(page, 'back');
+  await waitStep(page, 'secondary');
+  const down = await page.evaluate(() => ({
+    display: document.querySelector('#start [data-down-display]')?.textContent.trim(),
+    range: document.querySelector('#start #ff-range')?.value,
+  }));
+  check(`${label}: Back from contact keeps the 30% down pick`, down.display === '30%' && down.range === '30', JSON.stringify(down));
+  await shot('back-06-down');
+
+  await clickAction(page, 'back');
+  await waitStep(page, 'price');
+  const price = await page.evaluate(() => ({
+    display: document.querySelector('#start [data-price-display]')?.textContent.trim(),
+    range: document.querySelector('#start #ff-range')?.value,
+  }));
+  check(`${label}: Back from the fork keeps the $400,000 price`, price.display === '$400,000' && price.range === '400000', JSON.stringify(price));
+  await shot('back-05-price');
+
+  await clickAction(page, 'back');
+  await waitStep(page, 'credit');
+  check(`${label}: Back from price highlights 740+`, (await selectedOn('credit')) === '740+', String(await selectedOn('credit')));
+  check(`${label}: credit step reads Step 4 of 8`, (await stepLabel(page)) === 'Step 4 of 8', await stepLabel(page));
+  // sticky-hover guard: only the selected card wears the gold border (the pointer
+  // is parked over another card after the typed steps; on touch that hover must not paint)
+  const borders = await page.evaluate(() =>
+    [...document.querySelectorAll('#start [data-step="credit"] [data-value]')].map((c) => ({
+      v: c.getAttribute('data-value'),
+      gold: getComputedStyle(c).borderColor !== 'rgb(231, 225, 210)',
+      hoverMedia: matchMedia('(hover: hover)').matches,
+    }))
+  );
+  if (vp.name === 'mobile') {
+    check(`${label}: touch emulation reports (hover: none)`, borders.every((b) => !b.hoverMedia));
+    check(`${label}: only the selected credit card carries the gold border on touch`, borders.filter((b) => b.gold).map((b) => b.v).join(',') === '740+', JSON.stringify(borders.map((b) => `${b.v}:${b.gold}`)));
+  }
+  await shot('back-04-credit');
+
+  await clickAction(page, 'back');
+  await waitStep(page, 'propertyType');
+  check(`${label}: Back from credit highlights Townhome or condo`, (await selectedOn('propertyType')) === 'condo', String(await selectedOn('propertyType')));
+  await shot('back-03-property');
+
+  await clickAction(page, 'back');
+  await waitStep(page, 'stage');
+  check(`${label}: Back from property highlights the stage pick`, (await selectedOn('stage')) === 'actively-looking-at-properties', String(await selectedOn('stage')));
+
+  await clickAction(page, 'back');
+  await waitStep(page, 'goal');
+  check(`${label}: Back from stage highlights Buy a rental`, (await selectedOn('goal')) === 'purchase', String(await selectedOn('goal')));
+  check(`${label}: step 1 has no Back button`, (await page.evaluate(() => !document.querySelector('#start [data-action="back"]'))));
+  await shot('back-01-goal');
+
+  // forward again: the retained answers carry through to the phone step in four picks
+  await clickValue(page, 'purchase');
+  await waitStep(page, 'stage');
+  await clickValue(page, 'actively-looking-at-properties');
+  await waitStep(page, 'propertyType');
+  await clickValue(page, 'condo');
+  await waitStep(page, 'credit');
+  await clickValue(page, '740+');
+  await waitStep(page, 'price');
+  await clickAction(page, 'continue');
+  await waitStep(page, 'secondary');
+  await clickAction(page, 'continue');
+  await waitStep(page, 'contact');
+  const again = await page.evaluate(() => document.querySelector('#ff-email')?.value);
+  check(`${label}: forward again reaches contact with the email retained`, again === 'back@example.com', String(again));
+  check(`${label}: zero POSTs during back navigation`, sink.posts.length === 0, `${sink.posts.length}`);
+  checkNetwork(label, sink);
+  await page.close();
+  return sink;
+}
+
+// Hand-built POSTs straight at /api/lead from the page context (same origin):
+// every server gate must hold without the form in front of it.
+async function handBuiltPosts(browser, vp) {
+  const label = `${vp.name} hand-built POST`;
+  console.log(`\n-- ${label}`);
+  const sink = makeSink();
+  sink.expect400 = true;
+  const page = await newPage(browser, vp, sink);
+  await open(page, '/start');
+  const base = {
+    goal: 'purchase', goalLabel: 'Buy a rental', stage: 'comparing-lenders', stageLabel: 'Comparing lenders',
+    propertyType: 'sfr', propertyTypeLabel: 'Single-family', credit: '740+', price: 300000, priceDisplay: '$300,000',
+    downPct: 25, downPctDisplay: '25%', downPayment: 75000, downPaymentDisplay: '$75,000',
+    balance: null, balanceDisplay: null, equity: null, equityDisplay: null, rehab: null, rehabDisplay: null,
+    scenarioDetail: '25% down (about $75,000)', city: '', state: 'Texas',
+    firstName: 'Hand', lastName: 'Built', email: 'hand@example.com', phone: '5555550199', partial: false,
+    tcpaConsent: true, tcpaConsentText: 'x', tcpaConsentAt: new Date().toISOString(), tcpaConsentUrl: 'http://localhost/start',
+    landingPage: '/start', secondsToComplete: 5, website: '', submittedAt: new Date().toISOString(),
+    variant: 'b-t4-v1', source: 'ild-split-test',
+  };
+  const post = (body) =>
+    page.evaluate(async (b) => {
+      const res = await fetch('/api/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) });
+      let json = null;
+      try {
+        json = await res.json();
+      } catch {}
+      return { status: res.status, json };
+    }, body);
+
+  const noConsent = await post({ ...base, tcpaConsent: false });
+  check(`${label}: tcpaConsent false = 400 consent required`, noConsent.status === 400 && noConsent.json?.ok === false && /consent/.test(String(noConsent.json?.error)), JSON.stringify(noConsent));
+  const missingConsent = await post((() => { const b = { ...base }; delete b.tcpaConsent; return b; })());
+  check(`${label}: tcpaConsent absent = 400`, missingConsent.status === 400 && /consent/.test(String(missingConsent.json?.error)), JSON.stringify(missingConsent));
+  const stringConsent = await post({ ...base, tcpaConsent: 'true' });
+  check(`${label}: tcpaConsent "true" (string) = 400`, stringConsent.status === 400, JSON.stringify(stringConsent));
+  const honeypot = await post({ ...base, website: 'http://spam.example' });
+  check(`${label}: honeypot filled = silent 200 without testMode`, honeypot.status === 200 && honeypot.json?.ok === true && !('testMode' in (honeypot.json || {})), JSON.stringify(honeypot));
+  const sub620 = await post({ ...base, credit: '<620' });
+  check(`${label}: credit <620 = silent 200 without testMode`, sub620.status === 200 && sub620.json?.ok === true && !('testMode' in (sub620.json || {})), JSON.stringify(sub620));
+  const noPhone = await post({ ...base, phone: '' });
+  check(`${label}: missing phone = 400 incomplete lead`, noPhone.status === 400 && /incomplete/.test(String(noPhone.json?.error)), JSON.stringify(noPhone));
+  const badEmail = await post({ ...base, email: 'nope' });
+  check(`${label}: bad email = 400 incomplete lead`, badEmail.status === 400 && /incomplete/.test(String(badEmail.json?.error)), JSON.stringify(badEmail));
+  const badJson = await page.evaluate(async () => {
+    const res = await fetch('/api/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{nope' });
+    return res.status;
+  });
+  check(`${label}: malformed JSON = 400`, badJson === 400, String(badJson));
+  const full = await post(base);
+  check(`${label}: complete consented lead = {ok:true, forwarded:false, testMode:true}`, full.status === 200 && full.json?.ok === true && full.json?.forwarded === false && full.json?.testMode === true, JSON.stringify(full));
+  checkNetwork(label, sink);
+  await page.close();
+  return sink;
+}
+
 // ---------------------------------------------------------------------------
 // run
 // ---------------------------------------------------------------------------
@@ -613,7 +803,9 @@ for (const vp of Object.values(VIEWPORTS)) {
     args: ['--hide-scrollbars', '--force-color-profile=srgb', '--window-size=1500,1000', '--no-first-run', '--no-default-browser-check'],
   });
   try {
-    for (const fn of [buyWalk, preselectAndForks, kickout, failedPostRetry]) {
+    const walks = [buyWalk, preselectAndForks, kickout, failedPostRetry, backNavigation];
+    if (vp.name === 'desktop') walks.push(handBuiltPosts); // server gates are viewport-independent
+    for (const fn of walks) {
       try {
         const sink = await fn(browser, vp);
         if (sink?.errors?.length) allErrors.push(...sink.errors);
