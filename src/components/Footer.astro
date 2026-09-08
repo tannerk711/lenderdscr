@@ -1,73 +1,60 @@
 ---
-// Dark directory footer: brand block, a GENERATED "DSCR loans by state"
-// column, the config Company column, and the mode-switched legal block
-// (BRIEF section 4 placement rules c, d, e). The frontmatter guard throws at
-// BUILD time if any config link href is not a pattern that resolves on this
-// build, so a dead footer link can never ship.
+// Dark footer: brand block (ILD logo in a white chip: the charcoal roof dies on
+// ink), the config Company column, and the legal block. ILD publishes no NMLS,
+// so Paul's lead-generator disclaimer (verbatim, legal.disclaimer) carries the
+// legal weight. The frontmatter guard throws at BUILD time if any config link
+// href is not a pattern that resolves on this build, so a dead footer link can
+// never ship. Texas-only client: no state directory column.
 import { site, brand, directory, housingPhrase, legal } from '../config/site';
-import { states, topStates } from '../data/states';
 import Icon from './Icon.astro';
 
 interface Props {
-  /**
-   * When LenderPicks renders on the same page it owns id="advertiser-disclosure"
-   * (its disclosure sits under the H2). LandingPage passes false in that case so
-   * the page never carries a duplicate id; every other page keeps the id here.
-   */
+  /** Kept for LandingPage's call signature; lender mode renders no disclosure block. */
   disclosureAnchor?: boolean;
 }
 const { disclosureAnchor = true } = Astro.props;
 
-// ---- build-time link guard (config hrefs only; generated links are safe by construction)
-const stateSlugs = new Set(states.map((s) => s.slug));
-const allowedExact = new Set(['/', '/dscr-loans', '/privacy', '/terms', '/privacy#do-not-sell', '#faq', '#start', '#advertiser-disclosure']);
+// ---- build-time link guard (config hrefs only)
+const allowedExact = new Set(['/', '/start', '/privacy', '/legal', '/privacy#do-not-sell', '#faq', '#start']);
 for (const col of directory.columns) {
   for (const link of col.links) {
-    const stateMatch = link.href.match(/^\/dscr-loans\/([a-z-]+)$/);
-    const ok = allowedExact.has(link.href) || (stateMatch !== null && stateSlugs.has(stateMatch[1] ?? ''));
-    if (!ok) {
+    if (!allowedExact.has(link.href)) {
       throw new Error(
         `[Footer] directory link "${link.label}" points at "${link.href}", which does not resolve on this build. ` +
-          `Allowed: /, /dscr-loans, /dscr-loans/<state-slug>, #faq, #start, #advertiser-disclosure, /privacy, /terms, /privacy#do-not-sell.`,
+          `Allowed: ${[...allowedExact].join(', ')}.`,
       );
     }
   }
 }
 
-const stateColumn = {
-  title: 'DSCR loans by state',
-  links: [
-    ...topStates.map((slug) => {
-      const st = states.find((s) => s.slug === slug);
-      return { label: st?.name ?? slug, href: `/dscr-loans/${slug}` };
-    }),
-    { label: 'All states', href: '/dscr-loans' },
-  ],
-};
-
-const columns = [stateColumn, ...directory.columns];
+const columns = directory.columns;
 const isNetwork = site.mode === 'network';
 
-// Landing pages (/ and /dscr-loans/<state>) carry #start and #faq; on every
-// other page those anchors are routed home so they are never dead links.
+// The landing page (/) carries #start and #faq; on every other page those
+// anchors are routed home so they are never dead links.
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
-const hasLandingAnchors = path === '/' || /^\/dscr-loans\/[a-z-]+$/.test(path);
+const hasLandingAnchors = path === '/';
 const resolveHref = (href: string) =>
   !hasLandingAnchors && (href === '#start' || href === '#faq') ? `/${href}` : href;
 ---
 
 <footer class="ground-dark cv-auto">
   <div class="container-x pt-16 pb-10 lg:pt-20">
-    <div class="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+    <div class="grid gap-12 lg:grid-cols-[minmax(0,6fr)_minmax(0,6fr)] lg:gap-16">
       <div>
         {
           brand.logoSrc ? (
-            <img src={brand.logoSrc} alt={brand.name} class="ft-logo-img" width="170" height="40" loading="lazy" decoding="async" />
+            <a href="/" class="ft-logo" aria-label={brand.name}>
+              <span class="ft-logo-chip">
+                <img src={brand.logoSrc} alt="" class="ft-logo-img" width="220" height="161" loading="lazy" decoding="async" />
+              </span>
+              <span class="ft-wordmark">{brand.name}</span>
+            </a>
           ) : (
             <p class="ft-wordmark">{brand.logoText}</p>
           )
         }
-        <p class="ft-tagline mt-2">{brand.tagline}</p>
+        <p class="ft-tagline mt-3">{brand.tagline}</p>
         {
           brand.phone && (
             <a href={brand.phoneHref} class="ft-phone mt-6">
@@ -86,7 +73,7 @@ const resolveHref = (href: string) =>
               <ul class="mt-4 flex flex-col gap-2">
                 {col.links.map((link) => (
                   <li>
-                    <a href={resolveHref(link.href)} class="ft-link" data-scroll-to={hasLandingAnchors && link.href === '#start' ? '#start' : undefined}>
+                    <a href={resolveHref(link.href)} class="ft-link" data-scroll-to={hasLandingAnchors && link.href.startsWith('#') ? link.href : undefined}>
                       {link.label}
                     </a>
                   </li>
@@ -101,16 +88,17 @@ const resolveHref = (href: string) =>
     <hr class="ft-rule mt-14 mb-10" />
 
     <div class="ft-legal flex flex-col gap-4">
-      {isNetwork && <p>{legal.networkNotice}</p>}
-      {isNetwork && <p id={disclosureAnchor ? 'advertiser-disclosure' : undefined}>{legal.advertiserDisclosure}</p>}
+      {isNetwork && legal.networkNotice && <p>{legal.networkNotice}</p>}
+      {isNetwork && legal.advertiserDisclosure && <p id={disclosureAnchor ? 'advertiser-disclosure' : undefined}>{legal.advertiserDisclosure}</p>}
       {!isNetwork && brand.nmls && (
         <p>
           {brand.legalName}, NMLS #{brand.nmls}.{' '}
           <a href={brand.licensingUrl} class="ft-link" rel="noopener">NMLS Consumer Access</a>.
         </p>
       )}
-      <p>{legal.notCommitment}</p>
-      {isNetwork && <p>{legal.notAffiliated}</p>}
+      <p>
+        {legal.disclaimer.before}<a href={brand.licensingUrl} class="ft-link" rel="noopener" target="_blank">{legal.disclaimer.linkText}</a>{legal.disclaimer.after}
+      </p>
       <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
         <span class="eh-mark" role="img" aria-label={housingPhrase}>
           <Icon name="equal-housing" />
@@ -124,18 +112,39 @@ const resolveHref = (href: string) =>
 </footer>
 
 <style>
-  .ft-wordmark {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.5rem;
-    letter-spacing: -0.008em;
+  .ft-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
     color: var(--color-cream);
+  }
+
+  /* white chip: the logo's charcoal roof vanishes on ink without it */
+  .ft-logo-chip {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   }
 
   .ft-logo-img {
     display: block;
-    height: 2.25rem;
+    height: 2.1rem;
     width: auto;
+  }
+
+  .ft-wordmark {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.35rem;
+    letter-spacing: -0.008em;
+    line-height: 1.15;
+    color: var(--color-cream);
   }
 
   .ft-tagline {
@@ -163,7 +172,7 @@ const resolveHref = (href: string) =>
     font-size: 0.72rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    /* 0.62 (was 0.5): 0.5 composited to ~4.4:1 on ink, under AA for 11.5px text */
+    /* 0.62: 0.5 composited to ~4.4:1 on ink, under AA for 11.5px text */
     color: rgba(244, 239, 227, 0.62);
   }
 
@@ -201,9 +210,14 @@ const resolveHref = (href: string) =>
     max-width: 90ch;
   }
 
-  /* anchor lands clear of the viewport top when the disclosure link is followed */
-  .ft-legal #advertiser-disclosure {
-    scroll-margin-top: 6rem;
+  .ft-legal .ft-link {
+    display: inline;
+    padding: 0;
+    font-size: inherit;
+    line-height: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+    color: rgba(244, 239, 227, 0.7);
   }
 
   .ft-device {
@@ -213,7 +227,7 @@ const resolveHref = (href: string) =>
 
   .ft-copyright {
     font-size: 0.78rem;
-    /* 0.58 (was 0.45): 0.45 composited to ~3.9:1 on ink, under AA for 12.5px text */
+    /* 0.58: 0.45 composited to ~3.9:1 on ink, under AA for 12.5px text */
     color: rgba(244, 239, 227, 0.58);
   }
 </style>

@@ -1,8 +1,8 @@
 ---
 // Persistent final CTA on the brand-deep ground. The inner wrapper carries
-// data-persist (motion.ts excludes it from reverse/kill paths and uses it as
-// the IntersectionObserver target that hides StickyCta) and data-stagger.
-// NEVER .cv-auto here.
+// data-persist (motion.ts excludes it from reverse/kill paths and StickyCta
+// uses it as the IntersectionObserver target) and data-stagger.
+// NEVER .cv-auto here. CTA goes straight to /start (the form page).
 import { brand, cta } from '../config/site';
 import Icon from './Icon.astro';
 ---
@@ -15,7 +15,7 @@ import Icon from './Icon.astro';
       <h2 class="h-section" data-reveal="clip-up" data-child>{cta.final.heading}</h2>
       <p class="prose-body fc-body mt-5" data-child>{cta.final.body}</p>
       <div class="mt-10 flex flex-wrap items-center gap-4" data-child>
-        <a href="#start" data-scroll-to="#start" class="btn-amber" data-magnet>
+        <a href="/start" class="btn-amber" data-magnet>
           {cta.primary}
           <Icon name="arrow" size={18} />
         </a>

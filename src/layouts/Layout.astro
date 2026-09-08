@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { brand, seo, tracking } from '../config/site';
+import { brand, seo, tracking, leadDelivery } from '../config/site';
 
 interface Props {
   title?: string;
@@ -22,18 +22,25 @@ const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const canonical = new URL(path, site).href;
 const ogImageAbs = new URL(ogImage, site).href;
 
-// Inline head script: dataLayer stub + gtag queue + first-touch attribution.
-// gtag.js itself is injected on window load (never in the startup path).
-const gtagId = tracking.gtagId;
+// TEST MODE (BRIEF section 3): no gtag at all (no stub, no loader, no
+// googletagmanager script) and noindex,nofollow on every page. LIVE MODE
+// restores the template's deferred-gtag pattern: dataLayer stub + gtag queue in
+// the head, gtag.js injected on window load (never in the startup path).
+const isLive = leadDelivery === 'live';
+const gtagId = isLive ? tracking.gtagId : '';
+const robots = !isLive ? 'noindex, nofollow' : noindex ? 'noindex' : '';
+
+// Inline head script: (live) dataLayer stub + gtag queue, then first-touch
+// attribution (both modes): gclid/utm_* -> sessionStorage.attr_*, landing,
+// referrer, and ?qa=1 -> sessionStorage.qa (kept for the live-mode gating).
 const headScript = `
-window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-${gtagId ? `gtag('js',new Date());gtag('config','${gtagId}');` : ''}
+${gtagId ? `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gtagId}');` : ''}
 try{
   var ss=window.sessionStorage,p=new URLSearchParams(location.search);
   if(p.get('qa')==='1'){ss.setItem('qa','1');}
   var keys=['gclid','utm_source','utm_medium','utm_campaign','utm_term','utm_content'];
   for(var i=0;i<keys.length;i++){var v=p.get(keys[i]);if(v&&!ss.getItem('attr_'+keys[i])){ss.setItem('attr_'+keys[i],v);}}
-  if(!ss.getItem('attr_landing')){ss.setItem('attr_landing',location.href);}
+  if(!ss.getItem('attr_landing')){ss.setItem('attr_landing',location.pathname+location.search);}
   if(!ss.getItem('attr_referrer')){ss.setItem('attr_referrer',document.referrer||'');}
 }catch(e){}
 `.trim();
@@ -50,7 +57,7 @@ const loadScript = gtagId
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    {noindex && <meta name="robots" content="noindex" />}
+    {robots && <meta name="robots" content={robots} />}
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#5c1f2e" />

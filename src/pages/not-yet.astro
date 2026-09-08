@@ -1,7 +1,7 @@
 ---
-// Sub-620 hard exit (BRIEF section 4 `notYet`): an honest no with the fastest
-// path back. No webhook, no consent capture, no conversion, no motion spine.
-// Copy stays scoped to THIS network's programs (BRIEF section 11 banned list).
+// Sub-620 hard exit: an honest no with the fastest path back. No webhook, no
+// consent capture, no conversion, no motion spine. Keeps template 4's design
+// (BRIEF section 6 allows it); the "run it again" links go to /start.
 import Layout from '../layouts/Layout.astro';
 import Topbar from '../components/Topbar.astro';
 import Footer from '../components/Footer.astro';
@@ -10,7 +10,7 @@ import { brand, notYet, MIN_CREDIT } from '../config/site';
 
 const body = notYet.body.replaceAll('{brand}', brand.name);
 const title = `Not yet | ${brand.name}`;
-const description = `Below a ${MIN_CREDIT} credit score, the DSCR programs on ${brand.name} can't say yes yet. Five concrete moves that raise a score, and an open door when you cross ${MIN_CREDIT}.`;
+const description = `Below a ${MIN_CREDIT} credit score, the DSCR programs at ${brand.name} can't say yes yet. Five concrete moves that raise a score, and an open door when you cross ${MIN_CREDIT}.`;
 ---
 
 <Layout title={title} description={description} noindex={true}>
@@ -61,7 +61,7 @@ const description = `Below a ${MIN_CREDIT} credit score, the DSCR programs on ${
           <p class="mx-auto mt-3 max-w-md text-[0.95rem] leading-relaxed text-ink/70">
             The check takes about a minute and never touches your credit. The door stays open.
           </p>
-          <a href="/#start" class="btn-amber mt-7">
+          <a href="/start" class="btn-amber mt-7">
             Run it again
             <Icon name="arrow" size={18} />
           </a>
@@ -73,7 +73,7 @@ const description = `Below a ${MIN_CREDIT} credit score, the DSCR programs on ${
           )}
           <p class="mt-4 text-[0.85rem] text-ink/55">
             Picked the wrong credit range by accident?
-            <a href="/#start" class="link">Start the check again</a>
+            <a href="/start" class="link">Start the check again</a>
           </p>
         </div>
       </div>

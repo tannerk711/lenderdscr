@@ -7,7 +7,7 @@ import Footer from '../components/Footer.astro';
 import { brand, cta } from '../config/site';
 ---
 
-<Layout title={`Page not found | ${brand.name}`} description="That page is not here. The DSCR eligibility check is one click away." noindex>
+<Layout title={`Page not found | ${brand.name}`} description="That page is not here. The Texas DSCR eligibility check is one click away." noindex>
   <Topbar />
   <main id="main" class="nf ground-paper">
     <div class="hero-atmo" aria-hidden="true"></div>
@@ -15,16 +15,12 @@ import { brand, cta } from '../config/site';
       <p class="eyebrow">404</p>
       <h1 class="h-display nf-h1">That page isn't here.</h1>
       <p class="prose-body nf-body">
-        The link may be old, or the page moved. The eligibility check is still one click
-        away, and every state has its own page.
+        The link may be old, or the page moved. The eligibility check is still one click away.
       </p>
       <div class="nf-actions">
-        <a href="/#start" class="btn-amber">{cta.primary}</a>
+        <a href="/start" class="btn-amber">{cta.primary}</a>
         <a href="/" class="btn-ghost">Back to the home page</a>
       </div>
-      <p class="nf-alt">
-        Looking for a specific state? <a href="/dscr-loans" class="link">DSCR loans by state</a>
-      </p>
     </div>
   </main>
   <Footer />
@@ -60,11 +56,5 @@ import { brand, cta } from '../config/site';
     flex-wrap: wrap;
     gap: 0.9rem;
     margin-top: 2rem;
-  }
-
-  .nf-alt {
-    margin-top: 1.5rem;
-    font-size: 0.95rem;
-    color: rgba(26, 20, 24, 0.62);
   }
 </style>

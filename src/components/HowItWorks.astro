@@ -1,9 +1,9 @@
 ---
 // Three numbered steps in a row (desktop) / column (mobile), a stroke-drawn
-// connector path (data-draw, desktop only), and the duplex accent photo in an
-// .offset-frame with an LQIP background.
-import { site, howItWorks } from '../config/site';
-import { lqip } from '../data/lqip';
+// connector path (data-draw, desktop only), and ILD's brick-ranch Texas photo
+// in an .offset-frame with an LQIP background. Step 2 never names Paul.
+import { site, howItWorks, cta } from '../config/site';
+import { lqip, imageDims } from '../data/lqip';
 import Icon from './Icon.astro';
 
 const steps = howItWorks[site.mode];
@@ -14,19 +14,23 @@ const steps = howItWorks[site.mode];
     <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16">
       <div data-reveal="scale-up">
         <p class="eyebrow">03 / How it works</p>
-        <h2 class="h-section mt-3">From a few questions to terms in writing</h2>
+        <h2 class="h-section mt-3">What happens after you check</h2>
+        <a href="/start" class="btn-ghost mt-8">
+          {cta.primary}
+          <Icon name="arrow" size={18} />
+        </a>
       </div>
 
       <figure class="hiw-figure" data-reveal="scale-up">
         <span class="offset-frame">
           <img
-            src="/images/duplex-dusk.webp"
-            alt="Modern duplex rental property at dusk"
-            width="1280"
-            height="960"
+            src="/images/ild-hero-property.webp"
+            alt="Brick ranch rental home in Texas under a live oak"
+            width={imageDims.heroProperty.width}
+            height={imageDims.heroProperty.height}
             loading="lazy"
             decoding="async"
-            style={`background-image:url(${lqip.duplexDusk});background-size:cover;background-position:center;`}
+            style={`background-image:url(${lqip.heroProperty});background-size:cover;background-position:center;`}
           />
         </span>
       </figure>
@@ -72,15 +76,17 @@ const steps = howItWorks[site.mode];
 </section>
 
 <style>
-  /* room for the offset frame's 14px outboard stroke */
+  /* room for the offset frame's 14px outboard stroke; portrait photo capped
+     so it never towers over the heading column */
   .hiw-figure {
     margin: 10px 14px 14px 10px;
-    max-width: 30rem;
+    max-width: 22rem;
     justify-self: center;
   }
 
   @media (min-width: 1024px) {
     .hiw-figure {
+      max-width: 24rem;
       justify-self: end;
     }
   }

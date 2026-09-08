@@ -1,6 +1,6 @@
-// Mobile Lighthouse gate (BRIEF sections 12 + 13). Builds, serves dist in-process (serve-dist.mjs
-// on LH_PORT, default 4399), launches Chrome with puppeteer-core, and runs Lighthouse through
-// its node API against that Chrome: 4 runs on `/` + 1 on `/dscr-loans/texas`. Prints each score
+// Mobile Lighthouse gate (variant B: BRIEF section 8). Builds, serves dist in-process (serve-dist.mjs
+// on LH_PORT, default 4342), launches Chrome with puppeteer-core, and runs Lighthouse through
+// its node API against that Chrome: 4 runs on `/` + 1 each on `/start` and `/thank-you`. Prints each score
 // with LCP / TBT / CLS (and FCP), the MEDIAN of runs 2-4 on `/` (run 1 is the cold outlier),
 // writes HTML + JSON reports to tools/lh-reports/, and exits 1 when that median is < 90.
 // The state-page run is informational (a single run has no warm median).
@@ -155,10 +155,14 @@ try {
     }
   }
 
+  // Variant B: /start and /thank-you are also gated at 90 (BRIEF section 8).
+  // Single warm-ish runs here are informational; the perf stage runs the full set.
   console.log('');
-  const tx = await audit('/dscr-loans/texas', 'state-texas', 1);
-  if (tx && tx.score < GATE) console.log(`  WARN /dscr-loans/texas scored ${tx.score} on a single cold run (informational; re-run with more runs before treating as a regression)`);
-  if (!tx) console.log('  WARN /dscr-loans/texas did not audit (route missing?)');
+  for (const [path, label] of [['/start', 'start'], ['/thank-you', 'thank-you']]) {
+    const r = await audit(path, label, 1);
+    if (r && r.score < GATE) console.log(`  WARN ${path} scored ${r.score} on a single cold run (informational; re-run with more runs before treating as a regression)`);
+    if (!r) console.log(`  WARN ${path} did not audit (route missing?)`);
+  }
 } finally {
   await browser.close();
   await srv.close();

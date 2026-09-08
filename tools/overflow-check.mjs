@@ -1,7 +1,10 @@
+// Horizontal overflow guard (BRIEF section 9 item 7): scrollWidth <= clientWidth on every
+// route at 390 and 320. Variant B routes only (no state directory on this build).
+//   QA_BASE=http://localhost:4332 node tools/overflow-check.mjs
 import puppeteer from 'puppeteer-core';
-const BASE = process.env.QA_BASE || 'http://localhost:4323';
+const BASE = process.env.QA_BASE || 'http://localhost:4332';
 const CHROME = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
-const pages = ['/', '/dscr-loans', '/dscr-loans/texas', '/dscr-loans/district-of-columbia', '/thank-you', '/not-yet', '/privacy', '/terms', '/nope-404'];
+const pages = ['/', '/start', '/start?goal=refinance', '/thank-you', '/not-yet', '/test-leads', '/privacy', '/legal', '/nope-404'];
 const widths = [390, 320];
 const browser = await puppeteer.launch({ executablePath: CHROME, headless: 'new' });
 let fail = 0;

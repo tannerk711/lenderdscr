@@ -1,11 +1,13 @@
-// Screenshot sweep (BRIEF section 13). One browser per viewport (desktop 1440x900 dsf1,
+// Screenshot sweep, variant B (b-t4-v1). One browser per viewport (desktop 1440x900 dsf1,
 // mobile 390x844 dsf2 hasTouch, no isMobile); every load asserts clientWidth === width.
-// Shots: / (fold + full page after a scroll-through), every purchase-path step, /not-yet,
-// /thank-you (seeded lead-summary), mobile sticky (scroll 1800), /dscr-loans/texas, /dscr-loans.
+// Shots: / (fold + full page after a scroll-through + every LP section in-viewport),
+// /start (+ ?goal=refinance preselect), /not-yet, /thank-you (seeded lead-summary),
+// mobile sticky (scroll 1800), /privacy, /legal.
+// The form-step walk lives in step-walk-qa.mjs once stage 2 lands the /start form.
 // Output: tools/shots/<viewport>-<name>.png
 //
-//   CI=true npm run dev        (server on QA_BASE, default http://localhost:4321)
-//   node tools/shoot.mjs [desktop|mobile]
+//   CI=true npm run dev        (server on QA_BASE, default http://localhost:4332)
+//   node tools/shoot.mjs [desktop|mobile] [--sections]
 import {
   QA_BASE,
   VIEWPORTS,
@@ -14,7 +16,6 @@ import {
   openPage,
   scrollThrough,
   overflowReport,
-  walkPurchase,
   seedLeadSummary,
   seedSession,
   ensureShots,
@@ -23,7 +24,9 @@ import {
 } from './qa-lib.mjs';
 
 const site = readSiteConfig();
-const only = process.argv[2];
+const args = process.argv.slice(2);
+const only = args.find((a) => !a.startsWith('--'));
+const withSections = args.includes('--sections');
 ensureShots();
 console.log(`shoot: ${QA_BASE}  brand "${site.brandName}"  mode ${site.mode}`);
 
@@ -88,45 +91,46 @@ for (const vp of Object.values(VIEWPORTS)) {
         const cards = [...document.querySelectorAll('#start .opt-card')];
         const third = cards[2]?.getBoundingClientRect();
         const start = document.querySelector('#start')?.getBoundingClientRect();
+        const h1 = document.querySelector('h1')?.getBoundingClientRect();
         return {
           optCards: cards.length,
+          h1Bottom: h1 ? Math.round(h1.bottom) : null,
           thirdCardBottom: third ? Math.round(third.bottom) : null,
           formCardBottom: start ? Math.round(start.bottom) : null,
           thirdCardInFold: third ? third.bottom <= h : false,
         };
       }, vp.height);
-      console.log(`  mobile fold: ${JSON.stringify(fold)} (acceptance: third option card bottom <= ${vp.height})`);
+      console.log(`  mobile fold: ${JSON.stringify(fold)} (acceptance: H1 + all three tiles above ${vp.height})`);
     }
     await snap(page, vp, 'home-fold');
     await scrollThrough(page);
     await snap(page, vp, 'home-full', true);
+
+    // in-viewport shot per LP section (cv-auto sections capture blank in full-page shots)
+    if (withSections) {
+      const count = await page.evaluate(() => document.querySelectorAll('main > section, footer').length);
+      for (let i = 0; i < count; i++) {
+        await page.evaluate((idx) => {
+          const el = document.querySelectorAll('main > section, footer')[idx];
+          el?.scrollIntoView({ block: 'start' });
+        }, i);
+        await settle(700);
+        await snap(page, vp, `home-section-${String(i + 1).padStart(2, '0')}`);
+      }
+    }
     await page.close();
   });
 
-  // 2. every form step on the purchase path
-  await run(vp, 'form steps', async () => {
-    const page = await open('/');
+  // 2. /start bare + preselect
+  await run(vp, 'start', async () => {
+    const page = await open('/start', { strictTitle: false });
     await settle(500);
-    const names = {
-      goal: 'step1-goal',
-      propertyType: 'step2-property',
-      credit: 'step3-credit',
-      price: 'step4-price',
-      secondary: 'step5-down',
-      state: 'step6-state',
-      'state-typed': 'step6-state-typed',
-      contact: 'step7-contact',
-      phone: 'step8-phone',
-      'phone-consented': 'step8-phone-filled',
-    };
-    await walkPurchase(page, {
-      consent: true,
-      onStep: async (id) => {
-        await settle(250);
-        await snap(page, vp, names[id] || id);
-      },
-    });
+    await snap(page, vp, 'start');
     await page.close();
+    const page2 = await open('/start?goal=refinance', { strictTitle: false });
+    await settle(500);
+    await snap(page2, vp, 'start-preselect-refinance');
+    await page2.close();
   });
 
   // 3. /not-yet
@@ -166,25 +170,15 @@ for (const vp of Object.values(VIEWPORTS)) {
     });
   }
 
-  // 6. state page + hub
-  await run(vp, 'state-texas', async () => {
-    const page = await open('/dscr-loans/texas');
-    await settle(700);
-    const chip = await page.evaluate(() => document.querySelector('#start [data-step]')?.getAttribute('data-step'));
-    console.log(`  /dscr-loans/texas first step: ${chip} (expect goal; state step is skipped later)`);
-    await scrollThrough(page);
-    await snap(page, vp, 'state-texas', true);
-    await page.close();
-  });
-  await run(vp, 'hub', async () => {
-    const page = await open('/dscr-loans');
-    await settle(600);
-    const links = await page.evaluate(() => document.querySelectorAll('a[href^="/dscr-loans/"]').length);
-    console.log(`  /dscr-loans state links: ${links} (expect 51)`);
-    await scrollThrough(page);
-    await snap(page, vp, 'hub', true);
-    await page.close();
-  });
+  // 6. legal pages
+  for (const [path, name] of [['/privacy', 'privacy'], ['/legal', 'legal']]) {
+    await run(vp, name, async () => {
+      const page = await open(path);
+      await settle(500);
+      await snap(page, vp, name);
+      await page.close();
+    });
+  }
 
   await browser.close();
 }

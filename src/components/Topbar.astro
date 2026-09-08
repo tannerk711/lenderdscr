@@ -1,17 +1,11 @@
 ---
-// Topbar: thin legal notice bar + header (logo + tagline; audience line and
-// spec bullets on >= 768px; compact amber CTA; phone in lender mode only).
-// Static section: NO data-reveal anywhere here (composition table row 1).
-import { site, brand, specs, legal, cta } from '../config/site';
+// Topbar: thin notice bar + header. Left: ILD logo (on paper, no chip needed)
+// + wordmark (>= 480px) + tagline (>= 768px). Middle (>= 768px): the three
+// program words, said once here and nowhere else at display size. Right:
+// phone (>= 768px) + compact amber CTA to /start.
+// Static section: NO data-reveal anywhere here.
+import { brand, programs, legal, cta } from '../config/site';
 import Icon from './Icon.astro';
-
-const showPhone = site.mode === 'lender' && Boolean(brand.phone);
-// Landing pages (/ and /dscr-loans/<state>) carry the #start form; every other
-// page routes the CTA home so the anchor is never dead.
-const path = Astro.url.pathname.replace(/\/$/, '') || '/';
-const hasForm = path === '/' || /^\/dscr-loans\/[a-z-]+$/.test(path);
-// Wordmark accent: whatever brand.name adds after logoText (".com" etc).
-const logoSuffix = brand.name.startsWith(brand.logoText) ? brand.name.slice(brand.logoText.length) : '';
 ---
 
 <header class="topbar ground-paper">
@@ -19,28 +13,26 @@ const logoSuffix = brand.name.startsWith(brand.logoText) ? brand.name.slice(bran
   <div class="container-x tb-row">
     <a href="/" class="tb-logo" aria-label={brand.name}>
       {brand.logoSrc ? (
-        <img src={brand.logoSrc} alt={brand.name} width="170" height="40" />
-      ) : (
-        <span class="tb-logotext">{brand.logoText}{logoSuffix && <span class="tb-logodot">{logoSuffix}</span>}</span>
-      )}
-      <span class="tb-tagline">{brand.tagline}</span>
+        <img src={brand.logoSrc} alt="" class="tb-logo-img" width="220" height="161" decoding="async" fetchpriority="high" />
+      ) : null}
+      <span class="tb-logo-text">
+        <span class="tb-logotext">{brand.logoText}</span>
+        <span class="tb-tagline">{brand.tagline}</span>
+      </span>
     </a>
 
-    <div class="tb-audience">
-      <p class="tb-audline">DSCR loans for real estate investors</p>
-      <p class="tb-specs">
-        {specs.map((s) => <span class="tb-spec-item">{s.label}</span>)}
-      </p>
-    </div>
+    <p class="tb-programs">
+      {programs.map((p) => <span class="tb-spec-item">{p}</span>)}
+    </p>
 
     <div class="tb-actions">
-      {showPhone && (
+      {brand.phone && (
         <a href={brand.phoneHref} class="tb-phone">
           <Icon name="phone" size={16} />
           <span>{brand.phone}</span>
         </a>
       )}
-      <a href={hasForm ? '#start' : '/#start'} data-scroll-to={hasForm ? '#start' : undefined} class="btn-amber tb-cta">{cta.primary}</a>
+      <a href="/start" class="btn-amber tb-cta">{cta.primary}</a>
     </div>
   </div>
 </header>
@@ -62,35 +54,45 @@ const logoSuffix = brand.name.startsWith(brand.logoText) ? brand.name.slice(bran
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding-block: 0.85rem;
+    padding-block: 0.7rem;
     border-bottom: 1px solid var(--color-line);
   }
 
   .tb-logo {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    align-items: center;
+    gap: 0.6rem;
     text-decoration: none;
     color: var(--color-ink);
-    /* shrinkable: the tracked-uppercase tagline wraps instead of widening the row */
     flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .tb-logo-img {
+    display: block;
+    height: 2.5rem;
+    width: auto;
+    flex: none;
+  }
+
+  .tb-logo-text {
+    display: none;
+    flex-direction: column;
+    gap: 2px;
     min-width: 0;
   }
 
   .tb-logotext {
     font-family: var(--font-display);
     font-weight: 800;
-    font-size: clamp(1rem, 4.6vw, 1.45rem);
+    font-size: clamp(1rem, 2.2vw, 1.3rem);
     line-height: 1.1;
     letter-spacing: -0.008em;
     white-space: nowrap;
   }
 
-  .tb-logodot {
-    color: var(--color-brand);
-  }
-
   .tb-tagline {
+    display: none;
     font-weight: 700;
     font-size: 0.62rem;
     letter-spacing: 0.14em;
@@ -99,29 +101,15 @@ const logoSuffix = brand.name.startsWith(brand.logoText) ? brand.name.slice(bran
     color: rgba(26, 20, 24, 0.58);
   }
 
-  .tb-audience {
+  .tb-programs {
     display: none;
-    margin-left: auto;
-    text-align: right;
-  }
-
-  .tb-audline {
-    margin: 0;
-    font-weight: 700;
-    font-size: 0.92rem;
-    color: var(--color-ink);
-  }
-
-  .tb-specs {
-    margin: 0.25rem 0 0;
-    display: flex;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-    column-gap: 0.55rem;
-    row-gap: 0.15rem;
+    margin: 0 0 0 auto;
+    flex: none;
+    white-space: nowrap;
     font-weight: 600;
-    font-size: 0.75rem;
+    font-size: 0.78rem;
     color: rgba(26, 20, 24, 0.62);
+    text-align: right;
   }
 
   .tb-spec-item + .tb-spec-item::before {
@@ -157,13 +145,17 @@ const logoSuffix = brand.name.startsWith(brand.logoText) ? brand.name.slice(bran
   /* compact variant of .btn-amber for the header (scoped, unlayered, wins) */
   .tb-cta {
     min-height: 2.75rem;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.78rem;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.8rem;
     border-radius: 10px;
     white-space: nowrap;
   }
 
   @media (min-width: 480px) {
+    .tb-logo-text {
+      display: flex;
+    }
+
     .tb-cta {
       padding: 0.55rem 1.05rem;
       font-size: 0.85rem;
@@ -171,7 +163,7 @@ const logoSuffix = brand.name.startsWith(brand.logoText) ? brand.name.slice(bran
   }
 
   @media (min-width: 768px) {
-    .tb-audience {
+    .tb-tagline {
       display: block;
     }
 
@@ -185,7 +177,17 @@ const logoSuffix = brand.name.startsWith(brand.logoText) ? brand.name.slice(bran
 
     .tb-row {
       gap: 1.25rem;
-      padding-block: 1rem;
+      padding-block: 0.85rem;
+    }
+
+    .tb-logo-img {
+      height: 2.9rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .tb-programs {
+      display: flex;
     }
   }
 </style>

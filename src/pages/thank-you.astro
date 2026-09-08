@@ -8,7 +8,12 @@ import Layout from '../layouts/Layout.astro';
 import Topbar from '../components/Topbar.astro';
 import Footer from '../components/Footer.astro';
 import Icon from '../components/Icon.astro';
-import { site, brand, specialist, routing, tracking, booking, thankYou, legal } from '../config/site';
+import { site, brand, specialist, routing, tracking, booking, thankYou, legal, leadDelivery } from '../config/site';
+
+// STAGE 1 NOTE: this is still template 4's thank-you. Stage 3 rebuilds it as the
+// LeaderOne clone (BRIEF section 6). The TEST MODE guard below already applies:
+// no conversion can fire unless leadDelivery === 'live'.
+const isLive = leadDelivery === 'live';
 
 const mode = site.mode;
 const copy = thankYou[mode];
@@ -56,7 +61,7 @@ const description = 'Your DSCR eligibility check is in. Watch for a text or call
   <!-- CONVERSION + PAGE VIEW: first script on the page, before anything else.
        Fires ONLY with a real submission (lead-summary) or ?demo=1 (Tag Assistant),
        never on a QA walk (sessionStorage.qa === '1'), once per tab. -->
-  <script is:inline define:vars={{ conv: tracking.gtagConversion }}>
+  <script is:inline define:vars={{ conv: isLive ? tracking.gtagConversion : '', live: isLive }}>
     (function () {
       var hasLead = false;
       var isQa = false;
@@ -75,7 +80,7 @@ const description = 'Your DSCR eligibility check is in. Watch for a text or call
       try {
         var fired = false;
         try { fired = sessionStorage.getItem('conv_fired') === '1'; } catch (e) {}
-        if (conv && (hasLead || isDemo) && !isQa && !fired && typeof gtag === 'function') {
+        if (live && conv && (hasLead || isDemo) && !isQa && !fired && typeof gtag === 'function') {
           gtag('event', 'conversion', { send_to: conv });
           try { sessionStorage.setItem('conv_fired', '1'); } catch (e) {}
         }

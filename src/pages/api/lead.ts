@@ -1,10 +1,15 @@
 import type { APIRoute } from 'astro';
+import { leadDelivery } from '../../config/site';
 
-// The only serverless route (BRIEF section 7). Forwards the lead server-side to
-// the Zapier catch hook in LEAD_WEBHOOK_URL. The webhook never reaches the
-// browser, and a same-origin JSON POST avoids every CORS / preflight failure
-// mode (Astro's security.checkOrigin does not inspect JSON bodies; never switch
-// the form to FormData without `security: { checkOrigin: false }`).
+// The only serverless route. Every gate runs in BOTH modes (honeypot, sub-620,
+// TCPA, complete lead, server-stamped consent record). Then:
+//   TEST MODE (leadDelivery === 'test', BRIEF section 3): never reads or calls a
+//     webhook; logs the payload and returns { ok, forwarded: false, testMode: true }.
+//   LIVE MODE: forwards server-side to the Zapier catch hook in LEAD_WEBHOOK_URL
+//     (read at RUNTIME via process.env). The webhook never reaches the browser,
+//     and a same-origin JSON POST avoids every CORS / preflight failure mode
+//     (Astro's security.checkOrigin does not inspect JSON bodies; never switch
+//     the form to FormData without `security: { checkOrigin: false }`).
 export const prerender = false;
 
 const json = (body: unknown, status: number) =>
@@ -33,8 +38,8 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ ok: true }, 200);
   }
 
-  // 3. sub-620 never reaches the CRM (the form hard-exits to /not-yet before
-  //    contact info exists; this backstops a hand-built POST the same silent way).
+  // 3. sub-620 never reaches the CRM (the form kicks out before contact info
+  //    exists; this backstops a hand-built POST the same silent way).
   if (data.credit === '<620') {
     return json({ ok: true }, 200);
   }
@@ -62,13 +67,18 @@ export const POST: APIRoute = async ({ request }) => {
     null;
   data.tcpaConsentUserAgent = headers.get('user-agent') ?? null;
   data.tcpaConsentReceivedAt = new Date().toISOString();
-  data.receivedAt = data.tcpaConsentReceivedAt;
 
-  // 7. runtime secret: process.env FIRST. import.meta.env non-PUBLIC_ vars are
-  //    inlined at build time (and dead-code-eliminated when absent at build).
+  // 7. TEST MODE: nothing leaves this process. No webhook is read or called.
+  if (leadDelivery === 'test') {
+    console.log('[lead][TEST MODE] would forward:', JSON.stringify(data));
+    return json({ ok: true, forwarded: false, testMode: true }, 200);
+  }
+
+  // 8. LIVE: runtime secret, process.env FIRST. import.meta.env non-PUBLIC_
+  //    vars are inlined at build time (and dead-code-eliminated when absent).
   const webhook = process.env.LEAD_WEBHOOK_URL ?? import.meta.env.LEAD_WEBHOOK_URL;
 
-  // 8. missing webhook: fail loudly in production, log in dev.
+  // 9. missing webhook: fail loudly in production, log in dev.
   if (!webhook) {
     if (import.meta.env.PROD) {
       return json({ ok: false, error: 'not configured' }, 500);
@@ -77,7 +87,7 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ ok: true }, 200);
   }
 
-  // 9. forward
+  // 10. forward
   try {
     const res = await fetch(webhook, {
       method: 'POST',
@@ -89,5 +99,5 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ ok: false, error: 'webhook unreachable' }, 502);
   }
 
-  return json({ ok: true }, 200);
+  return json({ ok: true, forwarded: true }, 200);
 };

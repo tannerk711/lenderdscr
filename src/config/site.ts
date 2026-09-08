@@ -1,80 +1,71 @@
 // ============================================================================
-// DSCR Funnel Template 4 ("Directory"): THE REBRAND SURFACE.
-// Every brandable, legal, or client-specific token lives here. Sections and
-// pages import from this file and never hardcode copy that belongs here.
+// Internet Loans Direct, split-test variant B ("b-t4-v1"): THE REBRAND SURFACE.
+// DSCR funnel template 4 ("Civic ledger", claret/amber) rebranded for Paul
+// Howarth's Internet Loans Direct (lenderdscr.com). Texas only. Every claim in
+// this file is one of ILD's published claims (BRIEF section 2); do not inflate,
+// do not add. No NMLS exists: the lead-generator disclaimer stands in for it.
 //
-// REBRAND CHECKLIST (do these in order, then `npm run build && npm run qa`):
-//   1. site.mode: 'network' (independent lender directory) or 'lender' (one brand).
-//   2. brand: name, legalName, tagline, domain, phone + phoneHref, privacyEmail,
-//      nmls (lender mode), address, logoText / logoSrc, housingMark.
-//   3. specialist (lender mode thank-you card) and routing.lender (network mode:
-//      set ONLY when every lead is contractually routed to one named lender).
-//   4. tracking.gtagId + gtagConversion (Google Ads). Empty strings render nothing.
-//   5. booking.embedUrl (lender mode thank-you calendar). Empty hides it.
-//   6. legal: read every string; the defaults are network-safe generic language.
-//   7. partners / lenders: replace placeholders with REAL entries (placeholder:false,
-//      verified:true, nmls set). Production excludes anything not verified.
-//   8. stats: flip confirmed:true ONLY for figures the client stands behind.
-//   9. Images: public/images/aerial-dusk.webp, duplex-dusk.webp, og.jpg
-//      (regenerate via `npm run images` from assets-src/).
-//  10. Env: LEAD_WEBHOOK_URL in Vercel (see .env.example for the printf recipe).
-//  11. Legal pages: src/pages/privacy.astro + terms.astro placeholder copy.
-//  12. astro.config.mjs `site` must equal `https://${brand.domain}`.
-//  NOTE: site.year and lenderPicksMonth are evaluated at BUILD time. Redeploy
-//  at the turn of the month / year or the page shows a stale month.
-//
-// LEGAL: PLACEHOLDER DATA
-//   Every partners/lenders entry below is a SAMPLE (placeholder:true,
-//   verified:false, nmls:''). Production builds (import.meta.env.PROD) EXCLUDE
-//   every entry that is placeholder or not verified; a section with zero real
-//   entries renders nothing. Dev builds show them with a "SAMPLE" tag. Ribbons,
-//   badges and highlights must be factual attributes supplied by the lender
-//   (states served, programs offered), never outcomes, superlatives, or speed.
-//   No testimonials or reviews exist in this template. Add a reviews section
-//   only with real, attributable feedback. NEVER publish interest rates.
+// TEST MODE (BRIEF section 3): `leadDelivery` below is the ONE flag. While it is
+// 'test', nothing leaves the browser except the same-origin POST to /api/lead,
+// which logs the payload and returns { ok: true, forwarded: false, testMode: true }.
+// Every page carries noindex,nofollow and renders no gtag at all. To go live:
+//   1. set `leadDelivery = 'live'` below,
+//   2. set LEAD_WEBHOOK_URL on the Vercel project (Zapier catch hook, printf recipe
+//      in .env.example),
+//   3. redeploy and send one test lead.
 // ============================================================================
 
 export type SiteMode = 'network' | 'lender';
+export type LeadDelivery = 'test' | 'live';
+
+/** ONE flag. 'test' = no webhook, no gtag, noindex everywhere. Flip to 'live' at launch. */
+export const leadDelivery: LeadDelivery = 'test';
+
+/** Ships on every payload as `variant` so the split test can be read in the CRM. */
+export const variant = 'b-t4-v1';
+
+/** Texas-only client: the form never asks for a state; every payload ships this. */
+export const fixedState = 'Texas';
 
 export const site = {
-  mode: 'network' as SiteMode,
+  mode: 'lender' as SiteMode,
   year: new Date().getFullYear(), // build-time
   showYearInH1: true,
-  stateIntroFallback:
-    "DSCR lenders in {name} qualify the loan on the property's rent, not your tax returns. If the rent covers the payment, the deal can stand on its own numbers, whether it is a single family rental, a small multifamily, or a short-term rental. Answer a few questions about the {name} property and see which lenders fit.",
 };
 
 export const brand = {
-  name: 'DSCRlenders.com',
-  legalName: 'DSCR Lenders Network LLC',
-  tagline: 'An independent DSCR lender network', // lender mode: 'DSCR rental property loans'
-  domain: 'dscrlenders.example',
-  phone: '(866) 555-0190',
-  phoneHref: 'tel:+18665550190',
-  privacyEmail: '', // renders in privacy#do-not-sell when set
-  nmls: '',
+  name: 'Internet Loans Direct',
+  legalName: 'Internet Loans Direct',
+  tagline: 'DSCR rental property loans for Texas investors',
+  domain: 'lenderdscr.com',
+  phone: '(855) 545-2022',
+  phoneHref: 'tel:+18555452022',
+  privacyEmail: '', // none published; privacy page routes requests to the phone
+  nmls: '', // none published (open item for Paul); never invent one
   address: '',
-  logoText: 'DSCRlenders',
-  logoSrc: '',
+  logoText: 'Internet Loans Direct',
+  logoSrc: '/images/ild-logo.png', // transparent PNG, 220x161: sky #22a0dd + deep #1f78b4 + charcoal roof
   // 'lender' is honored ONLY when site.mode === 'lender' AND nmls is non-empty;
   // otherwise it is coerced to 'opportunity' (see housingPhrase below).
   housingMark: 'opportunity' as 'lender' | 'opportunity',
   licensingUrl: 'https://www.nmlsconsumeraccess.org',
 };
 
-export const specialist = { name: 'Alex Morgan', title: 'DSCR Loan Specialist', nmls: '' };
+// Thank-you page ONLY. The LP and the form say "a DSCR specialist" / "our team".
+export const specialist = { name: 'Paul Howarth', title: 'DSCR Loan Specialist', nmls: '' };
 
-// Network thank-you names a lender ONLY when this is set.
+// Network mode only; unused in lender mode.
 export const routing = { lender: null as null | { name: string; nmls: string } };
 
-export const tracking = { gtagId: '', gtagConversion: '' };
+// Google Ads (acct 340-440-3562). Rendered in LIVE mode only (Layout + thank-you).
+export const tracking = { gtagId: 'AW-16956033989', gtagConversion: 'AW-16956033989/cwbHCNCflbAaEMWXopU_' };
 
-export const booking = { embedUrl: '' }; // honored in lender mode only
+export const booking = { embedUrl: '' }; // Paul declined the calendar; phone CTA branch renders
 
 // ---------------------------------------------------------------------------
 // Icons: hand-drawn 24-viewBox stroke path sets. Rendered by Icon.astro /
 // IconSvg.tsx (stroke currentColor, width 1.8, round caps). Legible at 20px
-// and 40px. Keys are the contract in BRIEF section 5b (+ equal-housing).
+// and 40px.
 // ---------------------------------------------------------------------------
 export const icons = {
   'house-key': ['M3 11 12 4l9 7', 'M5 10v10h5', 'M19 10v2.5', 'M13.5 17.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z', 'm15.3 16.8 4.7 4.7', 'm18 19.5 1.5-1.5'],
@@ -141,151 +132,110 @@ export type DirectoryColumn = { title: string; links: DirectoryLink[] };
 // SEO + hero
 // ---------------------------------------------------------------------------
 export const seo = {
-  title: `Check Your ${site.year} DSCR Loan Eligibility | ${brand.name}`,
-  description: `DSCR rental property loans. Qualify on the rent, not your tax returns. 620 minimum credit. Check your ${site.year} eligibility in about a minute.`,
+  title: `Check Your ${site.year} Texas DSCR Loan Eligibility | ${brand.name}`,
+  description: `DSCR rental property loans for Texas real estate investors. Qualify on the rent, not your tax returns. Check your ${site.year} eligibility in about a minute.`,
 };
 
 export const hero = {
-  h1: site.showYearInH1 ? `Check Your ${site.year} DSCR Loan Eligibility` : 'Check Your DSCR Loan Eligibility',
-  subNetwork: 'Rent qualifies the loan, not your tax returns. See which lenders fit your deal.',
-  subLender: 'Rent qualifies the loan, not your tax returns. See if your deal fits.',
+  h1: site.showYearInH1 ? `Check Your ${site.year} Texas DSCR Loan Eligibility` : 'Check Your Texas DSCR Loan Eligibility',
+  subNetwork: 'Rent qualifies the loan, not your tax returns. See which lenders fit your Texas deal.',
+  subLender: 'Rent qualifies the loan, not your tax returns. See if your Texas deal fits.',
 };
 
-/** Copy tokens for /dscr-loans/[state]. `intro` falls back to site.stateIntroFallback. */
-export function stateCopy(name: string, blurb?: string) {
-  return {
-    title: `${name} DSCR Loans: Check Your ${site.year} Eligibility | ${brand.name}`,
-    h1: `Check Your ${site.year} ${name} DSCR Loan Eligibility`,
-    sub: `Rent qualifies the loan, not your tax returns. See which lenders fit your ${name} deal.`,
-    description: `DSCR rental property loans in ${name}. Qualify on the rent, not your tax returns. 620 minimum credit. Check your ${site.year} eligibility in about a minute.`,
-    intro: blurb ?? site.stateIntroFallback.replaceAll('{name}', name),
-  };
-}
+// Topbar (desktop only): the three program words. Says WHAT once, in the header.
+export const programs: string[] = ['Long-term rentals', 'Short-term rentals', 'Fix and flip'];
 
-// Header bullets + trust band: SPEC-SHEET claims only.
+// TrustBand: ILD's speed and structure specs. Numbers (620, 0 tax returns,
+// 100+ lenders) live in the StatsBand and nowhere else on the page.
 export const specs: Spec[] = [
-  { icon: 'shield', label: '620 minimum credit score' },
-  { icon: 'doc-x', label: 'No tax returns or W-2s' },
-  { icon: 'llc', label: 'Close in your LLC' },
+  { icon: 'clock', label: 'Same-day income and credit approval' },
+  { icon: 'calendar', label: 'Close in 15 to 25 days' },
+  { icon: 'llc', label: 'LLC closings welcome' },
 ];
 
-export const trustStrip = { text: 'Find the DSCR lender that fits your deal.', cta: 'Check My Eligibility' };
-
-// Repeated 4x in markup, aria-hidden on repeats 2-4.
-export const marqueeText = 'Qualify on the rent. Not your tax returns.';
+export const trustStrip = {
+  text: 'Under contract or still running the numbers? Check it before you need it.',
+  cta: 'Check My Eligibility',
+};
 
 // StatsBand renders ONLY confirmed:true. `from` = count-down start (optional).
+// Confirmed = ILD's published claims. LTV and term figures are NOT published
+// by ILD, so they stay hidden.
 export const stats: Stat[] = [
   { value: 620, from: 0, suffix: '', decimals: 0, label: 'Minimum credit score', confirmed: true },
   { value: 0, from: 24, suffix: '', decimals: 0, label: 'Tax returns required', confirmed: true }, // counts DOWN 24 -> 0
-  { value: 80, from: 0, suffix: '%', decimals: 0, label: 'Max loan-to-value on purchases', confirmed: false }, // CONFIRM PER CLIENT
-  { value: 30, from: 0, suffix: 'yr', decimals: 0, label: 'Fixed-payment terms available', confirmed: false }, // CONFIRM PER CLIENT
+  { value: 100, from: 0, suffix: '+', decimals: 0, label: 'Lenders your scenario is priced across', confirmed: true },
+  { value: 80, from: 0, suffix: '%', decimals: 0, label: 'Max loan-to-value on purchases', confirmed: false }, // NOT an ILD claim
+  { value: 30, from: 0, suffix: 'yr', decimals: 0, label: 'Fixed-payment terms available', confirmed: false }, // NOT an ILD claim
 ];
 
 // ---------------------------------------------------------------------------
-// Network-mode rows (placeholders; production excludes anything not verified)
+// Network-mode rows: EMPTY for ILD (lender mode). Partners + LenderPicks render nothing.
 // ---------------------------------------------------------------------------
-export const partners: Partner[] = [
-  { name: 'Sample Lender One', placeholder: true, verified: false },
-  { name: 'Sample Lender Two', placeholder: true, verified: false },
-  { name: 'Sample Lender Three', placeholder: true, verified: false },
-  { name: 'Sample Lender Four', placeholder: true, verified: false },
-];
-
-// ribbon / badge / highlights are FACTUAL ATTRIBUTES supplied by the lender,
-// never outcomes, superlatives, or speed.
-export const lenders: Lender[] = [
-  {
-    name: 'Sample Lender One',
-    nmls: '',
-    ribbon: 'Rental loans in 40+ states',
-    badge: 'Network member',
-    highlights: ['No tax returns', 'Closes in LLCs', 'Short-term rental programs'],
-    href: '#start',
-    placeholder: true,
-    verified: false,
-  },
-  {
-    name: 'Sample Lender Two',
-    nmls: '',
-    ribbon: 'Closes in LLCs',
-    badge: 'Network member',
-    highlights: ['No tax returns', 'Single family and 2-4 units', 'Cash-out refinance programs'],
-    href: '#start',
-    placeholder: true,
-    verified: false,
-  },
-  {
-    name: 'Sample Lender Three',
-    nmls: '',
-    ribbon: 'Short-term rental programs',
-    badge: 'Network member',
-    highlights: ['No tax returns', '5+ unit programs', 'Closes in LLCs'],
-    href: '#start',
-    placeholder: true,
-    verified: false,
-  },
-];
-
+export const partners: Partner[] = [];
+export const lenders: Lender[] = [];
 export const lenderPicksMonth = new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' }); // build-time
 
 // ---------------------------------------------------------------------------
-// Advantages (right-column 2x2 illustrated cards + left prose)
+// Advantages: left prose teaches the mechanism (the one place on the page that
+// explains DSCR); right cards carry four investor outcomes that no other
+// section states. Page-level say-it-once: no 620, no tax-return count, no
+// closing days, no LLC line here (TrustBand and StatsBand own those).
 // ---------------------------------------------------------------------------
 export const advantages: Advantage[] = [
   {
-    icon: 'ledger',
-    title: 'The rent does the qualifying',
-    body: "A DSCR lender looks at one ratio: does the property's rent cover the mortgage payment, taxes, and insurance. If it does, the deal can stand on its own numbers.",
-  },
-  {
-    icon: 'doc-x',
-    title: 'No personal income docs',
-    body: 'No tax returns, no W-2s, no pay stubs. Your CPA can keep writing everything off. The appraisal and a rent schedule establish the income instead.',
-  },
-  {
-    icon: 'llc',
-    title: 'Close in your LLC',
-    body: 'Most DSCR programs let you take title in an LLC, so the loan sits with the entity that owns the property, not on your personal balance sheet.',
-  },
-  {
     icon: 'portfolio',
     title: 'Each property carries its own weight',
-    body: "Because every deal qualifies on its own rent, the next one is not waiting on your personal debt-to-income. That's how investors keep adding doors.",
+    body: 'Every deal qualifies on its own rent, so the next one is not waiting on your personal debt-to-income. That is how investors keep adding doors.',
+  },
+  {
+    icon: 'house-refresh',
+    title: 'Cash out and roll it forward',
+    body: 'Refinance a rental you already own, leave roughly 25 percent of the value in it, and put the rest toward the next deal.',
+  },
+  {
+    icon: 'str',
+    title: 'Short-term rentals count',
+    body: 'Airbnb and VRBO properties run on their own programs, using projected or documented nightly income instead of a long-term lease.',
+  },
+  {
+    icon: 'house-hammer',
+    title: 'Fix and flip, or fix and hold',
+    body: 'Buy it, rehab it, then sell it or keep it as a rental. The financing is built around the project and its exit, not a bank\'s checklist.',
   },
 ];
 
 export const advantagesProse: string[] = [
-  "If you've ever been told no by a bank because your tax returns don't show enough income, you already understand the problem DSCR loans solve. A conventional lender underwrites you. A DSCR lender underwrites the property. It asks whether the rent covers the payment, and that answer, not your personal debt-to-income ratio, decides the deal.",
+  "If you've ever been told no by a bank because your tax returns don't show enough income, you already understand the problem a DSCR loan solves. A conventional lender underwrites you. A DSCR lender underwrites the property. It asks whether the rent covers the payment, and that answer, not your personal debt-to-income ratio, decides the deal.",
   "DSCR stands for debt service coverage ratio: the property's monthly rent divided by its monthly payment, taxes, insurance, and any HOA dues. A ratio of 1.0 means the rent exactly covers the costs. Most programs want to see something at or above that line, and a stronger ratio usually opens up better terms. Because the math is about the property, an investor with heavy write-offs, multiple entities, or a new self-employed business can still get a straight answer.",
-  "The trade-off is worth understanding. DSCR loans typically ask for more down than an owner-occupied mortgage, and pricing is set by each lender based on the ratio, your credit score, and the loan-to-value. What you get in return is a loan that closes in your LLC, does not touch your personal income documents, and lets each rental qualify on its own numbers. For a lot of investors, that is the difference between one property and a portfolio.",
+  'The trade-off is worth understanding. A DSCR loan asks for more down than an owner-occupied mortgage, and the pricing follows the ratio, your credit score, and the loan-to-value. In return, the deal gets judged on what it earns, which is the only thing that matters when you are buying Texas rentals on purpose.',
 ];
 
 // ---------------------------------------------------------------------------
-// How it works (mode-specific)
+// How it works (lender mode is the live branch). Step 2 never names Paul.
 // ---------------------------------------------------------------------------
 export const howItWorks: { network: Step[]; lender: Step[] } = {
   network: [
     {
       title: 'Answer a few questions',
-      body: 'Property type, credit range, price, and where the property is. It takes about a minute and never touches your credit.',
+      body: 'Your goal, where you are in the process, the property, your credit range, and the money side.',
     },
     {
       title: 'Hear from a participating lender',
-      body: `A participating DSCR lender whose programs cover your property type and state reaches out by text or call, and mentions ${brand.name} so you know it's real.`,
+      body: `A participating DSCR lender reaches out by text or call, and mentions ${brand.name} so you know it's real.`,
     },
     {
       title: 'Get terms from the lender',
-      body: 'The lender runs the numbers on the rent, walks you through the program, and puts terms in writing if the deal fits. No obligation at any step.',
+      body: 'The lender runs the numbers on the rent and puts terms in writing if the deal fits. No obligation at any step.',
     },
   ],
   lender: [
     {
       title: 'Answer a few questions',
-      body: 'Property type, credit range, price, and where the property is. It takes about a minute and never touches your credit.',
+      body: 'Your goal, where you are in the process, the property, your credit range, and the money side.',
     },
     {
-      title: `${specialist.name} reaches out`,
+      title: 'A DSCR specialist reaches out',
       body: `A text or call from ${brand.phone} to talk through the deal, answer questions, and, if you want, run the numbers on the rent.`,
     },
     {
@@ -296,110 +246,107 @@ export const howItWorks: { network: Step[]; lender: Step[] } = {
 };
 
 // ---------------------------------------------------------------------------
-// FAQ (NO RATES; pricing is quoted by the lender, never published here)
+// FAQ: ILD's five (Paul's published claims only, NO RATES) plus the two BRIEF
+// section 2 allows. FAQ 1's closing stat line was trimmed (620 / 20 to 25% /
+// 100+ lenders are the StatsBand's job).
 // ---------------------------------------------------------------------------
 export const faqs: Faq[] = [
   {
-    q: 'What is a DSCR loan?',
-    a: "A DSCR loan is a rental property mortgage that qualifies on the property's income instead of yours. DSCR stands for debt service coverage ratio: the monthly rent divided by the monthly payment, taxes, insurance, and HOA dues. If the rent covers the costs, the ratio is 1.0 or better and the property can qualify on its own. Your tax returns and W-2s stay out of it.",
+    q: 'Is it harder to get approved for a DSCR loan as a real estate investor?',
+    a: 'Not with a DSCR program. While traditional lenders focus heavily on personal income verification, DSCR (Debt Service Coverage Ratio) loans are designed specifically for real estate investors. You qualify based on the rental income potential of the investment property, not your personal W-2s or tax returns. That makes the process much simpler for investors who want to grow a portfolio without the income-documentation circus.',
   },
   {
-    q: 'What credit score do I need?',
-    a: "The DSCR programs in this network start at a 620 credit score. A higher score generally opens up more programs and better terms, and most lenders step up their offerings around 680 and again at 720 and above. Your best guess on the form is fine. Nothing here pulls or touches your credit.",
+    q: 'What credit score do I need for a DSCR loan?',
+    a: "Programs are available down to a 620 credit score. Pricing improves meaningfully at 680 and again above 720, so a 680+ score with 20 to 25 percent down puts you in the most competitive tier for investment property financing. The property's rental income carries more of the weight than your personal credit history.",
   },
   {
-    q: 'How much do I need to put down?',
-    a: 'Plan on a minimum of 20 percent down for a purchase, with 20 to 25 percent being the common range. A larger down payment lowers the monthly payment, which raises the DSCR, which usually improves the terms a lender can offer. On a cash-out refinance, lenders look at the equity you leave in the property the same way.',
+    q: 'What down payment is required for DSCR loans?',
+    a: 'Plan on a minimum of 20 percent down for purchases, with 20 to 25 percent being the standard range for investment property financing. For cash-out refinances, roughly 25 percent equity left in the property is the typical requirement. A larger down payment usually means stronger cash flow and sharper pricing, and many investors later use a cash-out refinance to recover the down payment for the next deal.',
   },
   {
-    q: 'Do I really not need tax returns?',
-    a: "Correct. DSCR lenders verify the property's income, not yours. The appraisal includes a rent schedule (and a lease if the property is already rented), and that establishes the income for the loan. No tax returns, no W-2s, no pay stubs, no employment verification. If your CPA writes everything off, that is no longer a problem.",
+    q: 'How long does the DSCR loan approval process take?',
+    a: "Faster than a traditional investment property loan, because there is no income documentation to verify. Income and credit approval typically happens the same day, and most files close in 15 to 25 days from application to funding. Since qualification is based on the property's rental income rather than your personal financials, the appraisal with a rent schedule is usually the longest step. That speed matters when you are making offers: sellers take a fast, reliable close seriously.",
   },
   {
-    q: 'Can I close in an LLC, and do short-term rentals qualify?',
-    a: 'Most DSCR programs allow you to take title in an LLC, and many investors do exactly that so each property sits with its own entity. Short-term rentals are covered by specific programs that use projected or documented nightly income instead of a long-term lease. Tell the form the property is a short-term rental and your inquiry goes to participating lenders whose programs cover it.',
+    q: 'Can I qualify for a DSCR loan without showing personal income?',
+    a: "Absolutely. That is the whole point of a DSCR loan. Qualification is based on the debt service coverage ratio: whether the property's rental income covers the mortgage payment plus taxes and insurance. No tax returns, no pay stubs, no employment verification. That is perfect for investors with complex income situations, multiple LLCs, or those who simply want privacy in their financing. An appraisal or rent roll establishes the property's income potential, with most programs looking for a DSCR around 1.0 to 1.25 depending on the loan.",
+  },
+  {
+    q: 'Does checking my eligibility pull my credit?',
+    a: 'No. The credit range you pick on the form is your own estimate, and nothing on this site pulls, checks, or touches your credit. A credit report only comes into play later, if you decide to move forward with an application.',
   },
   {
     q: 'What does a DSCR loan cost?',
-    a: `Pricing is set by each lender based on the DSCR, your credit score, the loan-to-value, and the property type, and it changes with the market. That is why ${brand.name} does not publish rates or fees. Once a lender has your scenario, they quote it directly and put it in writing, and you compare from there.`,
+    a: `Pricing follows the DSCR, your credit score, the loan-to-value, and the property type, and it moves with the market. That is why ${brand.name} does not publish rates or fees here. Once a specialist has your scenario, it gets priced across the lender network and put in writing, and you decide from there.`,
   },
 ];
 
 // ---------------------------------------------------------------------------
-// Footer directory (state column is generated from states.ts)
-// Hrefs here must resolve on THIS build: '/', '/dscr-loans', '/dscr-loans/<slug>',
-// '#faq', '#start', '/privacy', '/terms', '/privacy#do-not-sell'.
-// The "Advertiser Disclosure" link anchors to id="advertiser-disclosure",
-// which the Footer places on its own disclosure block.
+// Footer Company column. Every href must resolve on THIS build:
+// '/', '/start', '/privacy', '/legal', '/privacy#do-not-sell', '#faq', '#start'.
+// (Footer.astro throws at build time on anything else.)
 // ---------------------------------------------------------------------------
 export const directory: { columns: DirectoryColumn[] } = {
   columns: [
     {
       title: 'Company',
       links: [
-        { label: 'Check eligibility', href: '#start' },
-        { label: 'DSCR loans by state', href: '/dscr-loans' },
+        { label: 'Check eligibility', href: '/start' },
         { label: 'Questions', href: '#faq' },
         { label: 'Privacy', href: '/privacy' },
-        { label: 'Terms', href: '/terms' },
-        // Network mode only: lender mode renders no disclosure block anywhere,
-        // so the anchor would be a dead link on a single-lender site.
-        ...(site.mode === 'network' ? [{ label: 'Advertiser Disclosure', href: '#advertiser-disclosure' }] : []),
+        { label: 'Legal', href: '/legal' },
         { label: 'Do Not Sell or Share My Personal Information', href: '/privacy#do-not-sell' },
       ],
     },
-    // Add these columns when the routes exist (check-links fails on dead hrefs):
-    // { title: 'DSCR loan articles', links: [
-    //   { label: 'How DSCR is calculated', href: '/learn/how-dscr-is-calculated' },
-    //   { label: 'DSCR loan requirements', href: '/learn/dscr-loan-requirements' },
-    // ] },
-    // { title: 'Tools', links: [
-    //   { label: 'DSCR calculator', href: '/tools/dscr-calculator' },
-    // ] },
   ],
 };
 
 // ---------------------------------------------------------------------------
-// Form copy (titles, subs, errors, phases)
+// Form copy (BRIEF section 4; the wording source of truth is
+// _ref/form-templates/flow.ts as Tanner edited it). Stage 2 ports the V1 form
+// to /start and reads these tokens; the LP's static step-1 tiles read
+// `titles.goal` + `phases`.
 // ---------------------------------------------------------------------------
 export const form = {
   titles: {
     goal: 'What are you looking to do?',
-    propertyType: 'What type of property is it?',
-    credit: "What's your credit like?",
-    pricePurchase: "What's the estimated purchase price?",
-    priceRefi: "What's the property worth?",
-    down: 'How much are you putting down?',
-    balance: 'Roughly what do you still owe?',
-    rehab: "What's the rehab budget?",
-    state: 'What state is the property in?',
-    contact: "What's your name and email?",
-    phone: "What's the best number to reach you?",
-    phoneNetwork: "What's the best number for your lender to reach you?",
+    stage: 'Where are you in the process?',
+    propertyType: 'Tell us about the property.',
+    credit: "How's your credit right now?",
+    priceBuy: 'About what price range?',
+    priceRefi: "About what's the property worth?",
+    priceFlip: "About what's the purchase price?",
+    down: 'Please estimate your down payment.',
+    balance: 'About how much do you still owe?',
+    rehab: "What's your rehab budget?",
+    contact: 'Almost done. Who are we talking to?',
+    phone: 'Last step: best mobile number?',
   },
   subs: {
-    credit: 'Your best guess is fine. This never touches your credit.',
-    down: '(Minimum 20% for purchases)',
+    price: 'An estimate is fine.',
+    balance: "Of the property's value, roughly.",
   },
-  submit: 'Check My Eligibility',
+  submit: 'Check My Eligibility', // stage 2: keep V1's own Tanner-edited submit label
   submitting: 'Checking your eligibility…',
   reassurance: 'No obligation.',
+  totalSteps: 8,
+  // Goal · Details · Contact: matches the /start V1 form's milestone frame.
   phases: [
-    { id: 'property', label: 'Property' },
-    { id: 'credit', label: 'Credit' },
-    { id: 'deal', label: 'Deal' },
+    { id: 'goal', label: 'Goal' },
+    { id: 'details', label: 'Details' },
     { id: 'contact', label: 'Contact' },
   ],
   errors: {
-    name: 'Add your full name so we know who to address.',
+    name: 'Add your first and last name so we know who to address.',
     email: "That email doesn't look right. Mind checking it?",
     phone: 'Enter a 10-digit mobile number so we can text you.',
     consent: 'Please check the consent box so we have your permission to contact you.',
+    submit: "That didn't go through. Give it one more try. Your answers are saved.",
   },
   back: 'Back',
   continue: 'Continue',
-  statePlaceholder: 'Start typing a state',
-  namePlaceholder: 'Full name',
+  firstNamePlaceholder: 'First name',
+  lastNamePlaceholder: 'Last name',
   emailPlaceholder: 'Email',
   phonePlaceholder: '(555) 555-0123',
 };
@@ -408,13 +355,15 @@ export const cta = {
   primary: 'Check My Eligibility',
   sticky: 'Check Eligibility',
   final: {
-    heading: 'Check DSCR loan requirements',
-    body: 'Answer a few questions about the property and see which DSCR lenders fit your deal. No tax returns, nothing here touches your credit, and no obligation.',
+    heading: 'Ready when you are.',
+    body: 'Eight quick questions, about a minute, no obligation.',
   },
 };
 
 // ---------------------------------------------------------------------------
-// Thank-you (CONVERSATION OPENER, never results delivery; never promise an email)
+// Thank-you (stage 3 rebuilds the page as the LeaderOne clone; these tokens
+// keep the interim page honest). CONVERSATION OPENER, never results delivery;
+// the promise sentence is Tanner's verbatim; never promise an email.
 // Tokens: {firstName} {brand} {goalLabel} {propertyTypeLabel} {state} {specialist} {phone}
 // ---------------------------------------------------------------------------
 export const thankYou = {
@@ -433,15 +382,15 @@ export const thankYou = {
   },
   lender: {
     heading: "{firstName}, you're in.",
-    body: '{specialist} will text or call you from {phone} to talk through your deal and, if you want, run the numbers.',
+    body: "Now keep your phone close. Paul or Mike will text you from {phone} to answer any questions you have and, if you're interested, run some numbers for you. Save the number so you know it's them.",
     band: {
       heading: 'Save this number.',
-      body: "That's the line {specialist} texts and calls from. Saving it now means the message lands where you'll see it.",
+      body: "That's the line Paul or Mike texts and calls from. Saving it now means the message lands where you'll see it.",
     },
     steps: [
-      { title: 'Reply to the text', body: 'A quick reply is all it takes to get the conversation going. A call only if you want one.' },
-      { title: 'Talk it through', body: 'Tell {specialist} about the property and what you are trying to do. Ask anything.' },
-      { title: 'Terms in writing', body: 'If the deal fits, you get the program details and terms in writing so you can decide with the numbers in front of you.' },
+      { title: 'Watch for the text', body: "It comes from {phone}. If you see a Texas rental inquiry from Paul or Mike, that's it. Reply and the conversation starts." },
+      { title: 'Have your numbers handy', body: 'Nothing is required yet. The rent, the price, and what you are putting down are what turn a quick text into same-day income and credit approval.' },
+      { title: 'Keep shopping deals', body: 'Once terms are in writing you can write offers sellers take seriously, with closings in 15 to 25 days.' },
     ],
   },
 };
@@ -450,8 +399,8 @@ export const thankYou = {
 // Not-yet page (sub-620 hard exit). Five concrete score moves; no hype.
 // ---------------------------------------------------------------------------
 export const notYet = {
-  heading: "Below 620, the lenders in this network can't say yes yet. Here's the fastest way back.",
-  body: "We'd rather tell you now than waste your time: the DSCR programs on {brand} start at a 620 credit score. Most investors are closer than they think, and these are the moves that actually move a score.",
+  heading: "Below 620, a DSCR loan can't say yes yet. Here's the fastest way back.",
+  body: "We'd rather tell you now than waste your time: the DSCR programs at {brand} start at a 620 credit score. Most investors are closer than they think, and these are the moves that actually move a score.",
   moves: [
     {
       title: 'Pay revolving balances down before the statement date',
@@ -478,74 +427,63 @@ export const notYet = {
 };
 
 // ---------------------------------------------------------------------------
-// Option sets. VALUES are the Zap contract; never rename.
-// Sophisticated avatar: label + icon only (`sub` optional and unset by default).
+// Option sets (BRIEF section 4). VALUES are the Zap contract; never rename.
+// Sophisticated avatar: label + icon only.
 // ---------------------------------------------------------------------------
 export const goals: Option[] = [
-  { value: 'purchase', label: 'Purchase', icon: 'house-key' },
-  { value: 'bridge', label: 'Fix and Hold/Flip', icon: 'house-hammer' },
-  { value: 'refinance', label: 'Cash Out Refinance', icon: 'house-refresh' },
+  { value: 'purchase', label: 'Buy a rental', icon: 'house-key' },
+  { value: 'refinance', label: 'Refinance', icon: 'house-refresh' },
+  { value: 'bridge', label: 'Fix & Flip/Hold', icon: 'house-hammer' },
 ];
 
 export const propertyTypes: Option[] = [
-  { value: 'sfr', label: 'Single family', icon: 'sfr' },
-  { value: '2-4', label: '2-4 units', icon: 'units2' },
-  { value: '5+', label: '5+ units', icon: 'units5' },
-  { value: 'condo', label: 'Condo or townhome', icon: 'condo' },
-  { value: 'str', label: 'Short-term rental', icon: 'str' },
+  { value: 'sfr', label: 'Single-family', icon: 'sfr' },
+  { value: 'condo', label: 'Townhome or condo', icon: 'condo' },
+  { value: '2-4', label: '2 to 4 units', icon: 'units2' },
+  { value: '5-9', label: '5 to 9 units', icon: 'units5' },
+  { value: '10+', label: '10 to 15 units', icon: 'units5' },
+  { value: 'commercial', label: 'Commercial', icon: 'ledger' },
   { value: 'other', label: 'Other', icon: 'other' },
 ];
 
 export const creditBands: Option[] = [
-  { value: '740+', label: '740+', icon: 'gauge5' },
-  { value: '700-739', label: '700-739', icon: 'gauge4' },
-  { value: '660-699', label: '660-699', icon: 'gauge3' },
-  { value: '620-659', label: '620-659', icon: 'gauge2' },
-  { value: '<620', label: '619 or less', icon: 'gauge1' },
+  { value: '740+', label: '740 or above', icon: 'gauge5' },
+  { value: '680-739', label: '680 to 739', icon: 'gauge4' },
+  { value: '620-679', label: '620 to 679', icon: 'gauge3' },
+  { value: '<620', label: 'Below 620', icon: 'gauge1' },
 ];
 
 export const MIN_CREDIT = 620;
 
 // ---------------------------------------------------------------------------
-// TCPA. ONE constant, imported by the island (rendered next to the checkbox)
-// AND shipped verbatim as payload.tcpaConsentText, so the record and the legal
-// text can never desync. The automated-technology / prerecorded clause is
-// load-bearing. The string must never contain the word "mode".
+// TCPA. ILD's `tcpaCopy` VERBATIM (it is the legal record already mapped in
+// Paul's Zap). ONE constant: rendered next to the checkbox AND shipped as
+// payload.tcpaConsentText, so the record and the legal text can never desync.
 // ---------------------------------------------------------------------------
-const consentParties =
-  site.mode === 'network'
-    ? `${brand.legalName} and one or more participating DSCR lenders in its network`
-    : brand.legalName;
+export const tcpaCopy = `By continuing you expressly consent to having ${brand.name} contact you about your inquiry by email, text message, or phone call at the number you provided, including via automated technology, autodialer, or prerecorded or artificial voice messages, even if your number is on a Do Not Call registry. Message and data rates may apply; message frequency varies; reply STOP to opt out. Consent is not a condition of purchase or of receiving services and can be revoked at any time.`;
 
-export const tcpaCopy = `By checking this box you expressly consent to having ${consentParties} contact you about your inquiry by email, text message, or phone call at the phone number and email address you provided, including via automated technology, autodialer, or prerecorded or artificial voice messages, even if your number is on a Do Not Call registry. Message and data rates may apply; message frequency varies; reply STOP to opt out. Consent is not a condition of purchase or of receiving services and can be revoked at any time.`;
-
-export const tcpaParties: string[] =
-  site.mode === 'network'
-    ? [brand.legalName, ...lenders.filter((l) => l.verified && !l.placeholder).map((l) => `${l.name} (NMLS ${l.nmls})`)]
-    : [brand.legalName];
+export const tcpaParties: string[] = [brand.legalName];
 
 // ---------------------------------------------------------------------------
-// Legal
+// Legal. No NMLS exists, so Paul's lead-generator disclaimer (verbatim from the
+// live lenderdscr.com footer) carries the footer and the /legal page.
 // ---------------------------------------------------------------------------
-// Built from parts so the "Lender" variant never appears as a literal in a
-// network build's HTML or island bundle (a network build must contain zero
-// occurrences of that phrase).
 export const housingPhrase =
   'Equal Housing ' + (site.mode === 'lender' && brand.nmls && brand.housingMark === 'lender' ? 'Lender' : 'Opportunity');
 
 export const legal = {
-  networkNotice: `${brand.name} is not a lender, mortgage broker, or loan originator and does not make credit decisions. It is an independent service that connects real estate investors with participating DSCR lenders and may be paid by those lenders.`,
-  advertiserDisclosure: `Advertiser Disclosure: Lenders shown on this page are paid advertisers. ${brand.name} does not rank, endorse, or recommend any lender, and compensation may affect which lenders appear and where. Your choice of lender should not be based on this page alone.`,
-  notCommitment: `Submitting this form is not a loan application and does not result in a credit decision or a credit inquiry. Nothing on this site is a commitment to lend or an offer of credit. All loans are subject to lender approval, and program terms vary by lender, property, and state.`,
-  noticeBar:
-    site.mode === 'network'
-      ? `Not a lender. ${brand.name} connects investors with independent DSCR lenders.`
-      : `${brand.name}${brand.nmls ? ` · NMLS #${brand.nmls}` : ''}`,
-  notAffiliated: `${brand.name} is a property of ${brand.legalName} and is not affiliated with or endorsed by any government agency.`,
+  /** Footer + /legal, rendered as before + link + after (the link sits mid-sentence). */
+  disclaimer: {
+    before: `${brand.name}. No advertisement or solicitation from ${brand.name} is meant to be a mortgage brokering activity or mortgage lending activity. All brokering or lending activities can only be completed by a licensed loan originator. To see if your loan officer is licensed in your state, visit `,
+    linkText: 'www.nmlsconsumeraccess.org',
+    after: '. This is not a commitment to lend. All loans subject to credit approval, underwriting, and property review. Rates, terms, and programs subject to change without notice. This company is not endorsed by, or acting on behalf of, any government agency. For informational purposes only.',
+  },
+  networkNotice: '',
+  advertiserDisclosure: '',
+  notCommitment: 'This is not a commitment to lend. All loans subject to credit approval, underwriting, and property review. Rates, terms, and programs subject to change without notice.',
+  noticeBar: 'Not affiliated with or endorsed by any government agency.',
+  notAffiliated: `${brand.name} is not endorsed by, or acting on behalf of, any government agency.`,
   deviceLine: 'Information from your device may be used to personalize your ad experience.',
-  /** Under-form fine print, built per mode (section 4 legal placement rule b). */
-  underForm:
-    site.mode === 'network'
-      ? `Provided by ${brand.legalName}. Not a lender.`
-      : `${brand.legalName}${brand.nmls ? `, NMLS #${brand.nmls}` : ''}.`,
+  /** Under-form fine print (one line; the Equal Housing mark renders next to it). */
+  underForm: `Provided by ${brand.name}.`,
 };

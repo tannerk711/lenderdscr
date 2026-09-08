@@ -1,42 +1,28 @@
 ---
-// /privacy: TEMPLATE PRIVACY NOTICE FOR COUNSEL REVIEW.
-// This is sensible placeholder language for a DSCR mortgage lead-gen directory
-// (network) or a single lender/broker brand (lender), built from the tokens in
-// src/config/site.ts. It is NOT legal advice. Before launch, have counsel review
-// every section, pin the effective date, and confirm the state-law list, the
-// opt-out method, and the retention period match how the client actually
-// operates. Mode-aware paragraphs switch on site.mode at build time.
+// /privacy: Internet Loans Direct's privacy copy (verbatim from the live
+// lenderdscr.com funnel, _ref/ild-main/privacy.astro), set in template 4's legal
+// layout, plus a "Do Not Sell or Share" section so the footer's opt-out link
+// lands on a real anchor. ILD does not sell personal information.
 import Layout from '../layouts/Layout.astro';
 import Topbar from '../components/Topbar.astro';
 import Footer from '../components/Footer.astro';
-import { site, brand, tcpaCopy, legal } from '../config/site';
-
-const isNetwork = site.mode === 'network';
-// REBRAND: counsel pins this. Build date is a placeholder, not a legal record.
-const effectiveDate = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-
-const contactEmail = brand.privacyEmail;
-const siteUrl = `https://${brand.domain}`;
+import { brand } from '../config/site';
 
 const sections = [
-  { id: 'scope', title: 'Who this covers' },
-  { id: 'collect', title: 'What we collect' },
-  { id: 'use', title: 'How we use it' },
-  { id: 'share', title: 'What we share and with whom' },
-  { id: 'consent-to-contact', title: 'Consent to contact' },
-  { id: 'revoke', title: 'Revoking consent' },
+  { id: 'collect', title: 'Information we collect' },
+  { id: 'use', title: 'How we use your information' },
+  { id: 'consent', title: 'Consent to be contacted' },
+  { id: 'cookies', title: 'Log files, cookies, and advertising' },
+  { id: 'rights', title: 'Your rights (CCPA and GDPR)' },
   { id: 'do-not-sell', title: 'Do Not Sell or Share My Personal Information' },
-  { id: 'cookies', title: 'Cookies, analytics, and advertising' },
-  { id: 'rights', title: 'Your privacy rights' },
-  { id: 'retention', title: 'Retention and security' },
   { id: 'children', title: "Children's information" },
-  { id: 'changes', title: 'Changes and contact' },
+  { id: 'agreement', title: 'Consent' },
 ];
 ---
 
 <Layout
   title={`Privacy Policy | ${brand.name}`}
-  description={`How ${brand.name} collects, uses, and shares the information you provide, how to revoke consent to contact, and how to opt out of the sale or sharing of your personal information.`}
+  description={`How ${brand.name} collects, uses, and protects the information you provide, and how to revoke consent to contact.`}
 >
   <Topbar />
 
@@ -46,11 +32,11 @@ const sections = [
         <p class="label mb-4">Legal</p>
         <h1 class="h-section text-ink">Privacy Policy</h1>
         <p class="prose-body mt-5">
-          This notice explains what {brand.name} collects when you use {siteUrl}, why, who it goes to,
-          and the choices you have. It is written to be read, not skimmed past. If anything here is
-          unclear, contact us using the details at the end.
+          At {brand.name} ({brand.domain}), the privacy of our visitors is one of our main priorities. This
+          Privacy Policy describes the types of information we collect and how we use it. It applies only to
+          our online activities and to information shared with or collected on this website, not to
+          information collected offline or through other channels.
         </p>
-        <p class="mt-4 text-sm text-ink/55">Effective {effectiveDate}. {brand.name} is operated by {brand.legalName}.</p>
 
         <nav class="card mt-8 p-5 md:p-6" aria-label="On this page">
           <p class="label mb-3">On this page</p>
@@ -64,262 +50,84 @@ const sections = [
         </nav>
 
         <div class="legal-flow mt-8 grid gap-5">
-          <section id="scope" class="card p-6 md:p-8">
-            <h2 class="h-step">1. Who this covers</h2>
-            <p>
-              This policy applies to information collected through {siteUrl} and any page, form, or
-              subdomain that links to it. It does not cover information collected offline, over the
-              phone after you have been contacted, or by third-party websites we link to, including
-              any lender's own site or application portal. Those are governed by their own notices.
-            </p>
-            {isNetwork ? (
-              <p>{legal.networkNotice}</p>
-            ) : (
-              <p>
-                {brand.name} is a mortgage lender or broker brand operated by {brand.legalName}
-                {brand.nmls ? `, NMLS #${brand.nmls}` : ''}. Any loan you apply for after contacting us is
-                governed by the application disclosures you receive at that time, not by this notice.
-              </p>
-            )}
-          </section>
-
           <section id="collect" class="card p-6 md:p-8">
-            <h2 class="h-step">2. What we collect</h2>
-            <p>We collect four categories of information, and only what the eligibility check actually asks for.</p>
-            <ul>
-              <li>
-                <strong>Contact information.</strong> Your name, email address, and mobile phone number,
-                entered on the form.
-              </li>
-              <li>
-                <strong>Credit range.</strong> The credit score band you select. This is your own estimate.
-                Nothing on this site pulls, checks, or touches your credit.
-              </li>
-              <li>
-                <strong>Property and deal details.</strong> What you are looking to do (purchase, refinance,
-                fix and hold or flip), the property type, the estimated price or value, down payment or
-                balance figures, rehab budget where relevant, and the state the property is in.
-              </li>
-              <li>
-                <strong>Device and attribution data.</strong> IP address, browser and device type, the page
-                you landed on, the referring site, ad click identifiers (such as a Google click ID) and
-                campaign parameters, the time it took to complete the form, and the exact consent language
-                you agreed to along with the time you agreed to it.
-              </li>
-            </ul>
+            <h2 class="h-step">1. Information we collect</h2>
             <p>
-              We do not collect Social Security numbers, bank account details, or income documents through
-              this site. If a lender needs those later, they collect them directly under their own notice.
+              When you complete the eligibility check form on this site, we collect the information you provide: your
+              name, email address, phone number, and the loan-scenario answers you select (such as goal, property
+              type, credit range, property value, and location). If you contact us directly, we may receive
+              additional information such as the contents of your message.
             </p>
           </section>
 
           <section id="use" class="card p-6 md:p-8">
-            <h2 class="h-step">3. How we use it</h2>
-            <ul>
-              <li>To respond to your inquiry and put you in touch about the deal you described.</li>
-              {isNetwork ? (
-                <li>To identify participating DSCR lenders whose programs cover your property type and state, and to pass your inquiry to them.</li>
-              ) : (
-                <li>To have a loan specialist reach out, talk through the scenario, and if you want, run the numbers.</li>
-              )}
-              <li>To keep a record of the consent you gave, so both you and we can show what was agreed to and when.</li>
-              <li>To measure and improve the site and our advertising, including confirming that an ad click led to a completed form.</li>
-              <li>To detect and block spam, bots, and fraudulent submissions.</li>
-              <li>To comply with law, respond to lawful requests, and enforce our terms.</li>
-            </ul>
-          </section>
-
-          <section id="share" class="card p-6 md:p-8">
-            <h2 class="h-step">4. What we share and with whom</h2>
-            {isNetwork ? (
-              <>
-                <p>
-                  <strong>Participating DSCR lenders.</strong> This is the core of what the site does. When you
-                  submit the eligibility check, your contact information, credit range, and property and deal
-                  details are shared with one or more participating DSCR lenders in the {brand.name} network so
-                  they can contact you about your inquiry. Those lenders may compensate {brand.name} for the
-                  introduction. Once a lender has your information, their own privacy notice governs how they
-                  use it, and you should read it.
-                </p>
-                <p>
-                  Because a lender may pay {brand.name} in connection with your inquiry, this sharing may be
-                  considered a "sale" or "sharing" of personal information under some state privacy laws. You
-                  can opt out; see section 7.
-                </p>
-              </>
-            ) : (
-              <p>
-                <strong>Our loan team.</strong> Your information goes to the {brand.name} loan specialist and
-                support staff who handle your inquiry. We do not sell your personal information, and we do not
-                share it with other lenders for their own marketing.
-              </p>
-            )}
+            <h2 class="h-step">2. How we use your information</h2>
             <p>
-              <strong>Service providers.</strong> Companies that help us run the site and follow up with you:
-              hosting, form delivery, the customer relationship system that stores your inquiry, text and
-              email delivery, and analytics. They may use your information only to provide those services to
-              us.
-            </p>
-            <p>
-              <strong>Advertising and analytics platforms.</strong> We use conversion measurement from
-              platforms such as Google Ads. Those platforms may receive the fact that a form was completed
-              along with hashed contact details or a click identifier, used to attribute the conversion to
-              an ad. See section 8.
-            </p>
-            <p>
-              <strong>Legal and business transfers.</strong> We may disclose information when the law requires
-              it, to protect our rights or the safety of others, or as part of a merger, acquisition, or sale
-              of assets, in which case this notice continues to apply to the transferred information.
+              We use the information we collect to respond to your inquiry, evaluate your loan scenario, price it
+              with lending partners, communicate with you about your inquiry (including by email, phone, and text
+              message where you have consented), operate and improve our website, and find and prevent fraud. We
+              do not sell your personal information. Information may be shared with lending partners solely for
+              the purpose of pricing and originating your loan.
             </p>
           </section>
 
-          <section id="consent-to-contact" class="card p-6 md:p-8">
-            <h2 class="h-step">5. Consent to contact</h2>
+          <section id="consent" class="card p-6 md:p-8">
+            <h2 class="h-step">3. Consent to be contacted</h2>
             <p>
-              The form cannot be submitted without checking a consent box. The box starts unchecked, sits
-              above the submit button, and reads exactly as follows:
-            </p>
-            <blockquote>{tcpaCopy}</blockquote>
-            <p>
-              We record the text you agreed to, the time you checked the box, the page you were on, and your
-              IP address and browser, so that the consent can be verified later. Consent is never a condition
-              of purchase or of receiving services.
-            </p>
-          </section>
-
-          <section id="revoke" class="card p-6 md:p-8">
-            <h2 class="h-step">6. Revoking consent</h2>
-            <p>You can withdraw your consent to be contacted at any time, by any reasonable means, including:</p>
-            <ul>
-              <li><strong>Text messages:</strong> reply STOP to any message. You may receive one final message confirming the opt-out.</li>
-              <li><strong>Calls:</strong> tell the caller you no longer wish to be contacted, or call <a href={brand.phoneHref} class="link tabular">{brand.phone}</a> and ask to be removed.</li>
-              {contactEmail ? (
-                <li><strong>Email:</strong> write to <a href={`mailto:${contactEmail}`} class="link">{contactEmail}</a> with the phone number or email address you want removed.</li>
-              ) : (
-                <li><strong>Email:</strong> call <a href={brand.phoneHref} class="link tabular">{brand.phone}</a> and ask to be removed from email contact as well.</li>
-              )}
-            </ul>
-            {isNetwork && (
-              <p>
-                Revoking consent with {brand.name} stops our contact. A participating lender who has already
-                received your inquiry keeps its own contact preferences; tell that lender directly (reply STOP
-                to their text or ask on the call) and they are required to honor it.
-              </p>
-            )}
-          </section>
-
-          <section id="do-not-sell" class="card p-6 md:p-8">
-            <h2 class="h-step">7. Do Not Sell or Share My Personal Information</h2>
-            {isNetwork ? (
-              <p>
-                Residents of California and other states with comprehensive privacy laws have the right to opt
-                out of the sale or sharing of their personal information, including sharing for targeted
-                advertising. Because {brand.name} may be compensated by lenders who receive your inquiry, you
-                can direct us not to share your information with lenders and not to use it for targeted
-                advertising going forward.
-              </p>
-            ) : (
-              <p>
-                {brand.name} does not sell your personal information. Residents of California and other states
-                with comprehensive privacy laws still have the right to opt out of its use for targeted
-                advertising, and you can direct us to stop that at any time.
-              </p>
-            )}
-            <p><strong>How to opt out:</strong></p>
-            <ul>
-              {contactEmail ? (
-                <li>
-                  Email <a href={`mailto:${contactEmail}`} class="link">{contactEmail}</a> with the subject line
-                  "Do Not Sell or Share" and the name, email address, and phone number you used on the form.
-                </li>
-              ) : (
-                <li>
-                  Call <a href={brand.phoneHref} class="link tabular">{brand.phone}</a> and say you want to opt out of
-                  the sale or sharing of your personal information. Have the name, email address, and phone
-                  number you used on the form ready so we can find your record.
-                </li>
-              )}
-              <li>
-                We honor opt-out preference signals such as Global Privacy Control where our site can detect
-                them.
-              </li>
-            </ul>
-            <p>
-              We confirm opt-out requests within 15 business days. An opt-out does not undo sharing that
-              already happened before we received it, and it does not stop the contact you have already
-              consented to unless you also revoke consent (section 6). We will not discriminate against you
-              for exercising this right.
+              By submitting the form you expressly consent to being contacted by {brand.name} about
+              your inquiry by email, phone call, or text message at the contact details you provided, including
+              via automated technology. Consent is not a condition of purchase or of receiving services and can
+              be revoked at any time. Reply STOP to any text message to opt out.
             </p>
           </section>
 
           <section id="cookies" class="card p-6 md:p-8">
-            <h2 class="h-step">8. Cookies, analytics, and advertising</h2>
+            <h2 class="h-step">4. Log files, cookies, and advertising</h2>
             <p>
-              This site keeps cookies to a minimum. We store ad click identifiers and campaign parameters in
-              your browser for the length of your visit so that a completed form can be attributed to the ad
-              that brought you here. We may use Google Ads conversion tracking, which sets cookies and may
-              receive hashed versions of the email address and phone number you submit for the purpose of
-              matching the conversion to the ad click. {legal.deviceLine}
-            </p>
-            <p>
-              You can control cookies through your browser settings and opt out of Google's ad personalization
-              at adssettings.google.com. Blocking cookies does not affect your ability to submit the form.
+              Like most websites, we use standard log files and cookies. Log files record information such as IP
+              address, browser type, date and time stamps, and referring pages; this information is not linked to
+              anything personally identifiable and is used to analyze trends and administer the site. Cookies
+              store visitor preferences and help us optimize your experience. Third-party advertising platforms
+              (such as Google) may use cookies or similar technologies to measure the effectiveness of
+              advertising campaigns; we have no access to or control over third-party cookies. You can disable
+              cookies through your browser settings.
             </p>
           </section>
 
           <section id="rights" class="card p-6 md:p-8">
-            <h2 class="h-step">9. Your privacy rights</h2>
+            <h2 class="h-step">5. Your rights (CCPA and GDPR)</h2>
             <p>
-              Depending on where you live, you may have the right to know what personal information we hold
-              about you, to receive a copy of it, to correct it, to delete it, to opt out of its sale or
-              sharing and of targeted advertising, and to not be discriminated against for exercising any of
-              these rights. Residents of California, Colorado, Connecticut, Virginia, Utah, Texas, Oregon, and
-              other states with comprehensive privacy laws have these rights in some form.
-            </p>
-            <p>
-              To make a request, use the contact details in section 12. We may ask for enough information to
-              verify that the request came from you. We respond within the time the applicable law allows,
-              generally 45 days. You may authorize an agent to make a request for you; we will ask for proof
-              of that authorization.
+              Depending on your place of residence, you may have the right to request access to the personal data
+              we hold about you, request correction of inaccurate information, request deletion of your data, and
+              restrict or object to its processing. To exercise any of these rights, call us at
+              <a href={brand.phoneHref} class="link tabular">{brand.phone}</a> and we will respond within one month.
             </p>
           </section>
 
-          <section id="retention" class="card p-6 md:p-8">
-            <h2 class="h-step">10. Retention and security</h2>
+          <section id="do-not-sell" class="card p-6 md:p-8">
+            <h2 class="h-step">6. Do Not Sell or Share My Personal Information</h2>
             <p>
-              We keep inquiry records, including the consent record, for as long as needed to respond to you
-              and to document consent for the periods required by law, and then delete or anonymize them. Data
-              travels over encrypted connections and is stored with providers that maintain industry-standard
-              safeguards. No system is perfectly secure, so we cannot promise that unauthorized access will
-              never occur, but we will notify you as the law requires if it does.
+              {brand.name} does not sell your personal information. Residents of California and other states
+              with comprehensive privacy laws still have the right to opt out of its use for targeted advertising.
+              To opt out, call <a href={brand.phoneHref} class="link tabular">{brand.phone}</a> and say you want to
+              opt out of the sale or sharing of your personal information. Have the name, email address, and phone
+              number you used on the form ready so we can find your record. We will not discriminate against you
+              for exercising this right.
             </p>
           </section>
 
           <section id="children" class="card p-6 md:p-8">
-            <h2 class="h-step">11. Children's information</h2>
+            <h2 class="h-step">7. Children's information</h2>
             <p>
-              This site is for adults arranging financing on investment property. We do not knowingly collect
-              personal information from anyone under 18. If you believe a minor has submitted information
-              here, contact us and we will delete it.
+              {brand.name} does not knowingly collect personal information from children under the age of 13. If
+              you believe your child provided this kind of information on our website, contact us immediately and
+              we will promptly remove it from our records.
             </p>
           </section>
 
-          <section id="changes" class="card p-6 md:p-8">
-            <h2 class="h-step">12. Changes and contact</h2>
-            <p>
-              When this notice changes, we update the effective date at the top and, for material changes,
-              post a notice on the site. Continued use after a change means you accept the updated notice.
-            </p>
-            <p>Questions, requests, and opt-outs:</p>
-            <ul>
-              <li><strong>{brand.legalName}</strong>{brand.address ? `, ${brand.address}` : ''}</li>
-              <li>Phone: <a href={brand.phoneHref} class="link tabular">{brand.phone}</a></li>
-              {contactEmail && (
-                <li>Email: <a href={`mailto:${contactEmail}`} class="link">{contactEmail}</a></li>
-              )}
-              <li>Web: {siteUrl}</li>
-            </ul>
-            <p class="text-sm text-ink/55">{legal.notAffiliated}</p>
+          <section id="agreement" class="card p-6 md:p-8">
+            <h2 class="h-step">8. Consent</h2>
+            <p>By using our website, you hereby consent to this Privacy Policy and agree to its terms.</p>
           </section>
         </div>
       </div>
@@ -342,38 +150,8 @@ const sections = [
     color: rgba(26, 20, 24, 0.8);
   }
 
-  .legal-flow p + p,
-  .legal-flow ul + p,
-  .legal-flow p + ul,
-  .legal-flow blockquote + p,
-  .legal-flow p + blockquote {
+  .legal-flow p + p {
     margin-top: 0.85rem;
-  }
-
-  .legal-flow ul {
-    display: grid;
-    gap: 0.55rem;
-    padding-left: 1.25rem;
-    list-style: disc;
-  }
-
-  .legal-flow li::marker {
-    color: var(--color-brand);
-  }
-
-  .legal-flow strong {
-    font-weight: 700;
-    color: var(--color-ink);
-  }
-
-  .legal-flow blockquote {
-    padding: 1rem 1.15rem;
-    border-left: 3px solid var(--color-brand);
-    border-radius: 0 12px 12px 0;
-    background: var(--color-brand-soft);
-    font-size: 0.92rem;
-    line-height: 1.6;
-    color: rgba(26, 20, 24, 0.85);
   }
 
   .legal-flow section {

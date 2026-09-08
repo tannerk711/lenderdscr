@@ -1,0 +1,59 @@
+---
+// /start: STAGE 1 PLACEHOLDER. Stage 2 replaces this page wholesale with the
+// V1 (LeaderOne-style) eight-step form. It exists now so every /start?goal=...
+// tile and CTA resolves (scripts/check-links.mjs) and so the ?goal preselect
+// contract has a landing spot. noindex in every mode.
+import Layout from '../layouts/Layout.astro';
+import Topbar from '../components/Topbar.astro';
+import Footer from '../components/Footer.astro';
+import Icon from '../components/Icon.astro';
+import { brand, goals, form } from '../config/site';
+
+const title = `Check Your Eligibility | ${brand.name}`;
+const description = 'Eight quick questions about your Texas rental deal. About a minute, no obligation.';
+---
+
+<Layout title={title} description={description} noindex>
+  <Topbar />
+  <main id="main" class="ground-paper">
+    <section class="container-x py-14 md:py-20">
+      <div class="card-lg mx-auto max-w-[52rem] p-5 sm:p-8">
+        <p class="eyebrow">Eligibility check</p>
+        <h1 class="h-step mt-3" data-step-title>{form.titles.goal}</h1>
+        <p class="prose-body mt-3 text-[0.95rem]">
+          The full eight-step form lands here in build stage 2. Your pick from the home page is carried in the URL.
+        </p>
+        <nav class="mt-6 grid gap-3 md:grid-cols-3" aria-label={form.titles.goal} data-step="goal">
+          {goals.map((g) => (
+            <a href={`/start?goal=${g.value}`} class="opt-card start-tile" data-value={g.value}>
+              <span class="opt-coin" aria-hidden="true"><Icon name={g.icon} size={24} /></span>
+              <span>{g.label}</span>
+            </a>
+          ))}
+        </nav>
+        <p class="mt-6 text-[0.9rem] text-ink/60">
+          Preselected goal: <strong id="start-goal" class="text-ink">none</strong>. <a href="/" class="link">Back to the home page</a>
+        </p>
+      </div>
+    </section>
+  </main>
+  <Footer />
+
+  <script is:inline>
+    try {
+      var goal = new URLSearchParams(location.search).get('goal') || '';
+      var el = document.getElementById('start-goal');
+      if (el && goal) el.textContent = goal;
+      var tiles = document.querySelectorAll('[data-step="goal"] [data-value]');
+      for (var i = 0; i < tiles.length; i++) {
+        if (tiles[i].getAttribute('data-value') === goal) tiles[i].classList.add('is-selected');
+      }
+    } catch (e) {}
+  </script>
+</Layout>
+
+<style>
+  .start-tile {
+    text-decoration: none;
+  }
+</style>

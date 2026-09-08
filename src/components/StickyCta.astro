@@ -1,12 +1,13 @@
 ---
 // StickyCta: mobile-only fixed bottom bar. Starts hidden; the inline observer
-// shows it while #start is out of view AND the FinalCta [data-persist] element
-// is not in view. Toggled ONLY via the hidden attribute ([hidden] wins in CSS).
+// shows it while #start (the step-1 tiles) is out of view AND the FinalCta
+// [data-persist] element is not in view. Toggled ONLY via the hidden attribute
+// ([hidden] wins in CSS). Links straight to /start.
 import { cta } from '../config/site';
 ---
 
 <div id="sticky-cta" class="sticky-bar md:hidden" hidden>
-  <a href="#start" data-scroll-to="#start" class="btn-amber sticky-btn">{cta.sticky}</a>
+  <a href="/start" class="btn-amber sticky-btn">{cta.sticky}</a>
 </div>
 
 <script>

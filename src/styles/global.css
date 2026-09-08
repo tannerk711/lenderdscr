@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   DSCR Funnel Template 4, design system "Civic ledger".
+   Internet Loans Direct variant B (b-t4-v1), on DSCR Funnel Template 4's
+   design system "Civic ledger". Identity kept as designed (Tanner approved
+   every section 2026-09-02); only content and routes changed for ILD.
    Light, authoritative, warm: a well-funded consumer-finance directory,
    not a lead-gen scraper. Depth from layered shadows, never from 1px alone.
 
@@ -973,41 +975,7 @@ body {
     height: 1.15rem;
   }
 
-  /* ----- marquee ----- */
-
-  .marquee-wrap {
-    overflow: hidden;
-    contain: paint;
-    padding-block: clamp(1.5rem, 4vw, 3rem);
-  }
-
-  .marquee-track {
-    display: flex;
-    gap: 0.6em;
-    white-space: nowrap;
-    width: max-content;
-    transform: translateX(-4%);
-  }
-
-  .marquee-text {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: clamp(3.5rem, 11vw, 12rem);
-    line-height: 1;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    color: var(--color-brand);
-    flex: none;
-  }
-
-  @media (min-width: 1024px) {
-    .marquee-text.is-outline {
-      /* Stroke must be an explicit color: currentColor would resolve to the
-         transparent fill and the outline repeats would vanish. */
-      -webkit-text-stroke: 1px var(--color-brand);
-      color: transparent;
-    }
-  }
+  /* (marquee classes removed: the Marquee section is cut on this variant) */
 
   /* ----- stats ----- */
 

@@ -1,10 +1,11 @@
 ---
-// Dark full-bleed stats band. Photo reads as TEXTURE: aerial-dusk under a 0.84
-// ink overlay plus a brand-deep duotone layer (mix-blend-mode: multiply).
-// Renders ONLY stats with confirmed:true; fewer than 3 confirmed = 2-up layout.
-// Centered content is allowed in this section only (BRIEF section 10).
+// Dark full-bleed stats band. Photo reads as TEXTURE: ILD's golden-hour Texas
+// aerial under a 0.72 ink overlay plus a brand-deep duotone layer
+// (mix-blend-mode: multiply). Renders ONLY stats with confirmed:true (ILD's
+// published numbers: 620 / 0 tax returns / 100+ lenders); fewer than 3
+// confirmed = 2-up layout. This is the ONE place the page states numbers.
 import { stats } from '../config/site';
-import { lqip } from '../data/lqip';
+import { lqip, imageDims } from '../data/lqip';
 
 const confirmed = stats.filter((s) => s.confirmed);
 
@@ -26,13 +27,13 @@ const gridClass =
 <section class="sb-band ground-dark cv-auto relative">
   <div class="sb-media" aria-hidden="true">
     <img
-      src="/images/aerial-dusk.webp"
+      src="/images/ild-aerial-golden.webp"
       alt=""
-      width="1344"
-      height="768"
+      width={imageDims.aerialGolden.width}
+      height={imageDims.aerialGolden.height}
       loading="lazy"
       decoding="async"
-      style={`background-image:url(${lqip.aerialDusk});background-size:cover;background-position:center;`}
+      style={`background-image:url(${lqip.aerialGolden});background-size:cover;background-position:center;`}
     />
     <div class="sb-ink"></div>
     <div class="sb-duo"></div>
@@ -40,8 +41,7 @@ const gridClass =
 
   <div class="container-x relative z-10 py-20 text-center lg:py-28">
     <p class="eyebrow sb-eyebrow">01 / By the numbers</p>
-    <h2 class="h-section mt-3" data-reveal="clip-up">What DSCR lenders actually check</h2>
-    <p class="sb-sub mx-auto mt-4">Rent qualifies the loan. Here is the bar it has to clear.</p>
+    <h2 class="h-section mt-3" data-reveal="clip-up">Three numbers that decide most Texas DSCR deals</h2>
 
     <div class={`${gridClass} mt-14`} data-stagger>
       {
@@ -57,7 +57,7 @@ const gridClass =
               >
                 {s.value.toFixed(s.decimals)}
               </span>
-              {s.suffix && <span class="stat-suffix">{s.suffix}</span>}
+              {s.suffix && <span class={`stat-suffix${s.suffix === '+' ? ' sb-plus' : ''}`}>{s.suffix}</span>}
             </p>
             <p class="sb-label mt-3">{s.label}</p>
           </div>
@@ -89,10 +89,8 @@ const gridClass =
   }
 
   /* Ink overlay: the photo becomes texture, never a background image fighting
-     text. 0.72 (down from 0.84 in pass 3): at 0.84 + duo 0.9 the gutters
-     measured lum 0.004 and the photo had effectively vanished. At 0.72/0.78 the
-     rooftop texture reads while cream + labels still measure >= 7:1 on the
-     brightest sampled composite pixel (pass3-contrast probe). */
+     text. 0.72 + duo 0.78 keeps rooftop texture visible while cream + labels
+     measure >= 7:1 on the brightest composite pixel (template pass-3 probe). */
   .sb-ink {
     position: absolute;
     inset: 0;
@@ -112,11 +110,15 @@ const gridClass =
     color: var(--color-amber);
   }
 
-  .sb-sub {
-    max-width: 40ch;
-    font-size: 1rem;
-    line-height: 1.55;
-    color: rgba(244, 239, 227, 0.72);
+  /* The shared .stat-suffix sizes off the 16px paragraph (it is a sibling of
+     .stat-number, not a child), so "+" rendered as a 7px dot. Size it against
+     the stat clamp (~0.6x) and raise it so "100+" scans as one figure. */
+  .sb-plus {
+    font-size: clamp(1.9rem, 3.6vw, 3.3rem);
+    font-weight: 800;
+    line-height: 1;
+    vertical-align: 0.45em;
+    margin-left: 0.04em;
   }
 
   .sb-label {

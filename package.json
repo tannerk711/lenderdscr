@@ -1,10 +1,10 @@
 {
-  "name": "dscr-funnel-template-4",
+  "name": "ild-variant-b-t4-v1",
   "type": "module",
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "astro dev --port 4321",
+    "dev": "astro dev --port 4332",
     "build": "astro build",
     "shoot": "node tools/shoot.mjs",
     "qa": "node tools/step-walk-qa.mjs && node tools/tcpa-test.mjs && node tools/gtag-test.mjs && node scripts/check-links.mjs",

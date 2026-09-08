@@ -11,7 +11,8 @@ import { fileURLToPath } from 'node:url';
 
 export const ROOT = fileURLToPath(new URL('../', import.meta.url));
 export const SHOTS_DIR = fileURLToPath(new URL('./shots/', import.meta.url));
-export const QA_BASE = (process.env.QA_BASE || 'http://localhost:4321').replace(/\/+$/, '');
+// Variant B dev port is 4332 (BRIEF section 1); never 4321.
+export const QA_BASE = (process.env.QA_BASE || 'http://localhost:4332').replace(/\/+$/, '');
 export const CHROME_PATH = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 
 // One browser per viewport, defaultViewport at launch. No isMobile: on Windows headless

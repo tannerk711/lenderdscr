@@ -7,7 +7,7 @@
 // serves them: Lighthouse's simulated throttling is driven by transfer size and an
 // uncompressed local server under-reports production by ~10 points.
 //
-//   node tools/serve-dist.mjs            (LH_PORT, default 4399)
+//   node tools/serve-dist.mjs            (LH_PORT, default 4342 = variant B's static port)
 //   import { startServer } from './serve-dist.mjs'   (lh.mjs runs it in-process)
 import { createServer } from 'node:http';
 import { existsSync, statSync } from 'node:fs';
@@ -17,7 +17,7 @@ import { join, extname, resolve, sep } from 'node:path';
 import { gzipSync } from 'node:zlib';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
-export const DEFAULT_PORT = Number(process.env.LH_PORT || 4399);
+export const DEFAULT_PORT = Number(process.env.LH_PORT || 4342);
 
 export const MIME = {
   '.html': 'text/html; charset=utf-8',

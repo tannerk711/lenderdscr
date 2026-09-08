@@ -1,23 +1,20 @@
 ---
-// The hero IS the form (BRIEF section 6). Static H1 (the LCP element, never
-// animated), sub line (desktop only), the #start card with the React island,
-// and the ONE fine-print line under the card (section 4 placement rule b).
-// Nothing inside #start ever receives GSAP / tilt / entrance motion.
-import EligibilityForm from './EligibilityForm';
+// The hero IS step 1 (BRIEF section 10, variant B). Static H1 (the LCP element,
+// never animated), sub line (desktop only), the #start card with a STATIC step-1
+// tile group (three t4 option cards, each an anchor to /start?goal=...), and the
+// ONE fine-print line under the card. No island, no hydration: the tiles are
+// plain links, so the fold paints with the HTML. Nothing inside #start ever
+// receives GSAP / tilt / entrance motion.
 import Icon from './Icon.astro';
-import { site, legal, housingPhrase } from '../config/site';
-import type { StateEntry } from '../data/states';
+import { form, goals, legal, housingPhrase } from '../config/site';
 
 interface Props {
-  fixedState?: StateEntry;
   h1: string;
   sub: string;
-  /** Anchor for the under-form "Advertiser Disclosure" link (network only). */
-  disclosureHref?: string;
 }
 
-const { fixedState, h1, sub, disclosureHref = '#advertiser-disclosure' } = Astro.props;
-const isNetwork = site.mode === 'network';
+const { h1, sub } = Astro.props;
+const phases = form.phases;
 ---
 
 <section class="relative" aria-labelledby="hero-h1">
@@ -30,7 +27,28 @@ const isNetwork = site.mode === 'network';
     </div>
 
     <div id="start" class="card-lg mx-auto mt-5 w-full max-w-[52rem] scroll-mt-4 p-4 sm:p-6 md:mt-9 md:p-8">
-      <EligibilityForm client:load fixedState={fixedState} />
+      <div class="flex flex-wrap items-center gap-1.5" aria-hidden="true">
+        {phases.map((p, i) => (
+          <span class={`phase-pill${i === 0 ? ' is-active' : ''}`} data-phase-pill data-phase={p.id}>{p.label}</span>
+        ))}
+      </div>
+      <p class="sr-only" data-step-label>Step 1 of {form.totalSteps}</p>
+      <div class="progress-track mt-3" aria-hidden="true">
+        <div class="progress-fill" style={`width:${Math.round(100 / form.totalSteps)}%`}></div>
+      </div>
+
+      <h2 class="h-step mt-5 text-center md:mt-6" data-step-title>{form.titles.goal}</h2>
+
+      <nav class="tiles mt-4 grid gap-3 md:mt-6 md:grid-cols-3 md:gap-4" aria-label={form.titles.goal} data-step="goal">
+        {goals.map((g) => (
+          <a href={`/start?goal=${g.value}`} class="opt-card tile" data-value={g.value}>
+            <span class="opt-coin" aria-hidden="true">
+              <Icon name={g.icon} size={24} />
+            </span>
+            <span>{g.label}</span>
+          </a>
+        ))}
+      </nav>
     </div>
 
     <p class="mx-auto mt-4 flex max-w-[52rem] flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-[0.78rem] leading-snug text-ink/60">
@@ -39,29 +57,18 @@ const isNetwork = site.mode === 'network';
         <Icon name="equal-housing" />
         <span>{housingPhrase}</span>
       </span>
-      {isNetwork && (
-        <a href={disclosureHref} class="link">
-          Advertiser Disclosure
-        </a>
-      )}
     </p>
   </div>
 </section>
 
-<!-- Preselect: any [data-goal] element (usually <a href="#start" data-goal="purchase"
-     data-scroll-to="#start">) stamps the goal on #start (covers a pre-hydration
-     click; the island reads it on mount) AND fires 'funnel:preselect' for a
-     hydrated island. The click itself is not prevented, so the anchor jump /
-     motion.ts Lenis scroll still happens. -->
-<script is:inline>
-  document.addEventListener('click', function (e) {
-    var t = e.target;
-    var el = t && t.closest ? t.closest('[data-goal]') : null;
-    if (!el) return;
-    var goal = el.getAttribute('data-goal');
-    if (!goal) return;
-    var start = document.getElementById('start');
-    if (start) start.dataset.preselect = goal;
-    document.dispatchEvent(new CustomEvent('funnel:preselect', { detail: goal, bubbles: true }));
-  });
-</script>
+<style>
+  /* Anchors reuse the shared .opt-card look; only the link defaults change here. */
+  .tile {
+    text-decoration: none;
+  }
+
+  .tile:focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 3px;
+  }
+</style>
