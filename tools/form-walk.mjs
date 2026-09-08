@@ -383,7 +383,7 @@ async function buyWalk(browser, vp) {
     } catch {}
     return {
       name: document.querySelector('#ty-name')?.textContent.trim() ?? null,
-      chips: document.querySelectorAll('#ty-chips .deal-chip').length,
+      chips: document.querySelectorAll('#ty-chips .lo-chip').length,
       leads: leads.length,
       summaryKeys: summary ? Object.keys(summary) : [],
       summary,

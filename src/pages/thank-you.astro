@@ -1,68 +1,58 @@
 ---
-// /thank-you: CONVERSATION OPENER, never results delivery (BRIEF section 9).
-// Mode branching is BUILD-TIME from site.mode; lead-summary.mode is informational.
-// No motion.ts on this page (Lenis disables pointer events on iframes while it
-// scrolls, which would break the booking embed). The H1 is static. The only
-// entrance is a CSS fade on the personalization chips, which exist only after JS.
+// /thank-you: the LeaderOne thank-you clone (BRIEF section 6). Structure,
+// spacing, type and palette reproduce _ref/leaderone/thank-you.astro with ILD
+// content; the LO palette and the Fraunces + Hanken faces are scoped to this
+// page by src/styles/thank-you.css (the LP keeps template 4's claret/amber
+// identity and never loads that sheet).
+//
+// CONVERSATION OPENER, never results delivery. Credit is the only answer the
+// form screens, so the H1 claims exactly that (LO's honesty-floor logic). The
+// promise sentence is Tanner's verbatim; no email is promised; Paul (and Mike,
+// first name only) are named on this page ONLY.
+//
+// Load path: no React, no GSAP. The H1 is the LCP and never animates. The seal
+// draws on with CSS keyframes (reduced motion renders it complete). The name
+// and chips fill from sessionStorage['lead-summary'] by an inline script that
+// runs while the document parses, with graceful defaults when there is none.
 import Layout from '../layouts/Layout.astro';
-import Topbar from '../components/Topbar.astro';
 import Footer from '../components/Footer.astro';
-import Icon from '../components/Icon.astro';
-import { site, brand, specialist, routing, tracking, booking, thankYou, legal, leadDelivery } from '../config/site';
+import { brand, specialist, tracking, goals, propertyTypes, creditBands, leadDelivery } from '../config/site';
+import '../styles/thank-you.css';
 
-// STAGE 1 NOTE: this is still template 4's thank-you. Stage 3 rebuilds it as the
-// LeaderOne clone (BRIEF section 6). The TEST MODE guard below already applies:
-// no conversion can fire unless leadDelivery === 'live'.
+// TEST MODE (BRIEF section 3): the conversion code stays but cannot fire.
 const isLive = leadDelivery === 'live';
 
-const mode = site.mode;
-const copy = thankYou[mode];
-const isLender = mode === 'lender';
-const routedLender = !isLender ? routing.lender : null;
-const showBooking = isLender && Boolean(booking.embedUrl);
-
-// ---- token rendering -------------------------------------------------------
-// {brand} {specialist} {phone} are filled at build time. {firstName} {goalLabel}
-// {propertyTypeLabel} {state} become <span data-token> with a sensible default
-// and are filled client-side from sessionStorage['lead-summary'].
-type Part = { text: string } | { token: string };
-const parse = (tpl: string): Part[] =>
-  tpl
-    .split(/(\{[a-zA-Z]+\})/g)
-    .filter(Boolean)
-    .map((p) => (/^\{[a-zA-Z]+\}$/.test(p) ? { token: p.slice(1, -1) } : { text: p }));
-
-const buildTokens: Record<string, string> = {
-  brand: brand.name,
-  specialist: specialist.name,
-  phone: brand.phone,
-};
-const clientDefaults: Record<string, string> = {
-  firstName: 'You',
-  goalLabel: 'deal',
-  propertyTypeLabel: 'rental property',
-  state: 'the state you listed',
+// value -> label maps so a summary that carries only values still reads well
+const labels = {
+  goals: Object.fromEntries(goals.map((g) => [g.value, g.label])),
+  props: Object.fromEntries(propertyTypes.map((p) => [p.value, p.label])),
+  credits: Object.fromEntries(creditBands.map((c) => [c.value, c.label])),
 };
 
-// Heading default when no summary exists: drop the "{firstName}, " lead-in and
-// capitalize what is left ("You're in.").
-const headingTpl = copy.heading;
-const headingDefault = (() => {
-  const s = headingTpl.replace(/\{firstName\},?\s*/, '');
-  return s.charAt(0).toUpperCase() + s.slice(1);
-})();
-
-const stepIcons = ['reply', 'chat', 'file-text'] as const;
 const title = `Eligibility Check Received | ${brand.name}`;
-const description = 'Your DSCR eligibility check is in. Watch for a text or call about your deal.';
+const description = `Your Texas DSCR eligibility check is in. Keep your phone close: a text from ${brand.phone} is how the conversation starts.`;
 ---
 
-<Layout title={title} description={description} noindex>
-  <!-- CONVERSION + PAGE VIEW: first script on the page, before anything else.
-       Fires ONLY with a real submission (lead-summary) or ?demo=1 (Tag Assistant),
-       never on a QA walk (sessionStorage.qa === '1'), once per tab. -->
+<Layout
+  title={title}
+  description={description}
+  noindex
+  preloadFonts={[
+    '/fonts/fraunces-latin-standard-normal.woff2',
+    '/fonts/fraunces-latin-standard-italic.woff2',
+    '/fonts/hanken-grotesk-latin-400-normal.woff2',
+    '/fonts/hanken-grotesk-latin-600-normal.woff2',
+    '/fonts/hanken-grotesk-latin-700-normal.woff2',
+  ]}
+>
+  <!-- GOOGLE ADS CONVERSION (LIVE MODE ONLY). Identical gating to the LeaderOne
+       page: fires only with a real submission in sessionStorage (or ?demo=1 for
+       Tag Assistant), never on a bare load, never when the session was started
+       with ?qa=1 (Layout stores sessionStorage.qa), once per tab. In TEST MODE
+       `live` is false, Layout renders no gtag at all, and nothing runs. -->
   <script is:inline define:vars={{ conv: isLive ? tracking.gtagConversion : '', live: isLive }}>
     (function () {
+      if (!live) return;
       var hasLead = false;
       var isQa = false;
       try {
@@ -80,7 +70,7 @@ const description = 'Your DSCR eligibility check is in. Watch for a text or call
       try {
         var fired = false;
         try { fired = sessionStorage.getItem('conv_fired') === '1'; } catch (e) {}
-        if (live && conv && (hasLead || isDemo) && !isQa && !fired && typeof gtag === 'function') {
+        if (conv && (hasLead || isDemo) && !isQa && !fired && typeof gtag === 'function') {
           gtag('event', 'conversion', { send_to: conv });
           try { sessionStorage.setItem('conv_fired', '1'); } catch (e) {}
         }
@@ -88,389 +78,143 @@ const description = 'Your DSCR eligibility check is in. Watch for a text or call
     })();
   </script>
 
-  <Topbar />
+  <div class="lo">
+    <!-- ============ TOPBAR (LO: white, logo left, tag + phone right) ============ -->
+    <header class="lo-topbar">
+      <div class="lo-topbar-row">
+        <a href="/" class="lo-topbar-logo" aria-label={`${brand.name} home`}>
+          <img src={brand.logoSrc} alt="" width="220" height="161" decoding="async" fetchpriority="high" />
+          <span class="lo-topbar-name">{brand.name}</span>
+        </a>
+        <div class="lo-topbar-right">
+          <span class="lo-topbar-tag"><span class="lo-dot" aria-hidden="true"></span>Texas DSCR loans</span>
+          <a href={brand.phoneHref} class="lo-topbar-phone">{brand.phone}</a>
+        </div>
+      </div>
+    </header>
 
-  <main>
-    <!-- ================= RESULT HERO (static; the H1 is the LCP) ================= -->
-    <section class="relative overflow-hidden">
-      <div class="hero-atmo" aria-hidden="true"></div>
-      <div class="container-x relative z-10 py-16 md:py-24">
-        <div class="mx-auto max-w-3xl text-center">
-          <p class="label mb-5">Eligibility check received</p>
-          <h1 class="h-display">
-            <span id="ty-name" data-heading-template={headingTpl}>{headingDefault}</span>
+    <main id="main">
+      <!-- ============ RESULT HERO ============ -->
+      <section class="lo-hero">
+        <div class="lo-hairline" aria-hidden="true"></div>
+        <div class="lo-wrap lo-wrap-3xl">
+          <!-- brass seal -->
+          <div class="lo-seal" aria-hidden="true">
+            <svg viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="37" fill="none" stroke="var(--lo-brass)" stroke-width="2.5" id="seal-ring" />
+              <circle cx="40" cy="40" r="30" fill="var(--lo-pine)" opacity="0.08" />
+              <path d="M26 41 l10 10 l19 -21" fill="none" stroke="var(--lo-pine)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" id="seal-check" />
+            </svg>
+          </div>
+
+          <p class="lo-eyebrow lo-eyebrow-hero">Eligibility check received</p>
+          <!-- Honesty floor: credit is the only answer this funnel screens, so
+               the headline claims exactly that and nothing more. -->
+          <h1 class="lo-display lo-h1">
+            <span id="ty-name">Nice work</span>. Your credit clears <em>the DSCR floor.</em>
           </h1>
-          <p class="prose-body mx-auto mt-6 text-center">
-            {parse(copy.body).map((p) =>
-              'text' in p ? (
-                p.text
-              ) : p.token === 'phone' ? (
-                <a href={brand.phoneHref} class="link tabular whitespace-nowrap">{brand.phone}</a>
-              ) : p.token in buildTokens ? (
-                buildTokens[p.token]
-              ) : (
-                <span data-token={p.token}>{clientDefaults[p.token] ?? ''}</span>
-              ),
-            )}
+          <p class="lo-lede">
+            Now keep your phone close. <strong>Paul or Mike</strong> will text you from
+            <a href={brand.phoneHref}>{brand.phone}</a> to answer any questions you have and,
+            if you're interested, run some numbers for you. Save the number so you know it's them.
           </p>
-          <div id="ty-chips" class="mt-8 flex flex-wrap justify-center gap-2"></div>
+
+          <!-- scenario chips (filled from sessionStorage; hidden while empty) -->
+          <div id="ty-chips" class="lo-chips"></div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ================= DARK BAND ================= -->
-    <!-- network: "a number you don't recognize" (no lender named unless routed)
-         lender:  save-the-number, brand.phone is the sole focal object -->
-    <section class="ground-dark relative overflow-hidden">
-      <div class="band-glow" aria-hidden="true"></div>
-      <div class="container-x relative z-10 py-16 md:py-20">
-        <div class="mx-auto max-w-4xl">
-          <div class="mx-auto max-w-2xl text-center">
-            <p class="label band-label mb-4">{isLender ? 'Before you go' : 'Heads up'}</p>
-            <h2 class="h-section text-cream">{copy.band.heading}</h2>
-            <p class="mt-4 text-[1.05rem] leading-[1.6] text-cream/75">
-              {parse(copy.band.body).map((p) =>
-                'text' in p ? (
-                  p.text
-                ) : p.token === 'phone' ? (
-                  <a href={brand.phoneHref} class="font-semibold text-cream underline underline-offset-4 tabular whitespace-nowrap">{brand.phone}</a>
-                ) : p.token in buildTokens ? (
-                  buildTokens[p.token]
-                ) : (
-                  <span data-token={p.token}>{clientDefaults[p.token] ?? ''}</span>
-                ),
-              )}
-            </p>
-          </div>
+      <!-- PERSONALIZATION: runs as soon as the hero is parsed (before the band,
+           ahead of first paint on a document this small) so the name and chips
+           are in the first frame. No summary = the defaults above stand. -->
+      <script is:inline define:vars={{ labels }}>
+        (function () {
+          var summary = null;
+          try {
+            var raw = sessionStorage.getItem('lead-summary');
+            if (raw) summary = JSON.parse(raw);
+          } catch (e) {}
+          if (!summary || typeof summary !== 'object') return;
 
-          {isLender ? (
-            <!-- LENDER: the phone card is the ONE white object on the band -->
-            <div class="card-lg mx-auto mt-10 max-w-2xl px-6 py-10 text-center md:px-10 md:py-12">
-              <div class="focal-bar" aria-hidden="true"></div>
-              <span class="opt-coin mx-auto mb-5" aria-hidden="true"><Icon name="phone" size={22} /></span>
-              <p class="label mb-4">It will come from this number</p>
-              <a href={brand.phoneHref} class="tel-focal tabular">{brand.phone}</a>
-              <p class="mt-5 text-sm leading-[1.55] text-ink/60">
-                Save it so you know it's {specialist.name}. Rather talk it through live? Call the same number.
+          var str = function (v) { return v == null ? '' : String(v).trim(); };
+
+          var first = str(summary.firstName).split(/\s+/)[0];
+          var nameEl = document.getElementById('ty-name');
+          if (nameEl && first) nameEl.textContent = 'Nice work, ' + first;
+
+          var goal = str(summary.goalLabel) || labels.goals[str(summary.goal)] || '';
+          var prop = str(summary.propertyTypeLabel) || labels.props[str(summary.propertyType)] || '';
+          var price = str(summary.priceDisplay);
+          if (!price && typeof summary.price === 'number') price = '$' + summary.price.toLocaleString('en-US');
+          if (!price && str(summary.price) === '3000000+') price = '$3,000,000+';
+          var credit = str(summary.credit);
+          var chips = [
+            goal,
+            prop,
+            str(summary.state) || 'Texas',
+            price,
+            credit ? 'Credit ' + (labels.credits[credit] || credit) : '',
+          ].filter(Boolean);
+
+          var wrap = document.getElementById('ty-chips');
+          if (!wrap) return;
+          for (var i = 0; i < chips.length; i++) {
+            var chip = document.createElement('span');
+            chip.className = 'lo-chip';
+            chip.textContent = chips[i];
+            wrap.appendChild(chip);
+          }
+        })();
+      </script>
+
+      <!-- ============ WHILE YOU WAIT ============ -->
+      <section class="lo-band">
+        <div class="lo-wrap lo-wrap-5xl">
+          <p class="lo-eyebrow lo-eyebrow-band">While you wait</p>
+          <h2 class="lo-display lo-h2">Three things worth doing right now.</h2>
+
+          <div class="lo-cards">
+            <div class="lo-card">
+              <span class="lo-display lo-num" aria-hidden="true">1</span>
+              <h3 class="lo-display">Watch for the text</h3>
+              <p>
+                It comes from {brand.phone}. If you see a Texas rental inquiry from Paul or
+                Mike, that's it. Reply and the conversation starts.
               </p>
             </div>
-          ) : routedLender ? (
-            <!-- NETWORK, routed: the single contracted lender is named -->
-            <div class="card-lg mx-auto mt-10 max-w-xl px-6 py-8 text-center md:px-10">
-              <div class="focal-bar" aria-hidden="true"></div>
-              <span class="opt-coin mx-auto mb-4" aria-hidden="true"><Icon name="handshake" size={22} /></span>
-              <p class="label mb-2">The lender reaching out</p>
-              <p class="font-display text-2xl font-bold tracking-[-0.008em] text-ink">{routedLender.name}</p>
-              {routedLender.nmls && <p class="label mt-2">NMLS #{routedLender.nmls}</p>}
-            </div>
-          ) : (
-            <!-- NETWORK, unrouted: how to tell the text or call is real -->
-            <div class="card-lg mx-auto mt-10 max-w-xl px-6 py-7 md:px-8">
-              <div class="focal-bar" aria-hidden="true"></div>
-              <p class="label mb-4">How to know it's real</p>
-              <ul class="grid gap-3">
-                <li class="verify-row">
-                  <span class="verify-check" aria-hidden="true"><Icon name="check" size={14} /></span>
-                  <span>It mentions <strong>{brand.name}</strong></span>
-                </li>
-                <li class="verify-row">
-                  <span class="verify-check" aria-hidden="true"><Icon name="check" size={14} /></span>
-                  <span>It references your <strong><span data-token="propertyTypeLabel">{clientDefaults.propertyTypeLabel}</span></strong> in <strong><span data-token="state">{clientDefaults.state}</span></strong></span>
-                </li>
-                <li class="verify-row">
-                  <span class="verify-check" aria-hidden="true"><Icon name="check" size={14} /></span>
-                  <span>It comes from the lender's own line, not a short code</span>
-                </li>
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= WHAT HAPPENS NEXT ================= -->
-    <section class="ground-paper">
-      <div class="container-x py-16 md:py-24">
-        <div class="mx-auto max-w-2xl text-center">
-          <p class="label mb-4">What happens next</p>
-          <h2 class="h-section text-ink">Three steps, and none of them are homework.</h2>
-        </div>
-
-        <ol class="mx-auto mt-12 grid max-w-5xl gap-5 md:grid-cols-3">
-          {copy.steps.map((step, i) => (
-            <li class={`card p-7 ${i === 0 ? 'step-first' : ''}`}>
-              <div class="flex items-center justify-between">
-                <span class="step-coin" aria-hidden="true">{i + 1}</span>
-                <span class="step-icon" aria-hidden="true"><Icon name={stepIcons[i] ?? 'check'} size={20} /></span>
-              </div>
-              <h3 class="h-step mt-5">{step.title}</h3>
-              <p class="mt-2.5 text-[0.95rem] leading-[1.6] text-ink/70">
-                {parse(step.body).map((p) =>
-                  'text' in p ? (
-                    p.text
-                  ) : p.token === 'phone' ? (
-                    <a href={brand.phoneHref} class="link tabular whitespace-nowrap">{brand.phone}</a>
-                  ) : p.token in buildTokens ? (
-                    buildTokens[p.token]
-                  ) : (
-                    <span data-token={p.token}>{clientDefaults[p.token] ?? ''}</span>
-                  ),
-                )}
-              </p>
-            </li>
-          ))}
-        </ol>
-
-        {isLender && (
-          <!-- LENDER: specialist card (name, title, NMLS when set; nothing invented) -->
-          <div class="card mx-auto mt-12 flex max-w-xl flex-col items-center gap-5 px-8 py-8 text-center sm:flex-row sm:text-left">
-            <span class="medallion" aria-hidden="true">{specialist.name.charAt(0)}</span>
-            <div class="flex-1">
-              <p class="font-display text-xl font-bold tracking-[-0.008em] text-ink">{specialist.name}</p>
-              <p class="label mt-1.5">
-                {specialist.title}{specialist.nmls ? ` · NMLS #${specialist.nmls}` : ''}
+            <div class="lo-card">
+              <span class="lo-display lo-num" aria-hidden="true">2</span>
+              <h3 class="lo-display">Have your numbers handy</h3>
+              <p>
+                Nothing is required yet. The rent, the price, and what you're putting down
+                are what turn a quick text into same-day income and credit approval.
               </p>
             </div>
-            <a href={brand.phoneHref} class="btn-ghost tabular">Call {brand.phone}</a>
+            <div class="lo-card">
+              <span class="lo-display lo-num" aria-hidden="true">3</span>
+              <h3 class="lo-display">Keep shopping deals</h3>
+              <p>
+                Once terms are in writing you can write offers sellers take seriously, with
+                closings in 15 to 25 days.
+              </p>
+            </div>
           </div>
-        )}
 
-        <p class="mx-auto mt-12 max-w-3xl text-center text-xs leading-[1.6] text-ink/55">
-          {legal.notCommitment}
-        </p>
-      </div>
-    </section>
-
-    {showBooking && (
-      <!-- LENDER, optional: GHL booking embed. Rules (memory: ghl-iframe-embed-gotcha):
-           scrolling="yes", height min(1060px, 100vh - 120px), min-height floor,
-           NO overflow-hidden wrapper, no JS-controlled height. -->
-      <section class="ground-mist">
-        <div class="container-x py-16 md:py-20">
-          <div class="mx-auto max-w-2xl text-center">
-            <p class="label mb-4">Rather pick a time?</p>
-            <h2 class="h-section text-ink">Put it on the calendar.</h2>
-            <p class="prose-body mx-auto mt-4 text-center">
-              Grab a slot with {specialist.name} and the call happens when it suits you. Or just answer the text when it lands.
-            </p>
+          <!-- the human: one card, centered. No NMLS line (none exists). -->
+          <div class="lo-human">
+            <div class="lo-avatar lo-display" aria-hidden="true">{specialist.name.charAt(0)}</div>
+            <div class="lo-display lo-human-name">{specialist.name}</div>
+            <div class="lo-label">{specialist.title}</div>
           </div>
-          <div class="mx-auto mt-10 max-w-3xl">
-            <iframe
-              src={booking.embedUrl}
-              scrolling="yes"
-              loading="lazy"
-              class="booking-frame"
-              style="height: min(1060px, calc(100vh - 120px));"
-              title={`Book a call with ${specialist.name}`}
-            ></iframe>
+
+          <div class="lo-call">
+            <p class="lo-label">Rather not wait?</p>
+            <a href={brand.phoneHref} class="lo-display lo-tel">{brand.phone}</a>
           </div>
         </div>
       </section>
-    )}
-  </main>
+    </main>
+  </div>
 
   <Footer />
-
-  <!-- PERSONALIZATION: fills #ty-name, #ty-chips and every [data-token] from
-       sessionStorage['lead-summary']. Defaults already rendered in the HTML, so a
-       missing summary (direct visit, private mode) still reads correctly. -->
-  <script is:inline>
-    (function () {
-      var summary = null;
-      try {
-        var raw = sessionStorage.getItem('lead-summary');
-        if (raw) summary = JSON.parse(raw);
-      } catch (e) {}
-      if (!summary || typeof summary !== 'object') return;
-
-      var str = function (v) { return v == null ? '' : String(v).trim(); };
-      var lower = function (v) { return str(v).toLowerCase(); };
-
-      // heading
-      var first = str(summary.firstName).split(/\s+/)[0];
-      var nameEl = document.getElementById('ty-name');
-      if (nameEl && first) {
-        var tpl = nameEl.getAttribute('data-heading-template') || '{firstName}, you\'re in.';
-        nameEl.textContent = tpl.replace('{firstName}', first);
-      }
-
-      // inline tokens (lowercased labels read as prose: "your single family in Texas")
-      var values = {
-        firstName: first,
-        goalLabel: lower(summary.goalLabel),
-        propertyTypeLabel: lower(summary.propertyTypeLabel),
-        state: str(summary.state),
-      };
-      var spans = document.querySelectorAll('[data-token]');
-      for (var i = 0; i < spans.length; i++) {
-        var key = spans[i].getAttribute('data-token');
-        if (key && values[key]) spans[i].textContent = values[key];
-      }
-
-      // chips
-      var chips = [
-        str(summary.goalLabel),
-        str(summary.propertyTypeLabel),
-        str(summary.state),
-        str(summary.priceDisplay),
-        summary.credit ? 'Credit ' + str(summary.credit) : '',
-      ].filter(Boolean);
-      var wrap = document.getElementById('ty-chips');
-      if (wrap && chips.length) {
-        for (var j = 0; j < chips.length; j++) {
-          var chip = document.createElement('span');
-          chip.className = 'deal-chip chip-in';
-          chip.style.animationDelay = (j * 60) + 'ms';
-          chip.textContent = chips[j];
-          wrap.appendChild(chip);
-        }
-      }
-    })();
-  </script>
 </Layout>
-
-<style>
-  /* Private decor only. Shared classes stay in global.css; no @layer here. */
-
-  .band-glow {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background:
-      radial-gradient(720px 360px at 50% 0%, rgba(242, 165, 26, 0.14), transparent 65%),
-      radial-gradient(520px 300px at 92% 100%, rgba(92, 31, 46, 0.55), transparent 60%);
-  }
-
-  .band-label {
-    color: rgba(244, 239, 227, 0.55);
-  }
-
-  /* amber-to-brand edge on the one focal card in the band */
-  .focal-bar {
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 3px;
-    border-radius: 18px 18px 0 0;
-    background: linear-gradient(90deg, var(--color-amber), var(--color-brand));
-  }
-
-  .tel-focal {
-    display: inline-block;
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: clamp(2.2rem, 5.2vw, 3.6rem);
-    letter-spacing: -0.008em;
-    line-height: 1.15;
-    color: var(--color-ink);
-    text-decoration: none;
-    white-space: nowrap;
-    transition: color 160ms ease;
-  }
-
-  .tel-focal:hover {
-    color: var(--color-brand);
-  }
-
-  .verify-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    font-size: 0.98rem;
-    line-height: 1.5;
-    color: rgba(26, 20, 24, 0.78);
-  }
-
-  .verify-row strong {
-    font-weight: 700;
-    color: var(--color-ink);
-  }
-
-  .verify-check {
-    display: inline-grid;
-    place-items: center;
-    flex: none;
-    width: 1.5rem;
-    height: 1.5rem;
-    margin-top: 0.05rem;
-    border-radius: 999px;
-    background: var(--color-brand);
-    color: var(--color-cream);
-  }
-
-  .step-coin {
-    display: inline-grid;
-    place-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 999px;
-    border: 2px solid rgba(92, 31, 46, 0.3);
-    background: var(--color-paper);
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.1rem;
-    color: var(--color-brand);
-  }
-
-  .step-first .step-coin {
-    border-color: var(--color-amber);
-    background: var(--color-amber);
-    color: var(--color-ink);
-    box-shadow: var(--shadow-btn);
-  }
-
-  .step-first {
-    border-color: rgba(242, 165, 26, 0.6);
-  }
-
-  .step-icon {
-    display: inline-grid;
-    place-items: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 999px;
-    background: var(--color-brand-soft);
-    color: var(--color-brand);
-  }
-
-  .medallion {
-    display: inline-grid;
-    place-items: center;
-    flex: none;
-    width: 4rem;
-    height: 4rem;
-    border-radius: 999px;
-    background: linear-gradient(160deg, var(--color-brand) 0%, var(--color-brand-deep) 100%);
-    box-shadow: 0 0 0 3px var(--color-sheet), 0 0 0 4px rgba(92, 31, 46, 0.3);
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.5rem;
-    color: var(--color-cream);
-  }
-
-  .booking-frame {
-    display: block;
-    width: 100%;
-    min-height: 520px;
-    border: 1px solid var(--color-line);
-    border-radius: 18px;
-    background: var(--color-sheet);
-    box-shadow: var(--shadow-card);
-    overflow: auto;
-  }
-
-  /* chips exist only after JS; a soft settle, never on the H1 */
-  .chip-in {
-    animation: chip-in 360ms var(--ease-out-quart) both;
-  }
-
-  @keyframes chip-in {
-    from {
-      opacity: 0;
-      translate: 0 6px;
-    }
-    to {
-      opacity: 1;
-      translate: 0 0;
-    }
-  }
-</style>

@@ -377,20 +377,19 @@ export async function submitAndWaitThankYou(page, timeout = 15000) {
   throw new Error(`did not land on /thank-you after submit (url=${page.url()})`);
 }
 
+// sessionStorage['lead-summary'] in the BRIEF section 5 shape (what the /start V1
+// form writes on a buy-path submit); /thank-you reads exactly these keys.
 export function seedLeadSummary(extra = {}) {
-  const site = readSiteConfig();
   return {
     firstName: 'Tanner',
     goal: 'purchase',
-    goalLabel: 'Purchase',
+    goalLabel: 'Buy a rental',
     propertyType: 'sfr',
-    propertyTypeLabel: 'Single family',
-    credit: '700-739',
+    propertyTypeLabel: 'Single-family',
+    credit: '680-739',
     price: 350000,
     priceDisplay: '$350,000',
     state: 'Texas',
-    stateSlug: 'texas',
-    mode: site.mode,
     ...extra,
   };
 }

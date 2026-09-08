@@ -180,6 +180,63 @@ Server adds `tcpaConsentIp`, `tcpaConsentUserAgent`, `tcpaConsentReceivedAt`.
   total); if the perf stage finds `/start` under 90 on mobile, swapping framer-motion for the
   CSS step transitions already in `global.css` is the first cut.
 
-### Stage 3 (thank-you): pending
+### Stage 3 (thank-you), 2026-09-07
+
+- `/thank-you` is now the LeaderOne clone (BRIEF section 6): `src/pages/thank-you.astro` +
+  `src/styles/thank-you.css` (page-scoped, unlayered, imported by that page only, like
+  `start.css`). The LO palette (paper `#f8f6f1`, paper-2 `#efece3`, ink `#112647`, pine
+  `#1e4a8c`, moss `#2c5a9e` for eyebrows, brass `#b0873a` / `#d7b264`, cream `#edf1f9`) lives
+  as CSS variables on the `.lo` wrapper, so the LP keeps template 4's claret/amber identity.
+  Faces: Fraunces (self-hosted standard woff2, `opsz 72`, weight 400, italic for the H1's
+  "the DSCR floor.") and Hanken Grotesk 400/500/600/700 (self-hosted, `font-display:
+  optional`, declared in `thank-you.css`). `/thank-you` preloads Fraunces normal + italic and
+  Hanken 400/600/700 through `Layout` `preloadFonts`.
+- Top to bottom, mirroring `_ref/leaderone/thank-you.astro`: white topbar (ILD logo + the name
+  in LO's NMLS slot, "Texas DSCR loans" tag with the brass dot on >= 768px, phone; 52px bar +
+  32px logo on phones, 64px + 36px from 768px, per LO's reference PNGs), 6px brass gradient
+  hairline (LO's `h-1.5`) at the top of the paper hero, 80px brass seal (ring draws on over
+  1.1s after 0.2s, pine check over 0.7s after 1s, CSS keyframes, no GSAP on this page; reduced
+  motion renders it complete; the dash state lives in CSS so a page without the sheet shows
+  the finished seal), eyebrow "Eligibility check received", serif H1 `Nice work{, First}.
+  Your credit clears` + italic pine `the DSCR floor.` (the H1 never animates), the verbatim
+  promise paragraph (Paul or Mike, the phone as a tel link, "Save the number so you know it's
+  them."), scenario chips; paper-2 band with hairlines: "While you wait" / "Three things
+  worth doing right now." / the three cards with brass serif numerals (Watch for the text /
+  Have your numbers handy / Keep shopping deals, BRIEF copy verbatim) / ONE centered Paul
+  card (pine "P", Paul Howarth, DSCR Loan Specialist, no NMLS line) / "Rather not wait?" +
+  the big serif phone link; then the variant's ILD footer (Paul's disclaimer). noindex.
+- Two deliberate deltas from LO: the mono eyebrows/labels render in Hanken 600 uppercase
+  tracked 0.2em / 0.18em (no monospace rule), and display tracking is -0.008em (BRIEF
+  section 8 floor) instead of Tailwind's `tracking-tight`.
+- Personalization: an inline script right after the hero (runs while the document parses,
+  ahead of first paint) reads `sessionStorage['lead-summary']`, sets `#ty-name` to
+  `Nice work, {first token}` and fills `#ty-chips` with `.lo-chip` spans: goal label,
+  property label, Texas, priceDisplay, `Credit {band label}` (values map to labels through
+  `goals` / `propertyTypes` / `creditBands` from `site.ts`, so `680-739` reads "Credit 680 to
+  739" and a summary carrying only values still reads well). No summary = "Nice work. Your
+  credit clears the DSCR floor." and the chip row collapses (`:empty`).
+- Test mode: no gtag, no dataLayer, no conversion. The live-mode conversion script is the
+  first script on the page and is LO's gating (lead-summary or `?demo=1`, suppressed by
+  `sessionStorage.qa`, once per tab via `conv_fired`) plus the `leadDelivery === 'live'`
+  guard: with `live` false it returns before touching anything.
+- `/not-yet` kept on template 4's design with ILD-safe copy (620 line, five score moves, "Run
+  it again" -> `/start`, no NMLS, no rate); the in-form Below 620 kick-out's gold link
+  `[data-action="not-yet"]` points at `/not-yet` and lands there (re-verified this stage).
+- Verified with `tools/thank-you-shoot.mjs` (real dev server, desktop 1440x900, mobile
+  390x844, plus a 1200-wide capture that lines up with `lo-thankyou-desktop.png`): 86/86
+  checks (title, noindex, zero gtag/googletagmanager, every request on localhost, the
+  personalized H1, the five chips in order, Fraunces + Hanken resolved, italic pine em,
+  no monospace, LO paper/paper-2 backgrounds, seal finished, no overflow, default state,
+  reduced motion, /not-yet, kick-out link, zero console errors). A rect diff of every LO
+  spacing interval (py-20/24, mb-8, mb-5, mt-5, mt-7, mb-4, mb-14, p-7, mt-14, mt-10, mb-3,
+  max-w-xl / max-w-md) matched within 1px at both viewports. Shots: `tools/shots/
+  {desktop,mobile,lo}-thank-you-{fold,full,default}.png`, `*-not-yet-full.png`, `*-kickout.png`.
+- Tool updates: `tools/qa-lib.mjs` `seedLeadSummary()` now returns the BRIEF section 5
+  shape (`goalLabel` "Buy a rental", `propertyTypeLabel` "Single-family", `credit`
+  `680-739`, no `stateSlug` / `mode`); `tools/form-walk.mjs` counts `#ty-chips .lo-chip`.
+- Not on this branch: `/call-prep` (BRIEF section 6 says "keep available"; stage 1 never
+  carried it over, the LO clone has no prep-sheet link, and ILD's version was the target of
+  the summary email ILD cannot send). Port `_ref/ild-main/call-prep.astro` onto template 4's
+  tokens if Tanner wants it.
 
 ### QA: pending (`QA-REPORT.md`)
