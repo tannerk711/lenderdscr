@@ -118,11 +118,10 @@ const clickByText = async (text) => {
   if (!ok) console.log('CLICK MISS:', text);
   await settle(700);
 };
-// 7-step PMF flow (2026-08-24)
-await clickByText('Purchase');
+await clickByText('Buy a rental');
 await page.screenshot({ path: `${outDir}${prefix}-form-step2.png` });
-await clickByText('Single Family');
-await clickByText('700-739');
+await clickByText('Single family');
+await clickByText('700');
 await page.screenshot({ path: `${outDir}${prefix}-form-price.png` });
 await clickByText('Continue');
 await page.screenshot({ path: `${outDir}${prefix}-form-down.png` });
@@ -149,6 +148,7 @@ await page.close();
 page = await newPage(1440, 980);
 await page.goto(base, { waitUntil: 'networkidle0', timeout: 30000 });
 await settle(1000);
+await clickByText.call(null, 'Refinance');
 // redefine helper bound to this page
 const clickByText2 = async (text) => {
   await page.evaluate((t) => {
@@ -158,9 +158,9 @@ const clickByText2 = async (text) => {
   }, text);
   await settle(700);
 };
-await clickByText2('Cash Out Refinance');
-await clickByText2('Single Family');
-await clickByText2('619 or less');
+await clickByText2('Refinance');
+await clickByText2('Single family');
+await clickByText2('Below 620');
 await page.screenshot({ path: `${outDir}${prefix}-form-decline.png` });
 await page.close();
 

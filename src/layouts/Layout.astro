@@ -23,21 +23,16 @@ const gtagSnippet = brand.gtagId
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <!-- Single-family Hanken system (2026-08-24 design pass): Fraunces and
-         Fragment Mono removed; Hanken is self-hosted from /public/fonts with
-         font-display: optional (see global.css). Preloading the two weights
-         the first paint uses gives the font its best shot at the optional
-         window without ever blocking or repainting the hero. -->
-    <link rel="preload" href="/fonts/hanken-grotesk-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/hanken-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
-    {brand.gtagId && <script is:inline set:html={gtagSnippet} />}
-    <!-- gtag.js injected after window load (perf, 2026-08-24): the inline
-         snippet above defines gtag() as a dataLayer queue, so config and any
-         conversion events fired before the library arrives are queued and
-         flushed identically. Same tag, same data, off the critical path. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&family=Hanken+Grotesk:ital,wght@0,300..800;1,300..800&family=Fragment+Mono:ital@0;1&display=swap"
+    />
     {brand.gtagId && (
-      <script is:inline set:html={`window.addEventListener('load',function(){var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=${brand.gtagId}';document.head.appendChild(s);});`} />
+      <script async src={`https://www.googletagmanager.com/gtag/js?id=${brand.gtagId}`}></script>
     )}
+    {brand.gtagId && <script is:inline set:html={gtagSnippet} />}
   </head>
   <body>
     <slot />

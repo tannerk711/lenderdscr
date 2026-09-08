@@ -1,42 +1,5 @@
 @import "tailwindcss";
 
-/* Self-hosted Hanken Grotesk (latin, from fontsource files in /public/fonts):
-   no third-party CSS request blocks first paint, and font-display: optional
-   means a late font never repaints the hero and re-triggers LCP (the standing
-   pagespeed gotcha). Fallback is Segoe UI on the very first slow visit. */
-@font-face {
-  font-family: "Hanken Grotesk";
-  font-style: normal;
-  font-weight: 400;
-  font-display: optional;
-  src: url("/fonts/hanken-grotesk-latin-400-normal.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: "Hanken Grotesk";
-  font-style: normal;
-  font-weight: 600;
-  font-display: optional;
-  src: url("/fonts/hanken-grotesk-latin-600-normal.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: "Hanken Grotesk";
-  font-style: normal;
-  font-weight: 700;
-  font-display: optional;
-  src: url("/fonts/hanken-grotesk-latin-700-normal.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: "Hanken Grotesk";
-  font-style: normal;
-  font-weight: 800;
-  font-display: optional;
-  src: url("/fonts/hanken-grotesk-latin-800-normal.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
 /* ============================================================
    DESIGN TOKENS: "ILD sky & slate"
    Recolored 2026-07-24 from the ILD logo: sky blue #22a0dd,
@@ -45,11 +8,7 @@
    only values changed. brass = deep brand blue (primary accent),
    brass-2 = sky blue (highlights on dark), pine = deep band blue,
    ink = blue-slate charcoal.
-   Type: single-family Hanken Grotesk system (2026-08-24 design
-   pass). Fraunces and Fragment Mono removed from the font request;
-   serif never renders anywhere. "Mono"-styled labels keep their
-   uppercase/tracking data styling but render in the brand sans
-   (standing rule: no monospace in designed assets).
+   Display: Fraunces  ·  Body: Hanken Grotesk  ·  Data: Fragment Mono
    ============================================================ */
 
 @theme {
@@ -67,15 +26,13 @@
   --color-cream: #e9f2f8;
   --color-blush: #c9564a;
 
+  --font-display: "Fraunces", "Georgia", serif;
   --font-body: "Hanken Grotesk", "Segoe UI", sans-serif;
   /* No monospace in designed assets (standing rule): "mono"-styled labels
      keep their uppercase/tracking data styling but render in the brand sans. */
   --font-mono: "Hanken Grotesk", "Segoe UI", sans-serif;
 
-  /* PMF-model CTA green (2026-08-24): the proven page's action color.
-     Accent grammar: green = things you do or things confirmed true
-     (buttons, check marks, the one sanctioned kicker line). Pine = things
-     you read (every heading). Never spend green on passive text. */
+  /* PMF-model CTA green (2026-08-24): the proven page's action color. */
   --color-cta: #0e7c69;
   --color-cta-2: #12967f;
 }
@@ -85,7 +42,6 @@
   --line-paper: rgba(245, 248, 250, 0.16);
   --shadow-card: 0 1px 2px rgba(18, 36, 49, 0.05), 0 8px 24px rgba(18, 36, 49, 0.09),
     0 24px 64px rgba(18, 36, 49, 0.12);
-  --shadow-card-sm: 0 1px 2px rgba(18, 36, 49, 0.04), 0 6px 16px rgba(18, 36, 49, 0.07);
   --shadow-pop: 0 2px 6px rgba(10, 22, 32, 0.35), 0 20px 60px rgba(10, 22, 32, 0.55);
   --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -111,78 +67,45 @@ body {
 
 /* ---------- type helpers ---------- */
 
+.font-display {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 72, "SOFT" 40, "WONK" 0;
+}
+
+.font-display-wonk {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 72, "SOFT" 60, "WONK" 1;
+}
+
 .font-mono {
   font-family: var(--font-mono);
 }
 
 .eyebrow {
   font-family: var(--font-mono);
-  font-weight: 600;
   font-size: 0.72rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
 }
 
-/* ---------- card recipes (the elevation vocabulary; use these, not one-offs) ---------- */
-
-.card-hero {
-  background: #ffffff;
-  border: 1px solid var(--line-ink);
-  box-shadow: var(--shadow-card);
-}
-
-.card-quiet {
-  background: #ffffff;
-  border: 1px solid var(--line-ink);
-  box-shadow: var(--shadow-card-sm);
-}
-
-.card-dark {
-  background: linear-gradient(180deg, var(--color-ink-2), var(--color-ink-3));
-  border: 1px solid rgba(233, 242, 248, 0.1);
-  box-shadow: inset 0 1px 0 rgba(233, 242, 248, 0.06);
-}
-
 /* ---------- atmosphere ---------- */
+
+/* film grain over dark sections */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
+}
 
 /* faint atmospheric glows for ink sections */
 .contours {
   background-image: radial-gradient(1100px 520px at 82% -10%, rgba(41, 163, 224, 0.14), transparent 62%),
     radial-gradient(900px 600px at -12% 108%, rgba(21, 97, 143, 0.38), transparent 60%);
-}
-
-/* hero backdrop: tinted ground so the white form card owns the screen.
-   Backgrounds only; adds zero height, so the 390x844 fold is untouched. */
-.hero-atmo {
-  background-color: var(--color-paper);
-  background-image:
-    radial-gradient(720px 380px at 50% 42%, rgba(41, 163, 224, 0.1), transparent 68%),
-    radial-gradient(1200px 520px at 50% -20%, rgba(233, 239, 244, 0.9), transparent 70%),
-    linear-gradient(180deg, #eef3f7 0%, var(--color-paper) 60%);
-}
-
-/* 3px brand gradient edge inside the hero card's rounded top corner */
-.hero-card {
-  position: relative;
-  overflow: hidden;
-}
-.hero-card::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--color-brass), var(--color-brass-2));
-}
-
-/* drawn hairline at section seams; ships fully drawn, the motion spine
-   rewinds and draws it only when JS + motion are available */
-.seam {
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 1px;
-  background: linear-gradient(90deg, var(--color-brass), var(--color-brass-2) 45%, transparent);
-  transform-origin: left center;
-  pointer-events: none;
 }
 
 /* hairline rules */
@@ -193,13 +116,73 @@ body {
   border-color: var(--line-paper);
 }
 
+/* ---------- marquee ticker ---------- */
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 42s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.marquee {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+/* ---------- reveal-on-scroll (GSAP sets final state; these are safe defaults) ---------- */
+
+.gs-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+.gs-reveal-left {
+  opacity: 0;
+  transform: translateX(-36px);
+}
+
+.gs-reveal-right {
+  opacity: 0;
+  transform: translateX(36px);
+}
+
+.gs-reveal-scale {
+  opacity: 0;
+  transform: scale(0.94);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-reveal,
+  .gs-reveal-left,
+  .gs-reveal-right,
+  .gs-reveal-scale {
+    opacity: 1;
+    transform: none;
+  }
+  .marquee-track {
+    animation: none;
+  }
+}
+
 /* ---------- buttons ---------- */
 
 /* PMF-model CTA (2026-08-24): teal-green like the converting PMF page.
    Class name kept so every existing usage recolors in one place. */
 .btn-brass {
   position: relative;
-  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -222,32 +205,6 @@ body {
 
 .btn-brass:active {
   transform: translateY(0);
-}
-
-/* async working state: shimmer sweep while the lead posts */
-.btn-brass:disabled::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.28) 50%, transparent 70%);
-  transform: translateX(-100%);
-  animation: btnSheen 1.2s var(--ease-lux) infinite;
-}
-
-/* one-shot sheen for the sticky CTA's first appearance */
-.sheen-once::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
-  transform: translateX(-100%);
-  animation: btnSheen 1.1s var(--ease-lux) 0.35s 1 both;
-}
-
-@keyframes btnSheen {
-  to {
-    transform: translateX(100%);
-  }
 }
 
 /* ---------- form option buttons ---------- */
@@ -278,11 +235,6 @@ body {
   outline-offset: 2px;
 }
 
-.opt-btn .opt-coin {
-  transition: background 0.18s var(--ease-lux), color 0.18s var(--ease-lux),
-    border-color 0.18s var(--ease-lux), transform 0.18s var(--ease-lux);
-}
-
 .opt-btn .opt-arrow {
   opacity: 0;
   transform: translateX(-6px);
@@ -294,68 +246,22 @@ body {
   transform: translateX(0);
 }
 
-/* touch devices never fire :hover; show the tap-forward affordance at rest */
-@media (hover: none) {
-  .opt-btn .opt-arrow {
-    opacity: 0.35;
-    transform: translateX(0);
-  }
-}
-
-/* selected state: the 180ms pre-advance window becomes a confirmation beat */
-.opt-btn.is-selected {
-  border-color: var(--color-brass);
-  background: rgba(41, 163, 224, 0.08);
-  box-shadow: 0 6px 20px rgba(18, 36, 49, 0.08);
-}
-
-.opt-btn.is-selected .opt-coin {
-  background: var(--color-pine);
-  border-color: var(--color-pine);
-  color: #ffffff;
-  transform: scale(1.08);
-}
-
-.opt-btn .opt-check {
-  opacity: 0;
-  transform: scale(0.5);
-  transition: opacity 0.15s, transform 0.2s var(--ease-lux);
-  color: var(--color-brass);
-}
-
-.opt-btn.is-selected .opt-check {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.opt-btn.is-selected .opt-arrow {
-  opacity: 0;
-}
-
-/* ---------- range slider (flat fintech thumb, 44px hit area) ---------- */
+/* ---------- range slider (brand blue) ---------- */
 
 input[type="range"].brass-range {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 44px;
-  padding: 19px 0;
+  height: 6px;
   border-radius: 999px;
   background: linear-gradient(
-      to right,
-      var(--color-brass) 0%,
-      var(--color-brass-2) var(--fill, 50%),
-      rgba(18, 36, 49, 0.15) var(--fill, 50%),
-      rgba(18, 36, 49, 0.15) 100%
-    )
-    no-repeat;
-  background-clip: content-box;
+    to right,
+    var(--color-brass) 0%,
+    var(--color-brass) var(--fill, 50%),
+    rgba(18, 36, 49, 0.15) var(--fill, 50%),
+    rgba(18, 36, 49, 0.15) 100%
+  );
   outline: none;
-}
-
-input[type="range"].brass-range:focus-visible {
-  outline: 2px solid var(--color-brass);
-  outline-offset: 4px;
 }
 
 input[type="range"].brass-range::-webkit-slider-thumb {
@@ -365,11 +271,9 @@ input[type="range"].brass-range::-webkit-slider-thumb {
   height: 28px;
   border-radius: 50%;
   cursor: grab;
-  background: #ffffff;
-  border: 2px solid var(--color-brass);
-  box-shadow: 0 1px 2px rgba(18, 36, 49, 0.18), 0 6px 16px rgba(18, 36, 49, 0.22),
-    0 0 0 6px rgba(41, 163, 224, 0.12);
-  transition: transform 0.15s var(--ease-lux);
+  background: radial-gradient(circle at 35% 30%, #9fd6f5, #3ea2dd 55%, #16608f);
+  border: 2px solid #122431;
+  box-shadow: 0 3px 10px rgba(18, 36, 49, 0.35);
 }
 
 input[type="range"].brass-range::-moz-range-thumb {
@@ -377,31 +281,13 @@ input[type="range"].brass-range::-moz-range-thumb {
   height: 26px;
   border-radius: 50%;
   cursor: grab;
-  background: #ffffff;
-  border: 2px solid var(--color-brass);
-  box-shadow: 0 1px 2px rgba(18, 36, 49, 0.18), 0 6px 16px rgba(18, 36, 49, 0.22),
-    0 0 0 6px rgba(41, 163, 224, 0.12);
+  background: radial-gradient(circle at 35% 30%, #9fd6f5, #3ea2dd 55%, #16608f);
+  border: 2px solid #122431;
+  box-shadow: 0 3px 10px rgba(18, 36, 49, 0.35);
 }
 
 input[type="range"].brass-range:active::-webkit-slider-thumb {
   cursor: grabbing;
-  transform: scale(1.15);
-}
-
-input[type="range"].brass-range:active::-moz-range-thumb {
-  cursor: grabbing;
-  transform: scale(1.15);
-}
-
-/* value display pop when the number changes (element is re-keyed per value) */
-.value-pop {
-  animation: valuePop 0.16s var(--ease-lux);
-}
-
-@keyframes valuePop {
-  50% {
-    transform: scale(1.04);
-  }
 }
 
 /* ---------- text inputs ---------- */
@@ -427,67 +313,6 @@ input[type="range"].brass-range:active::-moz-range-thumb {
   box-shadow: 0 0 0 3px rgba(31, 120, 180, 0.22);
 }
 
-/* ---------- TCPA consent (container styling only; text + gating are locked) ---------- */
-
-.tcpa-box {
-  background: #ffffff;
-  border: 1px solid var(--line-ink);
-  box-shadow: var(--shadow-card-sm);
-  transition: border-color 0.25s var(--ease-lux), background 0.25s var(--ease-lux),
-    box-shadow 0.25s var(--ease-lux);
-}
-
-.tcpa-box:hover {
-  border-color: rgba(18, 36, 49, 0.28);
-}
-
-.tcpa-box.is-consented {
-  border-color: rgba(21, 97, 143, 0.45);
-  background: rgba(21, 97, 143, 0.04);
-  box-shadow: inset 3px 0 0 var(--color-pine), var(--shadow-card-sm);
-}
-
-/* custom checkbox visual on the same native input: unmistakably an empty box
-   until checked, visible focus ring, unchanged behavior */
-input[type="checkbox"].tcpa-check {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 1.35rem;
-  height: 1.35rem;
-  flex: none;
-  border: 2px solid var(--color-brass);
-  border-radius: 6px;
-  background: #ffffff;
-  cursor: pointer;
-  display: inline-grid;
-  place-content: center;
-  transition: background 0.18s var(--ease-lux), border-color 0.18s var(--ease-lux);
-}
-
-input[type="checkbox"].tcpa-check::before {
-  content: "";
-  width: 0.78rem;
-  height: 0.78rem;
-  transform: scale(0);
-  transition: transform 0.18s var(--ease-lux);
-  background: #ffffff;
-  clip-path: polygon(14% 46%, 0% 62%, 40% 100%, 100% 20%, 84% 6%, 38% 68%);
-}
-
-input[type="checkbox"].tcpa-check:checked {
-  background: var(--color-pine);
-  border-color: var(--color-pine);
-}
-
-input[type="checkbox"].tcpa-check:checked::before {
-  transform: scale(1);
-}
-
-input[type="checkbox"].tcpa-check:focus-visible {
-  outline: 2px solid var(--color-brass);
-  outline-offset: 2px;
-}
-
 /* ---------- form card step transitions ---------- */
 
 /* CSS-only hero entrance (LeaderOne pattern): the hero must never wait on
@@ -495,11 +320,6 @@ input[type="checkbox"].tcpa-check:focus-visible {
 .hero-enter {
   animation: heroEnter 0.7s var(--ease-lux) both;
 }
-
-/* The H1 deliberately carries NO entrance animation: an H1 that fades or
-   transforms in is excluded/re-timed as the LCP candidate, which let a
-   smaller later-painting element define (and tank) the mobile score. The
-   headline anchors instantly; the card below it still staggers in. */
 .hero-enter-1 { animation-delay: 0.05s; }
 .hero-enter-2 { animation-delay: 0.14s; }
 .hero-enter-3 { animation-delay: 0.23s; }
@@ -516,10 +336,10 @@ input[type="checkbox"].tcpa-check:focus-visible {
   }
 }
 
-/* the step wrapper carries perspective so the rotateY page-turn actually
-   renders (without it the 3D transform collapses to an invisible squash) */
-.step-stage {
-  perspective: 1200px;
+@media (prefers-reduced-motion: reduce) {
+  .hero-enter {
+    animation: none;
+  }
 }
 
 .step-enter {
@@ -552,200 +372,90 @@ input[type="checkbox"].tcpa-check:focus-visible {
   }
 }
 
-/* ---------- deal-ticket chips (phone-step recap + thank-you scenario) ---------- */
-
-.deal-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: #ffffff;
-  border: 1px solid var(--line-ink);
-  box-shadow: var(--shadow-card-sm);
-  border-radius: 999px;
-  padding: 0.32rem 0.7rem;
-  font-family: var(--font-mono);
-  font-weight: 600;
-  font-size: 0.7rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-pine);
-  white-space: nowrap;
-}
-
-.deal-chip svg {
-  flex: none;
-  opacity: 0.75;
-}
-
-/* staggered entrance for injected thank-you chips (delay set inline per chip) */
-.chip-in {
-  animation: chipIn 0.4s var(--ease-lux) both;
-}
-
-@keyframes chipIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px) scale(0.92);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+@media (prefers-reduced-motion: reduce) {
+  .step-enter,
+  .step-enter-back {
+    animation: none;
   }
 }
 
-/* ---------- thank-you seal (CSS-only draw: survives JS failure) ---------- */
+/* ---------- floating ledger chips (hero 3D scene) ---------- */
 
-.seal-ring {
-  stroke-dasharray: 233;
-  stroke-dashoffset: 233;
-  animation: sealDraw 1.1s var(--ease-lux) 0.2s forwards;
-}
-
-.seal-check {
-  stroke-dasharray: 46;
-  stroke-dashoffset: 46;
-  animation: sealDraw 0.7s var(--ease-lux) 1s forwards;
-}
-
-@keyframes sealDraw {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-.seal-bloom {
-  animation: sealBloom 1.6s var(--ease-lux) 0.4s both;
-}
-
-@keyframes sealBloom {
-  from {
-    opacity: 0;
-    transform: scale(0.7);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* underline swell on the thank-you tel link; teal is sanctioned here once */
-.tel-link {
-  position: relative;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.tel-link::after {
-  content: "";
+.ledger-chip {
   position: absolute;
-  left: 8%;
-  right: 8%;
-  bottom: -4px;
-  height: 3px;
-  border-radius: 999px;
-  background: var(--color-brass-2);
-  transform: scaleX(0);
-  transform-origin: center;
+  background: rgba(248, 251, 254, 0.96);
+  border: 1px solid rgba(18, 36, 49, 0.2);
+  box-shadow: 0 14px 40px rgba(4, 12, 20, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0) translateZ(var(--z, 40px));
+  }
+  50% {
+    transform: translateY(-9px) translateZ(var(--z, 40px));
+  }
+}
+
+.floaty {
+  animation: floaty 7s ease-in-out infinite;
+}
+
+.floaty-slow {
+  animation: floaty 9.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floaty,
+  .floaty-slow {
+    animation: none;
+  }
+}
+
+/* ---------- FAQ accordion ---------- */
+
+details.faq-item summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+details.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+details.faq-item .faq-icon {
   transition: transform 0.3s var(--ease-lux);
 }
 
-.tel-link:hover {
-  color: var(--color-cta);
+details.faq-item[open] .faq-icon {
+  transform: rotate(45deg);
 }
 
-.tel-link:hover::after {
-  transform: scaleX(1);
+details.faq-item .faq-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s var(--ease-lux);
 }
 
-/* ---------- FAQ cards ---------- */
+details.faq-item[open] .faq-body {
+  grid-template-rows: 1fr;
+}
 
-.faq-card {
-  position: relative;
+details.faq-item .faq-body > div {
   overflow: hidden;
-  transition: transform 0.25s var(--ease-lux), box-shadow 0.25s var(--ease-lux);
-}
-
-.faq-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-card);
-}
-
-/* drawn left accent: ships fully drawn; the spine rewinds + draws it */
-.faq-accent {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: var(--color-pine);
-  transform-origin: top center;
-  pointer-events: none;
-}
-
-/* ---------- why-choose cards (dark band) ---------- */
-
-.why-card {
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.25s var(--ease-lux), box-shadow 0.25s var(--ease-lux);
-}
-
-.why-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-pop);
-}
-
-.why-card::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(41, 163, 224, 0.7), rgba(41, 163, 224, 0.08));
-}
-
-.why-card .why-ghost {
-  position: absolute;
-  right: -18px;
-  bottom: -18px;
-  width: 120px;
-  height: 120px;
-  opacity: 0.05;
-  pointer-events: none;
-}
-
-/* ---------- discover photo (contained Ken Burns on mobile; GSAP scrub on desktop) ---------- */
-
-.kb-frame {
-  overflow: hidden;
-}
-
-.kb-frame img {
-  transform: scale(1);
-}
-
-@media (max-width: 1023px) {
-  .kb-frame.in-view img {
-    animation: kbDrift 26s ease-in-out infinite alternate;
-  }
-}
-
-@keyframes kbDrift {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.07);
-  }
-}
-
-/* ---------- below-fold rendering ---------- */
-
-.cv-auto {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 900px;
 }
 
 /* ---------- misc ---------- */
+
+.arch {
+  border-radius: 999px 999px 24px 24px;
+}
+
+.tilt-scene {
+  perspective: 1200px;
+}
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -753,33 +463,4 @@ input[type="checkbox"].tcpa-check:focus-visible {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
-
-/* ---------- reduced motion: transforms dead, everything visible ---------- */
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-enter,
-  .step-enter,
-  .step-enter-back,
-  .chip-in,
-  .value-pop,
-  .sheen-once::after,
-  .btn-brass:disabled::after,
-  .seal-bloom {
-    animation: none;
-  }
-  .seal-ring,
-  .seal-check {
-    animation: none;
-    stroke-dashoffset: 0;
-  }
-  .kb-frame.in-view img {
-    animation: none;
-  }
-  .btn-brass:hover,
-  .opt-btn:hover,
-  .why-card:hover,
-  .faq-card:hover {
-    transform: none;
-  }
 }
