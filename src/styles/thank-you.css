@@ -9,43 +9,9 @@
    Hanken 600 uppercase tracked (no monospace rule), and display tracking sits
    at -0.008em (BRIEF section 8 floor) instead of Tailwind's tracking-tight. */
 
-/* ---------- Hanken Grotesk (body face on this page), self-hosted, optional ---------- */
-
-@font-face {
-  font-family: "Hanken Grotesk";
-  font-style: normal;
-  font-weight: 400;
-  font-display: optional;
-  src: url("/fonts/hanken-grotesk-latin-400-normal.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-  font-family: "Hanken Grotesk";
-  font-style: normal;
-  font-weight: 500;
-  font-display: optional;
-  src: url("/fonts/hanken-grotesk-latin-500-normal.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-  font-family: "Hanken Grotesk";
-  font-style: normal;
-  font-weight: 600;
-  font-display: optional;
-  src: url("/fonts/hanken-grotesk-latin-600-normal.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-  font-family: "Hanken Grotesk";
-  font-style: normal;
-  font-weight: 700;
-  font-display: optional;
-  src: url("/fonts/hanken-grotesk-latin-700-normal.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
+/* The Hanken Grotesk faces this page uses are declared in global.css with the
+   other first-paint fonts (see the note there: a page-scoped @font-face is
+   parsed after first layout and loses the font-display: optional window). */
 
 /* ---------- page scope: LO palette + faces ---------- */
 
@@ -286,9 +252,12 @@
   color: var(--lo-ink);
 }
 
+/* the italic tail never splits across lines: with a first name in the H1 the
+   phone wrap put "the" alone at the end of line two (LO's tail stays intact) */
 .lo-h1 em {
   font-style: italic;
   color: var(--lo-pine);
+  white-space: nowrap;
 }
 
 .lo-lede {

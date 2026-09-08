@@ -50,13 +50,16 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* Fraunces (serif): the /start form headlines and the thank-you page. The
-   fontsource "standard" axis set (wght + opsz; SOFT/WONK are absent and the
-   font-variation-settings that name them are ignored harmlessly), copied from
-   @fontsource-variable/fraunces into public/fonts so it can ship with
-   font-display: optional like every other first-paint face here. Italic is
-   declared for the thank-you H1; unicode-range + optional means a page that
-   never sets italic never downloads it. */
+/* Fraunces (serif): the /start form headlines and the thank-you page, from
+   @fontsource-variable/fraunces (latin "standard" axis set) instanced by
+   scripts/instance-fonts.py so each file is as small as its use allows
+   (font-display: optional drops any face that is not ready at first layout).
+   Every use pins opsz 72, so opsz is baked in (the font-variation-settings
+   that still name it, or SOFT/WONK, are ignored harmlessly). Roman keeps the
+   wght axis (/start sets 600, /thank-you 400), 67 KB -> 37 KB. Italic exists
+   for the thank-you H1 tail only, at 400, so it is a static 400 instance,
+   81 KB -> 23 KB; unicode-range + optional means a page that never sets italic
+   never downloads it. */
 @font-face {
   font-family: "Fraunces";
   font-style: normal;
@@ -69,9 +72,26 @@
 @font-face {
   font-family: "Fraunces";
   font-style: italic;
-  font-weight: 100 900;
+  font-weight: 400;
   font-display: optional;
-  src: url("/fonts/fraunces-latin-standard-italic.woff2") format("woff2-variations");
+  src: url("/fonts/fraunces-latin-standard-italic.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Hanken Grotesk (the thank-you page's body face; LO's own). ONE variable file
+   (@fontsource-variable/hanken-grotesk, wght restricted to 400..700 by
+   scripts/instance-fonts.py, 23 KB) instead of three static weights, so the
+   thank-you page preloads three small files in all: with font-display:
+   optional, a face that is not ready at first layout is dropped for the page,
+   and fewer, smaller files are what raise the cold hit rate
+   (tools/thank-you-cold-fonts.mjs). Declared here with the other first-paint
+   faces; a page that never uses the family never downloads it. */
+@font-face {
+  font-family: "Hanken Grotesk";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: optional;
+  src: url("/fonts/hanken-grotesk-latin-wght-normal.woff2") format("woff2-variations");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 

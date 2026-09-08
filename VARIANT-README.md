@@ -301,4 +301,68 @@ re-read against BRIEF sections 3, 4, 5 and 10 and walked again in a real browser
   headline late and moves LCP; memory `reference_astro_perf_pagespeed_gotchas`). Same
   files, same axes, no Google Fonts request.
 
+### Stage 3 re-verification (thank-you), 2026-09-08
+
+The workflow re-issued stage 3 against a branch that already carried the LeaderOne clone
+(1d7f87c). Nothing was rebuilt; the page was compared against the reference PNGs in a
+real browser and the defects that reading the shots surfaced were fixed.
+
+- Side by side (`tools/thank-you-compare.mjs`, `tools/shots/compare-{desktop,mobile}.png`,
+  LO's PNGs left, ours right, same 1200 / 390 scales, plus native-scale crops of the hero
+  and the band): topbar (white, logo left, tag + phone right, 64 / 52 px), 6 px brass
+  hairline, 80 px seal, eyebrow, serif H1 with the italic pine tail, four-line lede,
+  paper-2 band with hairlines, three numeral cards (radius 16, padding 28, brass 2.2rem
+  numerals, 18 px serif h3, 14 px copy), ONE centered human card, "Rather not wait?" and
+  the big serif phone all sit at LO's positions within a pixel; type sizes match (H1 54 /
+  35.2 px, H2 36 / 28.8, lede 18, phone 41.6 / 28.8, eyebrow 11.5). Ours runs taller only
+  by the chip row (LO's shot had no summary) and the ILD footer. Palette byte-identical
+  (paper `#f8f6f1`, paper-2 `#efece3`, pine em `rgb(30,74,140)`).
+- Fixed from the shots: (1) with a first name in the H1 the mobile wrap split the italic
+  tail ("the" alone at the end of line two); `.lo-h1 em` is now `white-space: nowrap`, and
+  the tail stays whole at 390 and 320 with a short, a long (Christopher) and no name, zero
+  overflow; (2) `/not-yet` on a phone broke "(855) 545-2022" across two lines in the
+  "Questions in the meantime?" line; the tel link is `whitespace-nowrap`.
+- Suite: `tools/thank-you-shoot.mjs` 86/86 at desktop, mobile and the 1200-wide LO
+  viewport (title, noindex,nofollow, zero gtag / dataLayer, every request on localhost,
+  personalized H1, five chips in order, defaults without a summary, reduced motion, seal
+  drawn, `/not-yet` ILD-safe with "Run it again" -> `/start`, the kick-out's gold link
+  lands on `/not-yet`, zero console errors). `overflow-check` OK on all nine routes at
+  390 and 320; `check-links` PASS (8 html, 107 hrefs); `dist/client` has no zapier /
+  googletagmanager string.
+- Font finding (new, worth reading before the perf stage): `document.fonts.check` said
+  "loaded" while the page painted in Georgia / Segoe. Every first-paint face is
+  `font-display: optional` (BRIEF section 8), so a face that is not ready at first
+  layout is dropped for the page's lifetime, and on `/thank-you` two faces are cold
+  even on the funnel path (`/start` warms the Fraunces roman only). New
+  `tools/thank-you-cold-fonts.mjs` measures what actually paints. What moved the rate:
+  fewer and smaller preloaded files. `scripts/instance-fonts.py` (fontTools) now
+  instances the fontsource files: roman opsz pinned at 72 with wght kept (67 -> 37 KB),
+  italic static 400 (81 -> 23 KB), and Hanken is ONE variable file wght 400..700
+  (`@fontsource-variable/hanken-grotesk` added as a dependency, 23 KB) replacing the four
+  static weights (500 was declared and never used). `/thank-you` preloads exactly those
+  three, Hanken first (the lede and cards paint biggest), and the topbar logo lost its
+  `fetchpriority="high"` (this page's LCP is text). Measured on the built output over the
+  gzip server, machine idle, 8 fresh contexts per regime: funnel path roman 8/8, italic
+  4/8, Hanken 5/8; direct cold hit roman 8/8, italic 6/8, Hanken 8/8. Tried and reverted:
+  declaring the faces earlier (no change), inlining the two cold faces as data URIs in
+  the page sheet (Chrome loads `data:` faces asynchronously too, the rate got worse and
+  the sheet grew 62 KB), immutable vs must-revalidate on the local `/fonts/` (no
+  difference). The remaining miss rate is the `optional` doctrine's cost and the
+  fallback stack is Georgia / Segoe UI; the two untested ways to make the funnel path
+  deterministic are a `vercel.json` immutable header on `/fonts/` plus a `rel=prefetch`
+  of the two cold files on `/start` (Vercel serves `public/` with `max-age=0,
+  must-revalidate`, so today every navigation revalidates the woff2 and even the roman
+  is one RTT from missing), or `font-display: fallback` with metric-matched fallbacks on
+  the two cold faces. Both touch the 90+ gate, so they are the perf stage's call.
+- Topbar: this page keeps its own LO-style white bar (ILD logo + name in LO's NMLS slot,
+  "Texas DSCR loans" tag, phone) rather than the LP's claret notice-bar Topbar. The BRIEF
+  says "the variant's own Topbar (ILD logo + phone)"; the LP bar carries a "Check My
+  Eligibility" CTA the visitor just completed and the notice bar, and Tanner's brief for
+  this page is "almost exactly like the LeaderOne thank-you page". `/start` uses the same
+  slim treatment, so the sequence reads LP -> slim cream bar -> slim white bar.
+- Tools: `thank-you-compare.mjs`, `thank-you-cold-fonts.mjs`, `serve-dist.mjs`
+  `FONT_CACHE=immutable` knob, `scripts/instance-fonts.py`. `fonttools` + `brotli` were
+  installed with `pip install --user` on this machine.
+- Still not on this branch: `/call-prep` (see the stage 3 note above).
+
 ### QA: pending (`QA-REPORT.md`)

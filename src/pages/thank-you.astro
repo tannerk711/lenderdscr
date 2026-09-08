@@ -38,11 +38,14 @@ const description = `Your Texas DSCR eligibility check is in. Keep your phone cl
   description={description}
   noindex
   preloadFonts={[
+    // Exactly three small files (scripts/instance-fonts.py), ordered by what
+    // paints biggest. Every face is font-display: optional, so a face that is
+    // not ready at first layout is dropped for the page; fewer and smaller
+    // preloads are what raise the cold hit rate, and the roman is warm from
+    // /start on the funnel path. tools/thank-you-cold-fonts.mjs measures it.
+    '/fonts/hanken-grotesk-latin-wght-normal.woff2',
     '/fonts/fraunces-latin-standard-normal.woff2',
     '/fonts/fraunces-latin-standard-italic.woff2',
-    '/fonts/hanken-grotesk-latin-400-normal.woff2',
-    '/fonts/hanken-grotesk-latin-600-normal.woff2',
-    '/fonts/hanken-grotesk-latin-700-normal.woff2',
   ]}
 >
   <!-- GOOGLE ADS CONVERSION (LIVE MODE ONLY). Identical gating to the LeaderOne
@@ -83,7 +86,9 @@ const description = `Your Texas DSCR eligibility check is in. Keep your phone cl
     <header class="lo-topbar">
       <div class="lo-topbar-row">
         <a href="/" class="lo-topbar-logo" aria-label={`${brand.name} home`}>
-          <img src={brand.logoSrc} alt="" width="220" height="161" decoding="async" fetchpriority="high" />
+          <!-- no fetchpriority="high" here: this page's LCP is text, and the logo
+               must not compete with the optional-display fonts at first render -->
+          <img src={brand.logoSrc} alt="" width="220" height="161" decoding="async" />
           <span class="lo-topbar-name">{brand.name}</span>
         </a>
         <div class="lo-topbar-right">

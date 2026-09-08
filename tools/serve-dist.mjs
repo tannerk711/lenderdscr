@@ -92,7 +92,12 @@ export function startServer(port = DEFAULT_PORT, opts = {}) {
     const ext = extname(file).toLowerCase();
     let body = await readFile(file);
     const headers = { 'Content-Type': MIME[ext] || 'application/octet-stream' };
-    headers['Cache-Control'] = /[\\/]_astro[\\/]/.test(file) ? 'public, max-age=31536000, immutable' : 'public, max-age=0, must-revalidate';
+    // Vercel parity: hashed /_astro/ assets are immutable, everything else (public/ files
+    // included) is max-age=0 + must-revalidate. opts.immutableFonts (or FONT_CACHE=immutable)
+    // makes /fonts/ immutable too, for A/B diagnostics of preload reuse (thank-you-cold-fonts).
+    const immutableFonts = opts.immutableFonts ?? process.env.FONT_CACHE === 'immutable';
+    const immutable = /[\\/]_astro[\\/]/.test(file) || (immutableFonts && /[\\/]fonts[\\/]/.test(file));
+    headers['Cache-Control'] = immutable ? 'public, max-age=31536000, immutable' : 'public, max-age=0, must-revalidate';
     if (COMPRESSIBLE.has(ext) && /\bgzip\b/.test(String(req.headers['accept-encoding'] || ''))) {
       body = gzipSync(body, { level: 6 });
       headers['Content-Encoding'] = 'gzip';
