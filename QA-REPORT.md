@@ -50,3 +50,7 @@ None. All checks a-g passed on first run; no screenshot defects found. No code c
 
 ## Commit
 This report only. Commit hash: see below (added after commit).
+
+## Lighthouse (mobile, built output over gzip static server, 2026-09-08)
+
+Median of runs 2-3 on /: perf 100, FCP 1.02s, LCP 1.74s, TBT 29ms, CLS 0.000. Gate 90: PASS.
