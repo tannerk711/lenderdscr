@@ -20,7 +20,7 @@ export function Headline({ children }: { children: ReactNode }) {
     <Tag
       data-step-title
       className={[
-        'v1lo-serif v1lo-headline text-center font-semibold text-[#1E3A5F]',
+        'v1lo-serif v1lo-headline text-center font-semibold text-[#122431]',
         embedded ? 'text-[1.55rem] sm:text-[1.95rem]' : 'text-[1.9rem] sm:text-[2.4rem]',
       ].join(' ')}
     >
@@ -31,7 +31,7 @@ export function Headline({ children }: { children: ReactNode }) {
 
 export function SubLine({ children }: { children: ReactNode }) {
   return (
-    <p className="mx-auto mt-3 max-w-[480px] text-center text-[15px] leading-relaxed text-[#5B6B82] sm:text-base">
+    <p className="mx-auto mt-3 max-w-[480px] text-center text-[15px] leading-relaxed text-[#3f6c8c] sm:text-base">
       {children}
     </p>
   );
@@ -39,7 +39,7 @@ export function SubLine({ children }: { children: ReactNode }) {
 
 export function MicroLine({ children }: { children: ReactNode }) {
   return (
-    <p className="mt-4 text-center text-[12px] font-semibold uppercase tracking-[0.2em] text-[#8A5F06] sm:text-[13px]">
+    <p className="mt-4 text-center text-[12px] font-semibold uppercase tracking-[0.2em] text-[#0e7c69] sm:text-[13px]">
       {children}
     </p>
   );
@@ -64,20 +64,20 @@ export function OptionCard({ label, value, micro, icon, selected, onSelect, clas
       data-value={value}
       data-selected={selected ? 'true' : 'false'}
       className={[
-        'v1lo-card flex min-h-[60px] w-full items-center gap-4 rounded-[14px] border border-[#E7E1D2] bg-white px-5 py-4 text-left sm:px-6 sm:py-5',
+        'v1lo-card flex min-h-[60px] w-full items-center gap-4 rounded-[14px] border border-[#dbe5ec] bg-white px-5 py-4 text-left sm:px-6 sm:py-5',
         className ?? '',
       ].join(' ')}
     >
       {icon ? (
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#CBD6E3] bg-[#EEF2F7] text-[#1E3A5F]">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#b8d3e6] bg-[#e3f1fa] text-[#122431]">
           {icon}
         </span>
       ) : null}
       <span className="min-w-0 flex-1">
-        <span className="block text-[16px] font-bold text-[#1E3A5F] sm:text-[17px]">{label}</span>
+        <span className="block text-[16px] font-bold text-[#122431] sm:text-[17px]">{label}</span>
       </span>
       {micro ? (
-        <span className="ml-2 shrink-0 text-right text-[10px] font-semibold uppercase tracking-[0.14em] text-[#526C8C] sm:text-[11px]">
+        <span className="ml-2 shrink-0 text-right text-[10px] font-semibold uppercase tracking-[0.14em] text-[#3f6c8c] sm:text-[11px]">
           {micro}
         </span>
       ) : null}
@@ -101,7 +101,7 @@ export function GoldButton({ children, onClick, disabled, type = 'button', arrow
       onClick={onClick}
       disabled={disabled}
       data-action={action}
-      className="v1lo-gold-btn min-h-[56px] w-full rounded-[14px] px-6 py-4 text-lg font-bold text-[#1E3A5F]"
+      className="v1lo-gold-btn min-h-[56px] w-full rounded-[14px] px-6 py-4 text-lg font-bold text-white"
     >
       <span className="inline-flex items-center justify-center gap-2.5">
         {children}
@@ -117,7 +117,7 @@ export function GoldLink({ href, children }: { href: string; children: ReactNode
     <a
       href={href}
       data-action="not-yet"
-      className="v1lo-gold-btn inline-flex min-h-[56px] w-full items-center justify-center gap-2.5 rounded-[14px] px-6 py-4 text-lg font-bold text-[#1E3A5F] no-underline"
+      className="v1lo-gold-btn inline-flex min-h-[56px] w-full items-center justify-center gap-2.5 rounded-[14px] px-6 py-4 text-lg font-bold text-white no-underline"
     >
       {children}
       <ArrowRight className="h-5 w-5" strokeWidth={2.5} aria-hidden="true" />
@@ -132,7 +132,7 @@ export function BackButton({ onClick, label = 'Back' }: { onClick: () => void; l
         type="button"
         onClick={onClick}
         data-action="back"
-        className="inline-flex min-h-[44px] items-center gap-2 rounded-[6px] px-4 text-[12px] font-semibold uppercase tracking-[0.22em] text-[#706C60] transition-colors hover:text-[#1E3A5F]"
+        className="inline-flex min-h-[44px] items-center gap-2 rounded-[6px] px-4 text-[12px] font-semibold uppercase tracking-[0.22em] text-[#4a6478] transition-colors hover:text-[#122431]"
       >
         <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden="true" />
         {label}
@@ -178,7 +178,7 @@ export function TextField({
       placeholder={placeholder}
       aria-label={ariaLabel}
       className={[
-        'v1lo-input w-full rounded-[14px] px-5 text-[#1E3A5F]',
+        'v1lo-input w-full rounded-[14px] px-5 text-[#122431]',
         centered ? 'text-center' : 'text-left',
         large ? 'py-5 text-xl sm:text-2xl' : 'py-4 text-lg',
       ].join(' ')}
@@ -188,7 +188,7 @@ export function TextField({
 
 export function Chip({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex max-w-full items-center rounded-full border border-[#B9C7D8] bg-white/70 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#526C8C] sm:text-[11px]">
+    <span className="inline-flex max-w-full items-center rounded-full border border-[#b8d3e6] bg-white/70 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#3f6c8c] sm:text-[11px]">
       <span className="truncate">{children}</span>
     </span>
   );
@@ -208,7 +208,7 @@ export function ChipRow({ items }: { items: string[] }) {
 export function ErrorLine({ children }: { children: ReactNode }) {
   if (!children) return null;
   return (
-    <p data-error role="alert" className="mt-4 text-center text-[14px] font-semibold leading-snug text-[#B4432E]">
+    <p data-error role="alert" className="mt-4 text-center text-[14px] font-semibold leading-snug text-[#c9564a]">
       {children}
     </p>
   );

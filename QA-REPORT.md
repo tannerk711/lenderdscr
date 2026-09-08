@@ -61,3 +61,9 @@ The #start hero card now mounts the live V1 form (client:load, embedded). All LP
 
 - `QA_FORM_PATH=/ node tools/form-walk.mjs` (PowerShell): 268/268 checks pass on / at desktop 1440x900 and mobile 390x844. Mobile fold: question + all three options above 844px.
 - Mobile Lighthouse on built output, median of runs 2-4 on /: perf 96, FCP 1.37s, LCP 2.66s, TBT 52ms, CLS 0.000 (was 100 with the static tiles; the delta is React + framer-motion now hydrating the fold). /start 99, /thank-you 99 single runs. Gate 90: PASS.
+
+## Edit 2: ILD theme (2026-09-08)
+
+Recolored from template 4 claret/amber + V1 navy/gold to the live ILD "sky & slate" theme (deep blue #1f78b4, sky #29a3e0 for accents on dark, ink #122431, PMF green action #0e7c69) and ILD's own type pairing (Fraunces display at 600, Hanken Grotesk body). Token names unchanged, values only; Bricolage + Manrope faces dropped, metric fallbacks retargeted to Georgia + Arial. Fresh shoot.mjs sweep read on /, /start, /not-yet, /thank-you: no defects.
+
+- Mobile Lighthouse on built output, median of runs 2-4 on /: perf 98, FCP 1.34s, LCP 2.28s, TBT 23ms, CLS 0.000. /start 99, /thank-you 100. Gate 90: PASS.

@@ -429,12 +429,12 @@ export default function FormV1({ embedded = false }: FormV1Props) {
       <div className={embedded ? 'mx-auto flex w-full max-w-[640px] flex-col' : 'mx-auto flex w-full max-w-[640px] flex-1 flex-col justify-center'}>
         <div className={embedded ? 'mb-7' : 'mb-10'}>
           <div className="mb-2.5 flex items-baseline justify-between">
-            <span className="text-[12px] font-medium uppercase tracking-[0.22em] text-[#636D7C]" data-step-label>
+            <span className="text-[12px] font-medium uppercase tracking-[0.22em] text-[#3f6c8c]" data-step-label>
               Step {shownStep} of {TOTAL_STEPS}
             </span>
-            <span className="text-[12px] font-semibold tracking-[0.18em] text-[#8A5F06] [font-variant-numeric:tabular-nums]">{percent}%</span>
+            <span className="text-[12px] font-semibold tracking-[0.18em] text-[#0e7c69] [font-variant-numeric:tabular-nums]">{percent}%</span>
           </div>
-          <div className="h-[5px] overflow-hidden rounded-full bg-[#E4E0D5]">
+          <div className="h-[5px] overflow-hidden rounded-full bg-[#dbe5ec]">
             <div className="v1lo-progress-fill h-full rounded-full" style={{ width: `${percent}%` }} />
           </div>
         </div>

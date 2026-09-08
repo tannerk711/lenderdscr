@@ -2,8 +2,10 @@
 
 /* ==========================================================================
    Internet Loans Direct variant B (b-t4-v1), on DSCR Funnel Template 4's
-   design system "Civic ledger". Identity kept as designed (Tanner approved
-   every section 2026-09-02); only content and routes changed for ILD.
+   design system "Civic ledger", recolored 2026-09-08 (Tanner: "cohesive with
+   Internet Loans Direct") to the live site's "ILD sky & slate" theme and its
+   Fraunces + Hanken Grotesk pairing. Token NAMES are the template's; VALUES
+   are ILD's (clients/Internet-Loans-Direct/src/styles/global.css).
    Light, authoritative, warm: a well-funded consumer-finance directory,
    not a lead-gen scraper. Depth from layered shadows, never from 1px alone.
 
@@ -14,10 +16,10 @@
      line        hairlines and borders
      ink         text + darkest surfaces
      ink-2       dark band gradient partner
-     brand       primary (claret): bands, links, heading accents, eyebrows
+     brand       primary (ILD deep blue): bands, links, heading accents, eyebrows
      brand-deep  final CTA ground
      brand-soft  tinted chips and icon coins
-     amber       THE action color: buttons, progress fill, highlights
+     amber       THE action color (ILD's PMF green, token name kept): buttons, progress fill
      amber-deep  hover ground for .btn-amber and >= 24px display accents ONLY.
                  Never body, label or link text on paper/sheet/mist (fails AA).
                  Amber as TEXT only on ink / ink-2 / brand-deep.
@@ -26,29 +28,11 @@
    Rules baked in here:
      - every shared component class lives in @layer components (utilities win)
      - headline line-height is set through --tw-leading, never a bare value
-     - no monospace anywhere; data styling = Manrope 600-700, uppercase, tracked
-     - no green, no purple gradients, no glass, no blur filters on hero layers
+     - no monospace anywhere; data styling = Hanken Grotesk 600-700, uppercase, tracked
+     - green only as the action color; no purple gradients, no glass, no blur filters on hero layers
    ========================================================================== */
 
 /* ---------- self-hosted variable fonts (latin only, optional display) ---------- */
-
-@font-face {
-  font-family: "Bricolage Grotesque";
-  font-style: normal;
-  font-weight: 200 800;
-  font-display: optional;
-  src: url("/fonts/bricolage-grotesque-latin-wght-normal.woff2") format("woff2-variations");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-  font-family: "Manrope";
-  font-style: normal;
-  font-weight: 200 800;
-  font-display: optional;
-  src: url("/fonts/manrope-latin-wght-normal.woff2") format("woff2-variations");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
 
 /* Fraunces (serif): the /start form headlines and the thank-you page, from
    @fontsource-variable/fraunces (latin "standard" axis set) instanced by
@@ -99,47 +83,49 @@
    is skipped (font-display: optional on a slow first visit). QA tunes the
    percentages by overlaying web-font vs blocked-font screenshots. */
 @font-face {
-  font-family: "Bricolage Fallback";
-  src: local("Arial");
-  size-adjust: 106%;
-  ascent-override: 94%;
-  descent-override: 24%;
+  font-family: "Fraunces Fallback";
+  src: local("Georgia");
+  size-adjust: 104%;
+  ascent-override: 93%;
+  descent-override: 25%;
   line-gap-override: 0%;
 }
 
 @font-face {
-  font-family: "Manrope Fallback";
-  src: local("Segoe UI");
-  size-adjust: 101%;
-  ascent-override: 100%;
-  descent-override: 27%;
+  font-family: "Hanken Fallback";
+  src: local("Arial");
+  size-adjust: 97%;
+  ascent-override: 95%;
+  descent-override: 25%;
   line-gap-override: 0%;
 }
 
 /* ---------- tokens ---------- */
 
 @theme {
-  --font-display: "Bricolage Grotesque", "Bricolage Fallback", Arial, sans-serif;
-  --font-body: "Manrope", "Manrope Fallback", system-ui, sans-serif;
+  /* ILD's own pairing (clients/Internet-Loans-Direct): Fraunces display, Hanken Grotesk body */
+  --font-display: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  --font-body: "Hanken Grotesk", "Hanken Fallback", "Segoe UI", system-ui, sans-serif;
   /* serif = Fraunces (the /start form + thank-you page); Georgia is the optional-display fallback */
   --font-serif: "Fraunces", Georgia, "Times New Roman", serif;
 
-  --color-paper: #f7f4ee;
+  --color-paper: #f5f8fa;
   --color-sheet: #ffffff;
-  --color-mist: #f1ece6;
-  --color-line: #e3dcd3;
-  --color-ink: #1a1418;
-  --color-ink-2: #2a1f27;
-  --color-brand: #5c1f2e;
-  --color-brand-deep: #3f1420;
-  --color-brand-soft: #f5e7e9;
-  --color-amber: #f2a51a;
-  --color-amber-deep: #c9820a;
-  --color-cream: #f4efe3;
+  --color-mist: #e9eff4;
+  --color-line: #dbe5ec;
+  --color-ink: #122431;
+  --color-ink-2: #17303f;
+  --color-brand: #1f78b4;
+  --color-brand-deep: #15618f;
+  --color-brand-soft: #e3f1fa;
+  --color-amber: #0e7c69;
+  --color-amber-deep: #0b6556;
+  --color-sky: #29a3e0; /* ILD sky blue: accent TEXT on dark grounds (green fails there) */
+  --color-cream: #e9f2f8;
 
-  --shadow-card: 0 1px 2px rgba(26, 20, 24, 0.06), 0 14px 34px -16px rgba(92, 31, 46, 0.28);
-  --shadow-card-lg: 0 2px 4px rgba(26, 20, 24, 0.06), 0 30px 70px -28px rgba(92, 31, 46, 0.38);
-  --shadow-btn: 0 2px 0 rgba(26, 20, 24, 0.12), 0 12px 26px -12px rgba(242, 165, 26, 0.6);
+  --shadow-card: 0 1px 2px rgba(18, 36, 49, 0.06), 0 14px 34px -16px rgba(31, 120, 180, 0.28);
+  --shadow-card-lg: 0 2px 4px rgba(18, 36, 49, 0.06), 0 30px 70px -28px rgba(31, 120, 180, 0.38);
+  --shadow-btn: 0 2px 0 rgba(18, 36, 49, 0.12), 0 12px 26px -12px rgba(14, 124, 105, 0.6);
 
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
 }
@@ -163,8 +149,8 @@ body {
 }
 
 ::selection {
-  background: var(--color-amber);
-  color: var(--color-ink);
+  background: var(--color-brand);
+  color: #ffffff;
 }
 
 :focus-visible {
@@ -204,7 +190,7 @@ body {
 
   .ground-brand-deep {
     background-color: var(--color-brand-deep);
-    background-image: radial-gradient(900px 480px at 50% -10%, rgba(242, 165, 26, 0.16), transparent 62%);
+    background-image: radial-gradient(900px 480px at 50% -10%, rgba(14, 124, 105, 0.16), transparent 62%);
     color: var(--color-cream);
   }
 
@@ -225,7 +211,7 @@ body {
 
   .h-display {
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: 600;
     font-size: clamp(2.4rem, 5.6vw, 4.6rem);
     letter-spacing: -0.008em;
     --tw-leading: 1.15;
@@ -236,7 +222,7 @@ body {
 
   .h-section {
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: 600;
     font-size: clamp(2rem, 4vw, 3.4rem);
     letter-spacing: -0.008em;
     --tw-leading: 1.15;
@@ -246,7 +232,7 @@ body {
 
   .h-step {
     font-family: var(--font-display);
-    font-weight: 700;
+    font-weight: 600;
     font-size: clamp(1.35rem, 2.4vw, 1.7rem);
     letter-spacing: -0.008em;
     --tw-leading: 1.2;
@@ -261,7 +247,7 @@ body {
     font-size: 0.72rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: rgba(26, 20, 24, 0.62);
+    color: rgba(18, 36, 49, 0.62);
   }
 
   .eyebrow {
@@ -280,7 +266,7 @@ body {
     --tw-leading: 1.6;
     line-height: var(--tw-leading);
     max-width: 62ch;
-    color: rgba(26, 20, 24, 0.82);
+    color: rgba(18, 36, 49, 0.82);
   }
 
   .prose-body strong {
@@ -296,7 +282,7 @@ body {
     color: var(--color-brand);
     font-weight: 600;
     text-decoration: underline;
-    text-decoration-color: rgba(92, 31, 46, 0.35);
+    text-decoration-color: rgba(31, 120, 180, 0.35);
     text-underline-offset: 0.18em;
     text-decoration-thickness: 1px;
     transition: text-decoration-color 160ms ease, color 160ms ease;
@@ -328,9 +314,9 @@ body {
   .card-dark {
     position: relative;
     background: linear-gradient(180deg, var(--color-ink-2) 0%, var(--color-ink) 100%);
-    border: 1px solid rgba(244, 239, 227, 0.1);
+    border: 1px solid rgba(233, 242, 248, 0.1);
     border-radius: 18px;
-    box-shadow: inset 0 1px 0 rgba(244, 239, 227, 0.06), 0 30px 70px -28px rgba(0, 0, 0, 0.6);
+    box-shadow: inset 0 1px 0 rgba(233, 242, 248, 0.06), 0 30px 70px -28px rgba(0, 0, 0, 0.6);
     color: var(--color-cream);
   }
 
@@ -363,9 +349,9 @@ body {
     min-height: 3rem;
     padding: 0.85rem 1.6rem;
     border-radius: 12px;
-    border: 1px solid rgba(201, 130, 10, 0.55);
+    border: 1px solid rgba(11, 101, 86, 0.55);
     background: var(--color-amber);
-    color: var(--color-ink);
+    color: #ffffff;
     font-family: var(--font-body);
     font-weight: 700;
     font-size: 1rem;
@@ -381,12 +367,12 @@ body {
   .btn-amber:hover {
     background: var(--color-amber-deep);
     translate: 0 -1px;
-    box-shadow: 0 3px 0 rgba(26, 20, 24, 0.12), 0 18px 32px -12px rgba(242, 165, 26, 0.7);
+    box-shadow: 0 3px 0 rgba(18, 36, 49, 0.12), 0 18px 32px -12px rgba(14, 124, 105, 0.7);
   }
 
   .btn-amber:active {
     translate: 0 1px;
-    box-shadow: 0 1px 0 rgba(26, 20, 24, 0.12), 0 6px 14px -8px rgba(242, 165, 26, 0.5);
+    box-shadow: 0 1px 0 rgba(18, 36, 49, 0.12), 0 6px 14px -8px rgba(14, 124, 105, 0.5);
   }
 
   .btn-amber:disabled {
@@ -447,7 +433,7 @@ body {
     min-height: 3rem;
     padding: 0.8rem 1.4rem;
     border-radius: 12px;
-    border: 1px solid rgba(244, 239, 227, 0.45);
+    border: 1px solid rgba(233, 242, 248, 0.45);
     background: transparent;
     color: var(--color-cream);
     font-family: var(--font-body);
@@ -461,7 +447,7 @@ body {
   }
 
   .btn-ghost-light:hover {
-    background: rgba(244, 239, 227, 0.1);
+    background: rgba(233, 242, 248, 0.1);
     border-color: var(--color-cream);
     translate: 0 -1px;
   }
@@ -477,7 +463,7 @@ body {
     border-radius: 999px;
     background: var(--color-brand-soft);
     color: var(--color-brand);
-    border: 1px solid rgba(92, 31, 46, 0.1);
+    border: 1px solid rgba(31, 120, 180, 0.1);
     transition: background-color 180ms ease, color 180ms ease, scale 220ms var(--ease-out-quart), border-color 180ms ease;
   }
 
@@ -506,7 +492,7 @@ body {
   }
 
   .opt-card:hover {
-    border-color: rgba(92, 31, 46, 0.45);
+    border-color: rgba(31, 120, 180, 0.45);
     translate: 0 -2px;
     box-shadow: var(--shadow-card-lg);
   }
@@ -565,7 +551,7 @@ body {
     background: var(--color-sheet);
     border: 1px solid var(--color-line);
     border-radius: 12px;
-    box-shadow: 0 1px 2px rgba(26, 20, 24, 0.05);
+    box-shadow: 0 1px 2px rgba(18, 36, 49, 0.05);
     color: var(--color-ink);
     font-family: var(--font-body);
     font-weight: 600;
@@ -591,7 +577,7 @@ body {
   }
 
   .opt-btn:hover {
-    border-color: rgba(92, 31, 46, 0.45);
+    border-color: rgba(31, 120, 180, 0.45);
     translate: 0 -1px;
     box-shadow: var(--shadow-card);
   }
@@ -621,7 +607,7 @@ body {
     border-radius: 12px;
     border: 1px solid var(--color-line);
     background: var(--color-sheet);
-    box-shadow: inset 0 1px 2px rgba(26, 20, 24, 0.04);
+    box-shadow: inset 0 1px 2px rgba(18, 36, 49, 0.04);
     font-family: var(--font-body);
     font-size: 1.05rem;
     font-weight: 500;
@@ -630,14 +616,14 @@ body {
   }
 
   .field-input::placeholder {
-    color: rgba(26, 20, 24, 0.38);
+    color: rgba(18, 36, 49, 0.38);
     font-weight: 400;
   }
 
   .field-input:focus {
     outline: none;
     border-color: var(--color-brand);
-    box-shadow: 0 0 0 3px rgba(92, 31, 46, 0.16);
+    box-shadow: 0 0 0 3px rgba(31, 120, 180, 0.16);
   }
 
   /* ----- form: amber range slider (--fill drives the track) ----- */
@@ -677,7 +663,7 @@ body {
     border-radius: 50%;
     background: var(--color-sheet);
     border: 2px solid var(--color-brand);
-    box-shadow: 0 1px 2px rgba(26, 20, 24, 0.18), 0 6px 16px rgba(26, 20, 24, 0.2), 0 0 0 6px rgba(242, 165, 26, 0.22);
+    box-shadow: 0 1px 2px rgba(18, 36, 49, 0.18), 0 6px 16px rgba(18, 36, 49, 0.2), 0 0 0 6px rgba(14, 124, 105, 0.22);
     cursor: grab;
     transition: scale 150ms var(--ease-out-quart);
   }
@@ -688,7 +674,7 @@ body {
     border-radius: 50%;
     background: var(--color-sheet);
     border: 2px solid var(--color-brand);
-    box-shadow: 0 1px 2px rgba(26, 20, 24, 0.18), 0 6px 16px rgba(26, 20, 24, 0.2), 0 0 0 6px rgba(242, 165, 26, 0.22);
+    box-shadow: 0 1px 2px rgba(18, 36, 49, 0.18), 0 6px 16px rgba(18, 36, 49, 0.2), 0 0 0 6px rgba(14, 124, 105, 0.22);
     cursor: grab;
   }
 
@@ -711,8 +697,8 @@ body {
     border-radius: 12px;
     border: 1px solid var(--color-line);
     background: var(--color-sheet);
-    box-shadow: 0 1px 2px rgba(26, 20, 24, 0.05);
-    color: rgba(26, 20, 24, 0.72);
+    box-shadow: 0 1px 2px rgba(18, 36, 49, 0.05);
+    color: rgba(18, 36, 49, 0.72);
     font-size: 0.8rem;
     line-height: 1.55;
     cursor: pointer;
@@ -720,14 +706,14 @@ body {
   }
 
   .tcpa-box:hover {
-    border-color: rgba(92, 31, 46, 0.4);
+    border-color: rgba(31, 120, 180, 0.4);
   }
 
   .tcpa-box.is-consented {
-    border-color: rgba(92, 31, 46, 0.5);
+    border-color: rgba(31, 120, 180, 0.5);
     background: linear-gradient(180deg, #ffffff 0%, var(--color-brand-soft) 100%);
-    box-shadow: inset 3px 0 0 var(--color-brand), 0 1px 2px rgba(26, 20, 24, 0.05);
-    color: rgba(26, 20, 24, 0.86);
+    box-shadow: inset 3px 0 0 var(--color-brand), 0 1px 2px rgba(18, 36, 49, 0.05);
+    color: rgba(18, 36, 49, 0.86);
   }
 
   input[type="checkbox"].tcpa-check {
@@ -780,7 +766,7 @@ body {
     border-radius: 999px;
     background: var(--color-sheet);
     border: 1px solid var(--color-line);
-    box-shadow: 0 1px 2px rgba(26, 20, 24, 0.05);
+    box-shadow: 0 1px 2px rgba(18, 36, 49, 0.05);
     color: var(--color-brand);
     font-family: var(--font-body);
     font-weight: 700;
@@ -805,7 +791,7 @@ body {
     border-radius: 999px;
     border: 1px solid var(--color-line);
     background: transparent;
-    color: rgba(26, 20, 24, 0.55);
+    color: rgba(18, 36, 49, 0.55);
     font-family: var(--font-body);
     font-weight: 700;
     font-size: 0.66rem;
@@ -823,7 +809,7 @@ body {
 
   .phase-pill.is-done {
     background: var(--color-brand-soft);
-    border-color: rgba(92, 31, 46, 0.25);
+    border-color: rgba(31, 120, 180, 0.25);
     color: var(--color-brand);
   }
 
@@ -877,9 +863,9 @@ body {
     z-index: 0;
     background-color: var(--color-paper);
     background-image:
-      radial-gradient(820px 460px at 50% -8%, rgba(92, 31, 46, 0.1), transparent 66%),
-      radial-gradient(560px 320px at 88% 96%, rgba(242, 165, 26, 0.12), transparent 64%),
-      radial-gradient(rgba(26, 20, 24, 0.35) 1px, transparent 1.5px);
+      radial-gradient(820px 460px at 50% -8%, rgba(31, 120, 180, 0.1), transparent 66%),
+      radial-gradient(560px 320px at 88% 96%, rgba(14, 124, 105, 0.12), transparent 64%),
+      radial-gradient(rgba(18, 36, 49, 0.35) 1px, transparent 1.5px);
     background-size: auto, auto, 28px 28px;
     background-position: center top, right bottom, 0 0;
   }
@@ -901,7 +887,7 @@ body {
     left: 0;
     width: 40vw;
     opacity: 0.18;
-    background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.9) 45%, rgba(242, 165, 26, 0.35) 55%, transparent 100%);
+    background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.9) 45%, rgba(14, 124, 105, 0.35) 55%, transparent 100%);
     transform: translateX(-60vw) skewX(-8deg);
     will-change: transform;
     display: none;
@@ -943,7 +929,7 @@ body {
     letter-spacing: 0.14em;
     text-transform: uppercase;
     white-space: nowrap;
-    box-shadow: 0 6px 14px -8px rgba(92, 31, 46, 0.7);
+    box-shadow: 0 6px 14px -8px rgba(31, 120, 180, 0.7);
   }
 
   /* dev-only "SAMPLE" tag on placeholder partners/lenders */
@@ -953,9 +939,9 @@ body {
     padding: 0.22rem 0.55rem;
     border-radius: 6px;
     background: var(--color-ink);
-    color: var(--color-amber);
+    color: var(--color-sky);
     font-family: var(--font-body);
-    font-weight: 800;
+    font-weight: 600;
     font-size: 0.62rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -1031,12 +1017,12 @@ body {
     min-width: calc(var(--digits, 3) * 1ch);
     text-align: right;
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: 600;
     font-size: clamp(3.2rem, 6vw, 5.5rem);
     line-height: 1;
     letter-spacing: -0.008em;
     font-variant-numeric: tabular-nums;
-    color: var(--color-amber);
+    color: var(--color-sky);
   }
 
   .stat-suffix {
@@ -1047,7 +1033,7 @@ body {
     font-size: 0.42em;
     line-height: 1;
     vertical-align: baseline;
-    color: var(--color-amber);
+    color: var(--color-sky);
   }
 
   /* ----- below-fold rendering ----- */

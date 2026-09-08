@@ -8,7 +8,7 @@ interface Props {
   noindex?: boolean;
   ogImage?: string;
   /** First-paint font files to preload (same-origin woff2). The LP preloads
-   *  Bricolage + Manrope; /start preloads Fraunces + Manrope; /thank-you
+   *  Fraunces + Hanken; /start preloads Fraunces + Hanken; /thank-you
    *  preloads Fraunces (normal + italic) + Hanken Grotesk. */
   preloadFonts?: string[];
 }
@@ -18,7 +18,7 @@ const {
   description = seo.description,
   noindex = false,
   ogImage = '/images/og.jpg',
-  preloadFonts = ['/fonts/bricolage-grotesque-latin-wght-normal.woff2', '/fonts/manrope-latin-wght-normal.woff2'],
+  preloadFonts = ['/fonts/fraunces-latin-standard-normal.woff2', '/fonts/hanken-grotesk-latin-wght-normal.woff2'],
 } = Astro.props;
 
 // Canonical without a trailing slash (root stays the bare origin + '/').
@@ -65,7 +65,7 @@ const loadScript = gtagId
     {robots && <meta name="robots" content={robots} />}
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="theme-color" content="#5c1f2e" />
+    <meta name="theme-color" content="#1f78b4" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={brand.name} />

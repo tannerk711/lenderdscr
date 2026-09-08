@@ -5,13 +5,13 @@
    elements (selected-state borders, slider chrome, button gradients).
 
    Changes from the source: Playfair -> Fraunces (self-hosted, opsz 72), Inter ->
-   the brand body face (Manrope via --font-body), plus the slim ILD topbar, the
-   honeypot, and the footer line. Palette is V1's own: cream #F6F3EC ground,
-   navy #1E3A5F, gold #C89334 / #E0B15E. Class prefix v1lo-. */
+   the brand body face (Hanken Grotesk via --font-body), plus the slim ILD topbar, the
+   honeypot, and the footer line. Palette (2026-09-08): ILD sky & slate, cream #e9f2f8 ground,
+   ink #122431, action green #0e7c69 / #12967f. Class prefix v1lo-. */
 
 .v1lo-page {
-  background-color: #f6f3ec;
-  color: #1e3a5f;
+  background-color: #e9f2f8;
+  color: #122431;
 }
 
 .v1lo-root {
@@ -34,7 +34,7 @@
    the moment it took keyboard focus; the radius-less Back button carries its
    own rounded-[6px] instead. */
 .v1lo-root :focus-visible {
-  outline: 2px solid #c89334;
+  outline: 2px solid #0e7c69;
   outline-offset: 2px;
 }
 
@@ -52,8 +52,8 @@
 /* ---------- slim ILD topbar (continuity from the LP) ---------- */
 
 .v1lo-topbar {
-  border-bottom: 1px solid #e4e0d5;
-  background-color: #f6f3ec;
+  border-bottom: 1px solid #dbe5ec;
+  background-color: #e9f2f8;
 }
 
 .v1lo-topbar-row {
@@ -87,18 +87,18 @@
   padding: 0.35rem 0.25rem;
   font-weight: 700;
   font-size: 0.95rem;
-  color: #1e3a5f;
+  color: #122431;
   text-decoration: none;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 
 .v1lo-topbar-call:hover {
-  color: #8a5f06;
+  color: #0e7c69;
 }
 
 .v1lo-topbar-call svg {
-  color: #c89334;
+  color: #0e7c69;
 }
 
 @media (min-width: 768px) {
@@ -122,30 +122,30 @@
   padding: 1rem 1.25rem 1.5rem;
   font-size: 0.75rem;
   line-height: 1.5;
-  color: #706c60;
+  color: #4a6478;
 }
 
 .v1lo-foot a {
-  color: #706c60;
+  color: #4a6478;
   text-decoration: underline;
   text-underline-offset: 0.18em;
-  text-decoration-color: rgba(112, 108, 96, 0.5);
+  text-decoration-color: rgba(74, 100, 120, 0.5);
   padding-block: 0.35rem;
 }
 
 .v1lo-foot a:hover {
-  color: #1e3a5f;
+  color: #122431;
 }
 
 .v1lo-foot .eh-mark {
-  color: #706c60;
+  color: #4a6478;
   font-size: 0.66rem;
 }
 
 /* ---------- option cards ---------- */
 
 .v1lo-card {
-  box-shadow: 0 1px 2px rgba(30, 58, 95, 0.05), 0 4px 14px rgba(30, 58, 95, 0.04);
+  box-shadow: 0 1px 2px rgba(18, 36, 49, 0.05), 0 4px 14px rgba(18, 36, 49, 0.04);
   transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, background-color 0.18s ease;
 }
 
@@ -154,9 +154,9 @@
    the gold border next to the real selection (QA stage, mobile back-nav). */
 @media (hover: hover) {
   .v1lo-card:hover {
-    border-color: #dcc084;
+    border-color: #8fc7bb;
     transform: translateY(-2px);
-    box-shadow: 0 2px 4px rgba(30, 58, 95, 0.06), 0 10px 24px rgba(30, 58, 95, 0.09);
+    box-shadow: 0 2px 4px rgba(18, 36, 49, 0.06), 0 10px 24px rgba(18, 36, 49, 0.09);
   }
 }
 
@@ -165,16 +165,16 @@
 }
 
 .v1lo-card[data-selected="true"] {
-  border-color: #c89334;
-  background-color: #fdf9ef;
-  box-shadow: 0 0 0 1px #c89334, 0 6px 18px rgba(200, 147, 52, 0.16);
+  border-color: #0e7c69;
+  background-color: #eaf6f3;
+  box-shadow: 0 0 0 1px #0e7c69, 0 6px 18px rgba(14, 124, 105, 0.16);
 }
 
 /* ---------- gold gradient CTA ---------- */
 
 .v1lo-gold-btn {
-  background: linear-gradient(180deg, #e0b15e 0%, #c89334 100%);
-  box-shadow: 0 2px 6px rgba(165, 114, 9, 0.25), 0 8px 20px rgba(165, 114, 9, 0.16);
+  background: linear-gradient(180deg, #12967f 0%, #0e7c69 100%);
+  box-shadow: 0 2px 6px rgba(11, 101, 86, 0.25), 0 8px 20px rgba(11, 101, 86, 0.16);
   transition: filter 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
 }
 
@@ -183,7 +183,7 @@
   a.v1lo-gold-btn:hover {
     filter: brightness(1.06);
     transform: translateY(-1px);
-    box-shadow: 0 3px 8px rgba(165, 114, 9, 0.28), 0 12px 26px rgba(165, 114, 9, 0.2);
+    box-shadow: 0 3px 8px rgba(11, 101, 86, 0.28), 0 12px 26px rgba(11, 101, 86, 0.2);
   }
 }
 
@@ -206,8 +206,8 @@ a.v1lo-gold-btn:active {
 
 @media (hover: hover) {
   .v1lo-gold-outline:hover {
-    background-color: rgba(200, 147, 52, 0.09);
-    border-color: #a57209;
+    background-color: rgba(14, 124, 105, 0.09);
+    border-color: #0b6556;
     transform: translateY(-1px);
   }
 }
@@ -215,26 +215,26 @@ a.v1lo-gold-btn:active {
 /* ---------- text inputs ---------- */
 
 .v1lo-input {
-  background-color: #fdfcf7;
-  border: 1px solid #e7e1d2;
+  background-color: #fbfdfe;
+  border: 1px solid #dbe5ec;
   transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
 }
 
 .v1lo-input::placeholder {
-  color: #8f8a7c;
+  color: #7590a6;
 }
 
 @media (hover: hover) {
   .v1lo-input:hover {
-    border-color: #dcc084;
+    border-color: #8fc7bb;
   }
 }
 
 .v1lo-input:focus {
   outline: none;
-  border-color: #c89334;
-  background-color: #fffefa;
-  box-shadow: 0 0 0 3px rgba(200, 147, 52, 0.16);
+  border-color: #0e7c69;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(14, 124, 105, 0.16);
 }
 
 /* ---------- sliders (price, down payment) ---------- */
@@ -255,9 +255,9 @@ a.v1lo-gold-btn:active {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #f0cc8a 0%, #d9a845 55%, #c08a2c 100%);
-  border: 3px solid #1e3a5f;
-  box-shadow: 0 2px 8px rgba(30, 58, 95, 0.3);
+  background: radial-gradient(circle at 35% 30%, #5fc2ae 0%, #12967f 55%, #0e7c69 100%);
+  border: 3px solid #122431;
+  box-shadow: 0 2px 8px rgba(18, 36, 49, 0.3);
   cursor: grab;
 }
 
@@ -269,27 +269,27 @@ a.v1lo-gold-btn:active {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #f0cc8a 0%, #d9a845 55%, #c08a2c 100%);
-  border: 3px solid #1e3a5f;
-  box-shadow: 0 2px 8px rgba(30, 58, 95, 0.3);
+  background: radial-gradient(circle at 35% 30%, #5fc2ae 0%, #12967f 55%, #0e7c69 100%);
+  border: 3px solid #122431;
+  box-shadow: 0 2px 8px rgba(18, 36, 49, 0.3);
   cursor: grab;
 }
 
 .v1lo-slider:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 4px rgba(200, 147, 52, 0.35);
+  box-shadow: 0 0 0 4px rgba(14, 124, 105, 0.35);
 }
 
 /* ---------- consent checkbox ---------- */
 
 .v1lo-check {
-  accent-color: #c89334;
+  accent-color: #0e7c69;
 }
 
 /* ---------- progress fill ---------- */
 
 .v1lo-progress-fill {
-  background: linear-gradient(90deg, #e0b15e 0%, #c89334 100%);
+  background: linear-gradient(90deg, #12967f 0%, #0e7c69 100%);
   transition: width 0.4s ease;
 }
 

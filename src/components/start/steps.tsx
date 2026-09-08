@@ -51,7 +51,7 @@ const PATH_ICONS: Record<PathId, typeof Home> = {
 };
 
 const sliderTrack = (pct: number) =>
-  `linear-gradient(to right, #C89334 0%, #E0B15E ${pct}%, #E4E0D5 ${pct}%, #E4E0D5 100%)`;
+  `linear-gradient(to right, #0e7c69 0%, #12967f ${pct}%, #dbe5ec ${pct}%, #dbe5ec 100%)`;
 
 // Step 1: What are you looking to do?
 export function Step1({ selected, onSelect }: { selected?: PathId; onSelect: (p: PathId) => void }) {
@@ -184,7 +184,7 @@ export function Step5({
     <div data-step="price">
       <Headline>{PRICE_LABELS[path]}</Headline>
       {path === 'buy' ? <SubLine>{PRICE_SUB}</SubLine> : null}
-      <div className="v1lo-serif mt-8 text-center text-[3rem] font-semibold leading-none text-[#1E3A5F] sm:text-[4rem]" data-price-display>
+      <div className="v1lo-serif mt-8 text-center text-[3rem] font-semibold leading-none text-[#122431] sm:text-[4rem]" data-price-display>
         {formatPrice(price)}
       </div>
       <MicroLine>{path === 'buy' ? downMicro : estimateMicro}</MicroLine>
@@ -202,7 +202,7 @@ export function Step5({
           className="v1lo-slider"
           style={{ background: sliderTrack(pct) }}
         />
-        <div className="mt-3 flex items-center justify-between text-[11px] font-medium uppercase tracking-[0.18em] text-[#706C60] [font-variant-numeric:tabular-nums]">
+        <div className="mt-3 flex items-center justify-between text-[11px] font-medium uppercase tracking-[0.18em] text-[#4a6478] [font-variant-numeric:tabular-nums]">
           <span>{fmtUsd(PRICE_MIN)}</span>
           <span>$3M+</span>
         </div>
@@ -240,7 +240,7 @@ export function Step6Buy({
   return (
     <div data-step="secondary" data-fork="down">
       <Headline>{FORK_QUESTIONS.buy.label}</Headline>
-      <div className="v1lo-serif mt-8 text-center text-[3rem] font-semibold leading-none text-[#1E3A5F] sm:text-[4rem]" data-down-display>
+      <div className="v1lo-serif mt-8 text-center text-[3rem] font-semibold leading-none text-[#122431] sm:text-[4rem]" data-down-display>
         {formatDownPct(pct)}
       </div>
       <MicroLine>{dollarLine}</MicroLine>
@@ -258,7 +258,7 @@ export function Step6Buy({
           className="v1lo-slider"
           style={{ background: sliderTrack(trackPct) }}
         />
-        <div className="mt-3 flex items-center justify-between text-[11px] font-medium uppercase tracking-[0.18em] text-[#706C60] [font-variant-numeric:tabular-nums]">
+        <div className="mt-3 flex items-center justify-between text-[11px] font-medium uppercase tracking-[0.18em] text-[#4a6478] [font-variant-numeric:tabular-nums]">
           <span>20%</span>
           <span>50%+</span>
         </div>
@@ -415,7 +415,7 @@ export function Step8({
       <label
         htmlFor="ff-tcpa"
         data-consent={consent ? 'true' : 'false'}
-        className="mt-6 flex cursor-pointer items-start gap-3.5 rounded-[14px] border border-[#DDD8CB] bg-[#FBFAF5] p-4 sm:p-5"
+        className="mt-6 flex cursor-pointer items-start gap-3.5 rounded-[14px] border border-[#dbe5ec] bg-[#f5f8fa] p-4 sm:p-5"
       >
         <input
           id="ff-tcpa"
@@ -425,7 +425,7 @@ export function Step8({
           onChange={(e) => onConsent(e.target.checked)}
           className="v1lo-check mt-0.5 h-5 w-5 shrink-0 cursor-pointer"
         />
-        <span className="text-[13px] leading-relaxed text-[#6B6862]">{CONSENT_TEXT}</span>
+        <span className="text-[13px] leading-relaxed text-[#4a6478]">{CONSENT_TEXT}</span>
       </label>
       <ErrorLine>{error}</ErrorLine>
       <div className="mt-6">
@@ -443,7 +443,7 @@ export function KickoutScreen({ onBack }: { onBack: () => void }) {
   return (
     <div className="text-center" data-step="kickout">
       <Headline>{KICKOUT.headline}</Headline>
-      <p className="mx-auto mt-5 max-w-[480px] text-[15px] leading-relaxed text-[#5B6B82] sm:text-base">{KICKOUT.body}</p>
+      <p className="mx-auto mt-5 max-w-[480px] text-[15px] leading-relaxed text-[#3f6c8c] sm:text-base">{KICKOUT.body}</p>
       <div className="mx-auto mt-9 max-w-[420px]">
         <GoldLink href={KICKOUT.linkHref}>{KICKOUT.linkLabel}</GoldLink>
       </div>
@@ -452,7 +452,7 @@ export function KickoutScreen({ onBack }: { onBack: () => void }) {
           type="button"
           onClick={onBack}
           data-action="back"
-          className="v1lo-gold-outline min-h-[52px] rounded-[14px] border-2 border-[#C89334] bg-transparent px-8 py-3.5 text-[16px] font-bold text-[#1E3A5F]"
+          className="v1lo-gold-outline min-h-[52px] rounded-[14px] border-2 border-[#0e7c69] bg-transparent px-8 py-3.5 text-[16px] font-bold text-[#122431]"
         >
           {KICKOUT.backLabel}
         </button>
