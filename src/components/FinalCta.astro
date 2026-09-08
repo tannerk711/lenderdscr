@@ -1,0 +1,40 @@
+---
+// Persistent final CTA on the brand-deep ground. The inner wrapper carries
+// data-persist (motion.ts excludes it from reverse/kill paths and uses it as
+// the IntersectionObserver target that hides StickyCta) and data-stagger.
+// NEVER .cv-auto here.
+import { brand, cta } from '../config/site';
+import Icon from './Icon.astro';
+---
+
+<section class="ground-brand-deep relative">
+  <div class="seam" data-seam></div>
+
+  <div class="container-x py-24 lg:py-32" data-persist data-stagger>
+    <div class="max-w-3xl">
+      <h2 class="h-section" data-reveal="clip-up" data-child>{cta.final.heading}</h2>
+      <p class="prose-body fc-body mt-5" data-child>{cta.final.body}</p>
+      <div class="mt-10 flex flex-wrap items-center gap-4" data-child>
+        <a href="#start" data-scroll-to="#start" class="btn-amber" data-magnet>
+          {cta.primary}
+          <Icon name="arrow" size={18} />
+        </a>
+        {
+          brand.phone && (
+            <a href={brand.phoneHref} class="btn-ghost-light">
+              <Icon name="phone" size={18} />
+              {brand.phone}
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .fc-body {
+    color: rgba(244, 239, 227, 0.82);
+    max-width: 52ch;
+  }
+</style>

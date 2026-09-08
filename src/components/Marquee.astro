@@ -1,0 +1,18 @@
+---
+// Marquee: oversized horizontal scrub text. Track starts at translateX(-4%)
+// (set by .marquee-track in global.css) and motion.ts scrubs it to -28% via
+// data-marquee. Text repeats 4x: repeats 2-4 aria-hidden, repeats 2 and 4
+// outlined on >= 1024px only. NEVER .cv-auto (scrub geometry). Both modes.
+import { marqueeText } from '../config/site';
+---
+
+<section class="ground-paper">
+  <div class="marquee-wrap">
+    <div class="marquee-track" data-marquee="-28">
+      <span class="marquee-text">{marqueeText}</span>
+      <span class="marquee-text is-outline" aria-hidden="true">{marqueeText}</span>
+      <span class="marquee-text" aria-hidden="true">{marqueeText}</span>
+      <span class="marquee-text is-outline" aria-hidden="true">{marqueeText}</span>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,111 @@
+---
+// The composed funnel page (BRIEF section 10 composition table). Rendered by
+// `/` and by every `/dscr-loans/[state]` route (fixedState set). Every section
+// owns its own ground, reveal carrier and .cv-auto; nothing is double-wrapped.
+import Layout from '../layouts/Layout.astro';
+import Topbar from './Topbar.astro';
+import HeroForm from './HeroForm.astro';
+import TrustBand from './TrustBand.astro';
+import Marquee from './Marquee.astro';
+import Partners from './Partners.astro';
+import LenderPicks from './LenderPicks.astro';
+import StatsBand from './StatsBand.astro';
+import Advantages from './Advantages.astro';
+import HowItWorks from './HowItWorks.astro';
+import Faq from './Faq.astro';
+import FinalCta from './FinalCta.astro';
+import Footer from './Footer.astro';
+import StickyCta from './StickyCta.astro';
+import { site, seo, hero, stateCopy, lenders } from '../config/site';
+import type { StateEntry } from '../data/states';
+
+interface Props {
+  /** Set by /dscr-loans/[state]: pre-selects the state and swaps the copy tokens. */
+  fixedState?: StateEntry;
+}
+
+const { fixedState } = Astro.props;
+const network = site.mode === 'network';
+
+// Mirrors LenderPicks' own render condition: when it renders, IT owns
+// id="advertiser-disclosure" and the Footer must not duplicate the id.
+const lenderPicksVisible =
+  network && (import.meta.env.PROD ? lenders.some((l) => !l.placeholder && l.verified === true) : lenders.length > 0);
+
+// Copy tokens: default hero/seo, or the state tokens from BRIEF 2b.
+const sc = fixedState ? stateCopy(fixedState.name, fixedState.blurb) : null;
+const title = sc ? sc.title : seo.title;
+const description = sc ? sc.description : seo.description;
+const h1 = sc ? (site.showYearInH1 ? sc.h1 : sc.h1.replace(` ${site.year}`, '')) : hero.h1;
+const sub = sc ? sc.sub : network ? hero.subNetwork : hero.subLender;
+const intro = sc?.intro ?? '';
+
+// The island prop stays tiny and serializable: name/abbr/slug only (blurbs
+// never reach the client bundle).
+const formState = fixedState
+  ? { name: fixedState.name, abbr: fixedState.abbr, slug: fixedState.slug }
+  : undefined;
+---
+
+<Layout title={title} description={description} noindex={false}>
+  <Topbar />
+  <main id="main">
+    <HeroForm h1={h1} sub={sub} fixedState={formState} />
+    <TrustBand />
+
+    {fixedState && (
+      <section class="ground-paper state-intro" aria-labelledby="state-intro-heading">
+        <div class="container-x">
+          <div class="state-intro-inner" data-reveal="slide-left" data-stagger>
+            <p class="eyebrow" data-child>DSCR loans in {fixedState.name}</p>
+            <h2 id="state-intro-heading" class="h-step" data-child>
+              Rental property loans in {fixedState.name}, qualified on the rent
+            </h2>
+            <p class="prose-body" data-child>{intro}</p>
+            <p class="state-intro-links" data-child>
+              <a href="#start" class="link" data-scroll-to="#start">Check your {fixedState.name} eligibility</a>
+              <span aria-hidden="true">·</span>
+              <a href="/dscr-loans" class="link">All states</a>
+            </p>
+          </div>
+        </div>
+      </section>
+    )}
+
+    <Marquee />
+    {network && <Partners />}
+    {network && <LenderPicks />}
+    <StatsBand />
+    <Advantages />
+    <HowItWorks />
+    <Faq />
+    <FinalCta />
+  </main>
+  <Footer disclosureAnchor={!lenderPicksVisible} />
+  <StickyCta />
+  <script>
+    import '../scripts/motion.ts';
+  </script>
+</Layout>
+
+<style>
+  /* Private decor only (shared classes live in global.css). No @layer here. */
+  .state-intro {
+    padding-block: clamp(2.5rem, 6vw, 4.5rem);
+  }
+
+  .state-intro-inner {
+    display: grid;
+    gap: 0.9rem;
+    max-width: 62ch;
+  }
+
+  .state-intro-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.95rem;
+    color: rgba(26, 20, 24, 0.55);
+  }
+</style>

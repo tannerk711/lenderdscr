@@ -1,0 +1,67 @@
+---
+// The hero IS the form (BRIEF section 6). Static H1 (the LCP element, never
+// animated), sub line (desktop only), the #start card with the React island,
+// and the ONE fine-print line under the card (section 4 placement rule b).
+// Nothing inside #start ever receives GSAP / tilt / entrance motion.
+import EligibilityForm from './EligibilityForm';
+import Icon from './Icon.astro';
+import { site, legal, housingPhrase } from '../config/site';
+import type { StateEntry } from '../data/states';
+
+interface Props {
+  fixedState?: StateEntry;
+  h1: string;
+  sub: string;
+  /** Anchor for the under-form "Advertiser Disclosure" link (network only). */
+  disclosureHref?: string;
+}
+
+const { fixedState, h1, sub, disclosureHref = '#advertiser-disclosure' } = Astro.props;
+const isNetwork = site.mode === 'network';
+---
+
+<section class="relative" aria-labelledby="hero-h1">
+  <div class="hero-atmo" aria-hidden="true"></div>
+
+  <div class="container-x relative z-10 pt-5 pb-10 md:pt-14 md:pb-16">
+    <div class="mx-auto max-w-4xl text-center">
+      <h1 id="hero-h1" class="h-display">{h1}</h1>
+      <p class="prose-body mx-auto mt-4 hidden text-center md:block">{sub}</p>
+    </div>
+
+    <div id="start" class="card-lg mx-auto mt-5 w-full max-w-[52rem] scroll-mt-4 p-4 sm:p-6 md:mt-9 md:p-8">
+      <EligibilityForm client:load fixedState={fixedState} />
+    </div>
+
+    <p class="mx-auto mt-4 flex max-w-[52rem] flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-[0.78rem] leading-snug text-ink/60">
+      <span>{legal.underForm}</span>
+      <span class="eh-mark" role="img" aria-label={housingPhrase}>
+        <Icon name="equal-housing" />
+        <span>{housingPhrase}</span>
+      </span>
+      {isNetwork && (
+        <a href={disclosureHref} class="link">
+          Advertiser Disclosure
+        </a>
+      )}
+    </p>
+  </div>
+</section>
+
+<!-- Preselect: any [data-goal] element (usually <a href="#start" data-goal="purchase"
+     data-scroll-to="#start">) stamps the goal on #start (covers a pre-hydration
+     click; the island reads it on mount) AND fires 'funnel:preselect' for a
+     hydrated island. The click itself is not prevented, so the anchor jump /
+     motion.ts Lenis scroll still happens. -->
+<script is:inline>
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    var el = t && t.closest ? t.closest('[data-goal]') : null;
+    if (!el) return;
+    var goal = el.getAttribute('data-goal');
+    if (!goal) return;
+    var start = document.getElementById('start');
+    if (start) start.dataset.preselect = goal;
+    document.dispatchEvent(new CustomEvent('funnel:preselect', { detail: goal, bubbles: true }));
+  });
+</script>

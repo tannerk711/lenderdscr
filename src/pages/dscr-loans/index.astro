@@ -1,0 +1,237 @@
+---
+// Directory hub: every state page in a grid. Indexable; linked from the
+// footer and from every state page. No motion spine on this page.
+import Layout from '../../layouts/Layout.astro';
+import Topbar from '../../components/Topbar.astro';
+import Footer from '../../components/Footer.astro';
+import Icon from '../../components/Icon.astro';
+import { brand, site, specs, cta } from '../../config/site';
+import { states } from '../../data/states';
+
+const title = `DSCR Loans by State | ${brand.name}`;
+// Describes the directory, never availability (a zero-verified-lender default
+// build cannot stand behind an "available in all 51 jurisdictions" claim).
+const description = `DSCR loan eligibility by state. Pick your state to check your ${site.year} eligibility: 620 minimum credit, no tax returns, close in your LLC.`;
+---
+
+<Layout title={title} description={description}>
+  <Topbar />
+  <main id="main">
+    <section class="hub-hero ground-paper">
+      <div class="container-x">
+        <p class="eyebrow">Directory</p>
+        <h1 class="h-display hub-h1">DSCR Loans by State</h1>
+        <p class="prose-body hub-intro">
+          A DSCR loan qualifies on the property's rent, not your tax returns, and the
+          programs available depend on where the property sits. Pick the state below and
+          the eligibility check starts with that state already filled in. It takes about
+          a minute and never touches your credit.
+        </p>
+        <ul class="hub-specs" aria-label="Program specs">
+          {specs.map((s) => (
+            <li>
+              <span class="opt-coin hub-coin"><Icon name={s.icon} size={18} /></span>
+              <span>{s.label}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <section class="hub-grid-wrap ground-mist" aria-labelledby="hub-grid-heading">
+      <div class="container-x">
+        <h2 id="hub-grid-heading" class="label hub-grid-label">All 50 states and DC</h2>
+        <ul class="hub-grid">
+          {states.map((st) => (
+            <li>
+              <a href={`/dscr-loans/${st.slug}`} class="hub-link">
+                <span class="hub-abbr" aria-hidden="true">{st.abbr}</span>
+                <span class="hub-name">{st.name}</span>
+                <span class="hub-arrow" aria-hidden="true"><Icon name="arrow" size={16} /></span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <section class="hub-cta ground-brand-deep">
+      <div class="container-x hub-cta-inner">
+        <div>
+          <p class="hub-cta-eyebrow">Not sure where to start?</p>
+          <h2 class="h-section">Run the check from the home page.</h2>
+          <p class="hub-cta-body">
+            Same questions, any state. Answer a few things about the property and see which
+            DSCR lenders fit the deal. No obligation.
+          </p>
+        </div>
+        <a href="/#start" class="btn-amber hub-cta-btn">{cta.primary}</a>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  /* Private decor only. Shared classes live in global.css; no @layer here. */
+  .hub-hero {
+    padding-block: clamp(3rem, 8vw, 6rem) clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .hub-h1 {
+    margin-top: 0.75rem;
+    max-width: 14ch;
+  }
+
+  .hub-intro {
+    margin-top: 1.25rem;
+  }
+
+  .hub-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+    margin-top: 1.75rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .hub-specs li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: rgba(26, 20, 24, 0.8);
+  }
+
+  .hub-coin {
+    width: 34px;
+    height: 34px;
+  }
+
+  .hub-grid-wrap {
+    padding-block: clamp(2.5rem, 6vw, 4.5rem);
+  }
+
+  .hub-grid-label {
+    margin-bottom: 1.25rem;
+  }
+
+  .hub-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 640px) {
+    .hub-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hub-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .hub-link {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-height: 3.25rem;
+    padding: 0.6rem 0.8rem 0.6rem 0.6rem;
+    border-radius: 12px;
+    border: 1px solid var(--color-line);
+    background: var(--color-sheet);
+    box-shadow: 0 1px 2px rgba(26, 20, 24, 0.05);
+    color: var(--color-ink);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: border-color 160ms ease, box-shadow 200ms var(--ease-out-quart), translate 200ms var(--ease-out-quart);
+  }
+
+  .hub-link:hover {
+    border-color: rgba(92, 31, 46, 0.45);
+    box-shadow: var(--shadow-card);
+    translate: 0 -1px;
+  }
+
+  .hub-link:hover .hub-arrow {
+    color: var(--color-brand);
+    translate: 2px 0;
+  }
+
+  .hub-abbr {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 8px;
+    background: var(--color-brand-soft);
+    color: var(--color-brand);
+    font-weight: 800;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+  }
+
+  .hub-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hub-arrow {
+    flex: none;
+    display: inline-flex;
+    color: rgba(26, 20, 24, 0.35);
+    transition: color 160ms ease, translate 200ms var(--ease-out-quart);
+  }
+
+  .hub-cta {
+    padding-block: clamp(3rem, 7vw, 5.5rem);
+  }
+
+  .hub-cta-inner {
+    display: grid;
+    gap: 1.75rem;
+    align-items: center;
+  }
+
+  @media (min-width: 900px) {
+    .hub-cta-inner {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 3rem;
+    }
+  }
+
+  .hub-cta-eyebrow {
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-amber);
+    margin-bottom: 0.9rem;
+  }
+
+  .hub-cta-body {
+    margin-top: 1rem;
+    max-width: 52ch;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: rgba(244, 239, 227, 0.82);
+  }
+
+  .hub-cta-btn {
+    justify-self: start;
+    padding-inline: 2rem;
+  }
+</style>

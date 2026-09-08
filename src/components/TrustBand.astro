@@ -1,0 +1,120 @@
+---
+// TrustBand: claret band with the three spec-sheet claims + the amber-strip
+// CTA. Reveal carrier is the inner .container-x (data-stagger); each item is
+// [data-child][data-reveal="fade-up"]. NEVER .cv-auto (can sit in the first
+// desktop viewport). Renders in both modes.
+import { specs, trustStrip } from '../config/site';
+import Icon from './Icon.astro';
+---
+
+<section class="ground-brand trust-band">
+  <div class="container-x" data-stagger>
+    <div class="tb-specs">
+      {specs.map((s) => (
+        <div class="tb-spec" data-child data-reveal="fade-up">
+          <span class="tb-coin"><Icon name={s.icon} size={26} /></span>
+          <span class="tb-spec-label">{s.label}</span>
+        </div>
+      ))}
+    </div>
+
+    <div class="tb-strip" data-child data-reveal="fade-up">
+      <p class="tb-strip-text">{trustStrip.text}</p>
+      <a href="#start" data-scroll-to="#start" class="btn-amber">{trustStrip.cta}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .trust-band {
+    padding-block: clamp(2.75rem, 6vw, 4.5rem);
+  }
+
+  .tb-specs {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .tb-spec {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .tb-coin {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 56px;
+    height: 56px;
+    border-radius: 999px;
+    background: rgba(244, 239, 227, 0.08);
+    border: 1px solid rgba(244, 239, 227, 0.28);
+    color: var(--color-cream);
+    box-shadow: inset 0 1px 0 rgba(244, 239, 227, 0.12);
+  }
+
+  .tb-spec-label {
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.3;
+    color: var(--color-cream);
+    /* never split "W-2s" at the hyphen: balance picks the space break */
+    text-wrap: balance;
+  }
+
+  .tb-strip {
+    margin-top: clamp(1.75rem, 4vw, 2.75rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.2rem 1.5rem;
+    border-radius: 16px;
+    background: var(--color-brand-deep);
+    border: 1px solid rgba(244, 239, 227, 0.14);
+    box-shadow: inset 0 1px 0 rgba(244, 239, 227, 0.08), 0 24px 50px -28px rgba(0, 0, 0, 0.55);
+    text-align: center;
+  }
+
+  .tb-strip-text {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+    line-height: 1.25;
+    letter-spacing: -0.008em;
+    color: var(--color-cream);
+    text-wrap: balance;
+  }
+
+  @media (min-width: 768px) {
+    .tb-specs {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .tb-spec {
+      flex-direction: column;
+      text-align: center;
+      gap: 0.8rem;
+    }
+
+    .tb-spec-label {
+      max-width: 16ch;
+    }
+
+    .tb-strip {
+      flex-direction: row;
+      text-align: left;
+      gap: 1.75rem;
+      padding: 1.3rem 2rem;
+    }
+
+    .tb-strip-text {
+      margin-right: auto;
+    }
+  }
+</style>

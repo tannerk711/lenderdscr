@@ -1,0 +1,17 @@
+---
+// One page per US state (+DC). The state is pre-selected in the form, the
+// copy tokens swap to the state variant (BRIEF 2b), and the intro paragraph
+// comes from state-blurbs.ts (fallback: site.stateIntroFallback).
+import LandingPage from '../../components/LandingPage.astro';
+import { states, type StateEntry } from '../../data/states';
+import { stateBlurb } from '../../data/state-blurbs';
+
+export function getStaticPaths() {
+  return states.map((state) => ({ params: { state: state.slug }, props: { state } }));
+}
+
+const { state } = Astro.props as { state: StateEntry };
+const fixedState: StateEntry = { ...state, blurb: stateBlurb(state.slug) };
+---
+
+<LandingPage fixedState={fixedState} />

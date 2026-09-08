@@ -1,116 +1,135 @@
-// TCPA gate test. Drives the real form to the phone step and asserts:
-//   1. the checkbox exists, starts UNCHECKED, and sits ABOVE the submit button
-//   2. submitting unchecked is blocked and fires NO network call
-//   3. checking it and submitting fires exactly one POST carrying the full
-//      consent record (flag + verbatim text + timestamp + url)
-// Run with the dev server up: node tools/tcpa-test.mjs
-import puppeteer from 'puppeteer-core';
-import { fileURLToPath } from 'node:url';
-import { mkdirSync } from 'node:fs';
+// TCPA gate test (BRIEF section 13). Drives the real form to the phone step at 390x844 and asserts:
+//   1. #ff-tcpa exists and starts UNCHECKED
+//   2. its <label class="tcpa-box"> sits ABOVE [data-action=submit] in DOM order AND visually
+//   3. submitting unchecked fires ZERO POSTs to /api/lead and shows a [data-error] containing "consent box"
+//   4. checked submit fires exactly one POST whose body carries the full consent record:
+//      tcpaConsent true, tcpaConsentText non-empty with no substring "mode", ISO tcpaConsentAt,
+//      tcpaConsentUrl, tcpaConsentMode, tcpaConsentParties.length >= 1
+//   5. the rendered label text contains the shipped tcpaConsentText (record and legal text cannot desync)
+// The POST is intercepted and stubbed; no webhook is ever hit.
+//
+//   CI=true npm run dev ; node tools/tcpa-test.mjs
+import {
+  QA_BASE,
+  VIEWPORTS,
+  readSiteConfig,
+  launchBrowser,
+  openPage,
+  walkPurchase,
+  clickAction,
+  toggleTcpa,
+  visibleError,
+  makeChecker,
+  ensureShots,
+  shotPath,
+  norm,
+  settle,
+} from './qa-lib.mjs';
 
-const base = process.env.ILD_BASE || 'http://localhost:4321';
-const outDir = fileURLToPath(new URL('./shots/', import.meta.url));
-mkdirSync(outDir, { recursive: true });   // shots/ is gitignored, so it may not exist on a fresh clone
+const site = readSiteConfig();
+const vp = VIEWPORTS.mobile;
+const { check, summary } = makeChecker();
+const errors = [];
+ensureShots();
+console.log(`tcpa-test: ${QA_BASE}  brand "${site.brandName}"  mode ${site.mode}\n`);
 
-const browser = await puppeteer.launch({
-  executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-  headless: 'new',
-  args: ['--hide-scrollbars', '--force-color-profile=srgb'],
-});
+const browser = await launchBrowser(vp);
+let exit = 1;
+try {
+  const posts = [];
+  const page = await openPage(browser, '/', { vp, errors, posts });
+  await walkPurchase(page, { consent: false });
 
-const page = await browser.newPage();
-await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
+  // 1. exists + unchecked
+  const initial = await page.evaluate(() => {
+    const cb = document.querySelector('#ff-tcpa');
+    return cb ? { found: true, checked: cb.checked, type: cb.type } : { found: false };
+  });
+  check('#ff-tcpa exists', initial.found);
+  check('#ff-tcpa is a native checkbox', initial.type === 'checkbox', String(initial.type));
+  check('#ff-tcpa starts UNCHECKED', initial.found && initial.checked === false);
 
-const posts = [];
-await page.setRequestInterception(true);
-page.on('request', (r) => {
-  if (r.url().includes('/api/lead') && r.method() === 'POST') {
-    posts.push(JSON.parse(r.postData() || '{}'));
-    r.respond({ status: 200, contentType: 'application/json', body: '{"ok":true}' });
-    return;
-  }
-  r.continue();
-});
+  // 2. label above submit, DOM order + visually
+  const pos = await page.evaluate(() => {
+    const cb = document.querySelector('#ff-tcpa');
+    const label = cb?.closest('label.tcpa-box') || cb?.closest('label');
+    const btn = document.querySelector('#start [data-action="submit"]');
+    if (!cb || !label || !btn) return { missing: `${!cb ? '#ff-tcpa ' : ''}${!label ? 'label ' : ''}${!btn ? '[data-action=submit]' : ''}`.trim() };
+    const lr = label.getBoundingClientRect();
+    const br = btn.getBoundingClientRect();
+    return {
+      domBefore: !!(label.compareDocumentPosition(btn) & Node.DOCUMENT_POSITION_FOLLOWING),
+      labelBottom: Math.round(lr.bottom),
+      buttonTop: Math.round(br.top),
+      visuallyAbove: lr.bottom <= br.top + 1,
+      labelIsTcpaBox: label.classList.contains('tcpa-box'),
+      labelText: label.textContent,
+    };
+  });
+  check('tcpa label + submit button found', !pos.missing, pos.missing || '');
+  check('label is <label class="tcpa-box"> wrapping #ff-tcpa', pos.labelIsTcpaBox === true);
+  check('label precedes submit in DOM order', pos.domBefore === true);
+  check('label sits visually above submit', pos.visuallyAbove === true, `label bottom ${pos.labelBottom} vs button top ${pos.buttonTop}`);
+  await page.screenshot({ path: shotPath('tcpa', 'phone-step') });
 
-const settle = (ms) => new Promise((r) => setTimeout(r, ms));
-const clickByText = async (text) => {
-  const ok = await page.evaluate((t) => {
-    const btns = [...document.querySelectorAll('#eligibility button')];
-    const b = btns.find((x) => x.textContent.toLowerCase().includes(t.toLowerCase()));
-    if (b) { b.click(); return true; }
-    return false;
-  }, text);
-  if (!ok) console.log('CLICK MISS:', text);
-  await settle(700);
-};
+  // 3. unchecked submit is blocked
+  const urlBefore = page.url();
+  await clickAction(page, 'submit');
+  await settle(1200);
+  check('unchecked submit -> zero POSTs to /api/lead', posts.length === 0, `${posts.length} posts`);
+  check('unchecked submit -> no navigation', page.url() === urlBefore, page.url());
+  const err = await visibleError(page);
+  check('visible [data-error] contains "consent box"', /consent box/i.test(err), err || 'NO VISIBLE ERROR');
+  if (site.errors.consent) check('error text equals form.errors.consent', norm(err) === norm(site.errors.consent), `config: "${site.errors.consent}"`);
+  const stillUnchecked = await page.evaluate(() => document.querySelector('#ff-tcpa')?.checked);
+  check('checkbox still unchecked after blocked submit', stillUnchecked === false);
+  await page.screenshot({ path: shotPath('tcpa', 'blocked') });
 
-await page.goto(base, { waitUntil: 'networkidle0', timeout: 30000 });
-await settle(1200);
+  // 4. checked submit goes through with the consent record
+  const beforeClick = Date.now();
+  const checked = await toggleTcpa(page);
+  check('clicking #ff-tcpa checks it', checked === true, String(checked));
+  const consented = await page.evaluate(() => document.querySelector('#ff-tcpa')?.closest('label')?.classList.contains('is-consented'));
+  if (consented !== true) console.log('      WARN label did not gain .is-consented after the click');
+  await settle(200);
+  const nav = page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 15000 }).catch(() => null);
+  await clickAction(page, 'submit');
+  const deadline = Date.now() + 10000;
+  while (posts.length === 0 && Date.now() < deadline) await settle(200);
+  await nav;
+  check('checked submit -> exactly one POST', posts.length === 1, `${posts.length} posts`);
 
-const fillInput = async (idx, val) => {
-  await page.evaluate(({ i, v }) => {
-    const inputs = [...document.querySelectorAll('#eligibility input')].filter((el) => el.id !== 'ff-company');
-    const s = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-    s.call(inputs[i], v);
-    inputs[i].dispatchEvent(new Event('input', { bubbles: true }));
-  }, { i: idx, v: val });
-  await settle(300);
-};
-// PMF-model flow (2026-08-24): goal -> property -> credit -> price -> down -> name/email -> phone
-await clickByText('Purchase');
-await clickByText('Single Family');
-await clickByText('700');
-await clickByText('Continue');   // price
-await clickByText('Continue');   // down payment
-await fillInput(0, 'GateTest');
-await fillInput(1, 'tanner@creloanpro.com');
-await clickByText('Continue');
-await settle(600);
+  const p = posts[0] || {};
+  const text = String(p.tcpaConsentText ?? '');
+  check('tcpaConsent === true', p.tcpaConsent === true, String(p.tcpaConsent));
+  check('tcpaConsentText non-empty', text.length > 50, `${text.length} chars`);
+  check('tcpaConsentText contains no substring "mode"', !/mode/i.test(text));
+  check('tcpaConsentText carries the automated-technology clause', /automated technology/i.test(text) && /prerecorded/i.test(text));
+  const at = String(p.tcpaConsentAt ?? '');
+  const atMs = Date.parse(at);
+  check('tcpaConsentAt is an ISO timestamp', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(at) && Number.isFinite(atMs), at);
+  check('tcpaConsentAt stamped at the click (not at submit/load)', Number.isFinite(atMs) && atMs >= beforeClick - 2000 && atMs <= Date.now() + 2000, at);
+  check('tcpaConsentUrl is an http(s) URL', /^https?:\/\//.test(String(p.tcpaConsentUrl)), String(p.tcpaConsentUrl));
+  check('tcpaConsentMode present', typeof p.tcpaConsentMode === 'string' && p.tcpaConsentMode.length > 0, String(p.tcpaConsentMode));
+  if (p.tcpaConsentMode && p.tcpaConsentMode !== site.mode) console.log(`      WARN tcpaConsentMode "${p.tcpaConsentMode}" != site.mode "${site.mode}"`);
+  check('tcpaConsentParties.length >= 1', Array.isArray(p.tcpaConsentParties) && p.tcpaConsentParties.length >= 1, JSON.stringify(p.tcpaConsentParties));
+  check('partial === false', p.partial === false);
+  check('phone is 10 digits', /^\d{10}$/.test(String(p.phone)), String(p.phone));
 
-// phone
-await page.evaluate(() => {
-  const tel = document.querySelector('#eligibility input[type=tel]');
-  const s = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-  s.call(tel, '8555452022');
-  tel.dispatchEvent(new Event('input', { bubbles: true }));
-});
-await settle(500);
+  // 5. label text matches the shipped record
+  check('rendered label contains the shipped tcpaConsentText', text.length > 0 && norm(pos.labelText).includes(norm(text)));
 
-const initial = await page.$eval('#ff-tcpa', (el) => el.checked).catch(() => 'NOT FOUND');
-console.log('checkbox initial checked =', initial, '(expect false)');
+  console.log(`\nlanded on: ${page.url()}`);
+  await page.close();
 
-const order = await page.evaluate(() => {
-  const cb = document.querySelector('#ff-tcpa');
-  const btn = [...document.querySelectorAll('#eligibility button')].find((b) => b.textContent.includes('Check My Eligibility'));
-  if (!cb || !btn) return 'missing';
-  return cb.getBoundingClientRect().top < btn.getBoundingClientRect().top ? 'ABOVE' : 'BELOW';
-});
-console.log('checkbox is', order, 'the submit button (expect ABOVE)');
-await page.screenshot({ path: `${outDir}tcpa-mobile-phone-step.png` });
-
-// TEST 1: unchecked submit must be blocked
-await clickByText('Check My Eligibility');
-await settle(1000);
-console.log('TEST 1 unchecked -> POSTs:', posts.length, '(expect 0)');
-console.log('TEST 1 error shown:', await page.evaluate(() => {
-  const p = [...document.querySelectorAll('#eligibility p')].find((n) => n.textContent.includes('consent box'));
-  return p ? p.textContent.trim() : 'NO ERROR SHOWN';
-}));
-await page.screenshot({ path: `${outDir}tcpa-mobile-blocked.png` });
-
-// TEST 2: checked submit goes through with the consent record
-await page.click('#ff-tcpa');
-await settle(400);
-await clickByText('Check My Eligibility');
-await settle(1800);
-console.log('TEST 2 checked -> POSTs:', posts.length, '(expect 1)');
-if (posts[0]) {
-  const p = posts[0];
-  console.log('  tcpaConsent    :', p.tcpaConsent);
-  console.log('  tcpaConsentAt  :', p.tcpaConsentAt);
-  console.log('  tcpaConsentUrl :', p.tcpaConsentUrl);
-  console.log('  tcpaConsentText:', String(p.tcpaConsentText).slice(0, 60) + '...');
-  console.log('  partial        :', p.partial, '| phone:', p.phone);
+  const pageErrors = errors.filter((e) => e.startsWith('[pageerror'));
+  if (errors.length) console.log(`browser errors:\n  ${errors.join('\n  ')}`);
+  check('no uncaught page errors', pageErrors.length === 0, `${pageErrors.length}`);
+  exit = summary() ? 0 : 1;
+} catch (e) {
+  console.log(`\nFATAL: ${e.message}`);
+  exit = 1;
+} finally {
+  await browser.close();
 }
-
-await browser.close();
+process.exit(exit);

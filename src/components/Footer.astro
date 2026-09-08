@@ -1,27 +1,219 @@
 ---
-import { brand } from '../config/funnel';
+// Dark directory footer: brand block, a GENERATED "DSCR loans by state"
+// column, the config Company column, and the mode-switched legal block
+// (BRIEF section 4 placement rules c, d, e). The frontmatter guard throws at
+// BUILD time if any config link href is not a pattern that resolves on this
+// build, so a dead footer link can never ship.
+import { site, brand, directory, housingPhrase, legal } from '../config/site';
+import { states, topStates } from '../data/states';
+import Icon from './Icon.astro';
+
+interface Props {
+  /**
+   * When LenderPicks renders on the same page it owns id="advertiser-disclosure"
+   * (its disclosure sits under the H2). LandingPage passes false in that case so
+   * the page never carries a duplicate id; every other page keeps the id here.
+   */
+  disclosureAnchor?: boolean;
+}
+const { disclosureAnchor = true } = Astro.props;
+
+// ---- build-time link guard (config hrefs only; generated links are safe by construction)
+const stateSlugs = new Set(states.map((s) => s.slug));
+const allowedExact = new Set(['/', '/dscr-loans', '/privacy', '/terms', '/privacy#do-not-sell', '#faq', '#start', '#advertiser-disclosure']);
+for (const col of directory.columns) {
+  for (const link of col.links) {
+    const stateMatch = link.href.match(/^\/dscr-loans\/([a-z-]+)$/);
+    const ok = allowedExact.has(link.href) || (stateMatch !== null && stateSlugs.has(stateMatch[1] ?? ''));
+    if (!ok) {
+      throw new Error(
+        `[Footer] directory link "${link.label}" points at "${link.href}", which does not resolve on this build. ` +
+          `Allowed: /, /dscr-loans, /dscr-loans/<state-slug>, #faq, #start, #advertiser-disclosure, /privacy, /terms, /privacy#do-not-sell.`,
+      );
+    }
+  }
+}
+
+const stateColumn = {
+  title: 'DSCR loans by state',
+  links: [
+    ...topStates.map((slug) => {
+      const st = states.find((s) => s.slug === slug);
+      return { label: st?.name ?? slug, href: `/dscr-loans/${slug}` };
+    }),
+    { label: 'All states', href: '/dscr-loans' },
+  ],
+};
+
+const columns = [stateColumn, ...directory.columns];
+const isNetwork = site.mode === 'network';
+
+// Landing pages (/ and /dscr-loans/<state>) carry #start and #faq; on every
+// other page those anchors are routed home so they are never dead links.
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const hasLandingAnchors = path === '/' || /^\/dscr-loans\/[a-z-]+$/.test(path);
+const resolveHref = (href: string) =>
+  !hasLandingAnchors && (href === '#start' || href === '#faq') ? `/${href}` : href;
 ---
 
-<footer class="bg-ink text-cream/60 border-t border-cream/10 py-14">
-  <div class="max-w-5xl mx-auto px-5 lg:px-10 text-center">
-    <div class="font-display text-cream text-xl mb-2">{brand.name}</div>
-    <p class="font-mono text-[0.62rem] uppercase tracking-[0.18em] mb-8">{brand.nmls || brand.site}</p>
-    <p class="text-[0.8rem] leading-relaxed max-w-3xl mx-auto">
-      {brand.name}. No advertisement or solicitation from {brand.name} is meant to be a mortgage
-      brokering activity or mortgage lending activity. All brokering or lending activities can only be
-      completed by a licensed loan originator. To see if your loan officer is licensed in your state, visit
-      <a href={brand.licensingUrl} class="underline hover:text-cream" rel="noopener" target="_blank"> www.nmlsconsumeraccess.org</a>.
-      This is not a commitment to lend. All loans subject to credit approval, underwriting, and property review.
-      Rates, terms, and programs subject to change without notice. This company is not endorsed by, or acting on
-      behalf of, any government agency. For informational purposes only.
-    </p>
-    <div class="flex items-center justify-center gap-8 mt-8">
-      <a href="/privacy" class="text-[0.8rem] underline hover:text-cream">Privacy Policy</a>
-      <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Equal Housing Opportunity">
-        <path d="M12 2 1 10h2v12h18V10h2L12 2zm0 2.5L18.5 9h-13L12 4.5zM5 11h14v9H5v-9zm3 2v2h8v-2H8zm0 3.5v2h8v-2H8z"/>
-      </svg>
-      <a href="/legal" class="text-[0.8rem] underline hover:text-cream">Legal</a>
+<footer class="ground-dark cv-auto">
+  <div class="container-x pt-16 pb-10 lg:pt-20">
+    <div class="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+      <div>
+        {
+          brand.logoSrc ? (
+            <img src={brand.logoSrc} alt={brand.name} class="ft-logo-img" width="170" height="40" loading="lazy" decoding="async" />
+          ) : (
+            <p class="ft-wordmark">{brand.logoText}</p>
+          )
+        }
+        <p class="ft-tagline mt-2">{brand.tagline}</p>
+        {
+          brand.phone && (
+            <a href={brand.phoneHref} class="ft-phone mt-6">
+              <Icon name="phone" size={16} />
+              {brand.phone}
+            </a>
+          )
+        }
+      </div>
+
+      <nav class="grid gap-10 sm:grid-cols-2" aria-label="Footer">
+        {
+          columns.map((col) => (
+            <div>
+              <p class="ft-col-title">{col.title}</p>
+              <ul class="mt-4 flex flex-col gap-2">
+                {col.links.map((link) => (
+                  <li>
+                    <a href={resolveHref(link.href)} class="ft-link" data-scroll-to={hasLandingAnchors && link.href === '#start' ? '#start' : undefined}>
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </nav>
     </div>
-    <p class="text-[0.72rem] mt-8 text-cream/40">© {new Date().getFullYear()} {brand.name}. All rights reserved.</p>
+
+    <hr class="ft-rule mt-14 mb-10" />
+
+    <div class="ft-legal flex flex-col gap-4">
+      {isNetwork && <p>{legal.networkNotice}</p>}
+      {isNetwork && <p id={disclosureAnchor ? 'advertiser-disclosure' : undefined}>{legal.advertiserDisclosure}</p>}
+      {!isNetwork && brand.nmls && (
+        <p>
+          {brand.legalName}, NMLS #{brand.nmls}.{' '}
+          <a href={brand.licensingUrl} class="ft-link" rel="noopener">NMLS Consumer Access</a>.
+        </p>
+      )}
+      <p>{legal.notCommitment}</p>
+      {isNetwork && <p>{legal.notAffiliated}</p>}
+      <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <span class="eh-mark" role="img" aria-label={housingPhrase}>
+          <Icon name="equal-housing" />
+          <span>{housingPhrase}</span>
+        </span>
+        <p class="ft-device">{legal.deviceLine}</p>
+      </div>
+      <p class="ft-copyright mt-2">&copy; {site.year} {brand.legalName}. All rights reserved.</p>
+    </div>
   </div>
 </footer>
+
+<style>
+  .ft-wordmark {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.008em;
+    color: var(--color-cream);
+  }
+
+  .ft-logo-img {
+    display: block;
+    height: 2.25rem;
+    width: auto;
+  }
+
+  .ft-tagline {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: rgba(244, 239, 227, 0.6);
+  }
+
+  .ft-phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--color-cream);
+    text-decoration: none;
+  }
+
+  .ft-phone:hover {
+    color: var(--color-amber);
+  }
+
+  .ft-col-title {
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    /* 0.62 (was 0.5): 0.5 composited to ~4.4:1 on ink, under AA for 11.5px text */
+    color: rgba(244, 239, 227, 0.62);
+  }
+
+  .ft-link {
+    display: inline-block;
+    /* tap comfort: lifts the hit target to ~24px+ without changing the rhythm */
+    padding-block: 0.15rem;
+    font-size: 0.92rem;
+    font-weight: 500;
+    line-height: 1.5;
+    color: rgba(244, 239, 227, 0.74);
+    text-decoration: none;
+    transition: color 160ms ease;
+  }
+
+  .ft-link:hover {
+    color: var(--color-cream);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  .ft-rule {
+    border: 0;
+    height: 1px;
+    background: rgba(244, 239, 227, 0.12);
+  }
+
+  .ft-legal {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: rgba(244, 239, 227, 0.55);
+  }
+
+  .ft-legal p {
+    max-width: 90ch;
+  }
+
+  /* anchor lands clear of the viewport top when the disclosure link is followed */
+  .ft-legal #advertiser-disclosure {
+    scroll-margin-top: 6rem;
+  }
+
+  .ft-device {
+    font-size: 0.78rem;
+    color: rgba(244, 239, 227, 0.55);
+  }
+
+  .ft-copyright {
+    font-size: 0.78rem;
+    /* 0.58 (was 0.45): 0.45 composited to ~3.9:1 on ink, under AA for 12.5px text */
+    color: rgba(244, 239, 227, 0.58);
+  }
+</style>

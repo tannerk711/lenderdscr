@@ -1,0 +1,295 @@
+---
+// /terms: TEMPLATE TERMS OF USE FOR COUNSEL REVIEW.
+// Sensible placeholder language for a DSCR mortgage lead-gen directory
+// (network) or a single lender/broker brand (lender), built from the tokens in
+// src/config/site.ts. It is NOT legal advice. Before launch, have counsel
+// review every section, set the governing-law venue, pin the effective date,
+// and confirm the not-a-lender / not-a-commitment language matches the
+// client's licensing. Mode-aware paragraphs switch on site.mode at build time.
+import Layout from '../layouts/Layout.astro';
+import Topbar from '../components/Topbar.astro';
+import Footer from '../components/Footer.astro';
+import { site, brand, legal, housingPhrase } from '../config/site';
+
+const isNetwork = site.mode === 'network';
+// REBRAND: counsel pins both of these.
+const effectiveDate = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+const governingState = 'Delaware';
+
+const siteUrl = `https://${brand.domain}`;
+const contactEmail = brand.privacyEmail;
+
+const sections = [
+  { id: 'agreement', title: 'The agreement' },
+  { id: 'what-this-is', title: isNetwork ? 'What this site is, and is not' : 'Who we are' },
+  { id: 'no-commitment', title: 'Not an application, not a commitment' },
+  { id: 'eligibility-check', title: 'The eligibility check' },
+  { id: 'disclosure', title: isNetwork ? 'Advertiser disclosure' : 'Lender relationships' },
+  { id: 'contact', title: 'Consent to contact' },
+  { id: 'your-information', title: 'The information you provide' },
+  { id: 'acceptable-use', title: 'Acceptable use' },
+  { id: 'ip', title: 'Content and trademarks' },
+  { id: 'third-parties', title: 'Third-party sites' },
+  { id: 'disclaimers', title: 'Disclaimers and limitation of liability' },
+  { id: 'general', title: 'Governing law, changes, and contact' },
+];
+---
+
+<Layout
+  title={`Terms of Use | ${brand.name}`}
+  description={`The terms that govern your use of ${brand.name}, including what the site is, what submitting the eligibility check does and does not do, and how disputes are handled.`}
+>
+  <Topbar />
+
+  <main class="ground-paper">
+    <section class="container-x py-14 md:py-20">
+      <div class="mx-auto max-w-3xl">
+        <p class="label mb-4">Legal</p>
+        <h1 class="h-section text-ink">Terms of Use</h1>
+        <p class="prose-body mt-5">
+          These terms cover your use of {siteUrl}. They are short on purpose, and the parts that matter
+          most, what submitting the form does and does not do, are near the top.
+        </p>
+        <p class="mt-4 text-sm text-ink/55">Effective {effectiveDate}. {brand.name} is operated by {brand.legalName}.</p>
+
+        <nav class="card mt-8 p-5 md:p-6" aria-label="On this page">
+          <p class="label mb-3">On this page</p>
+          <ol class="grid gap-1.5 text-[0.95rem] sm:grid-cols-2">
+            {sections.map((s, i) => (
+              <li>
+                <a href={`#${s.id}`} class="link">{String(i + 1).padStart(2, '0')}. {s.title}</a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+
+        <div class="legal-flow mt-8 grid gap-5">
+          <section id="agreement" class="card p-6 md:p-8">
+            <h2 class="h-step">1. The agreement</h2>
+            <p>
+              By using this site or submitting the eligibility check, you agree to these terms and to our
+              <a href="/privacy" class="link">Privacy Policy</a>. If you do not agree, do not use the site. You
+              must be at least 18 and able to enter a binding agreement to use it.
+            </p>
+          </section>
+
+          <section id="what-this-is" class="card p-6 md:p-8">
+            <h2 class="h-step">2. {isNetwork ? 'What this site is, and is not' : 'Who we are'}</h2>
+            {isNetwork ? (
+              <>
+                <p>{legal.networkNotice}</p>
+                <p>
+                  {brand.name} does not take loan applications, does not underwrite, does not issue approvals
+                  or denials, and does not set the pricing or terms of any loan. Every lending decision is
+                  made by the participating lender you end up working with, under that lender's own
+                  licensing, policies, and disclosures. Participating lenders are independent businesses,
+                  not agents or employees of {brand.legalName}.
+                </p>
+                <p>{legal.notAffiliated}</p>
+              </>
+            ) : (
+              <>
+                <p>
+                  {brand.name} is a brand of {brand.legalName}
+                  {brand.nmls ? `, NMLS #${brand.nmls}` : ''}. Licensing information is available through
+                  NMLS Consumer Access at <a href={brand.licensingUrl} class="link" rel="noopener" target="_blank">{brand.licensingUrl.replace(/^https?:\/\//, '')}</a>.
+                  Loan programs are not available in every state; the state the property is in determines
+                  what we can offer.
+                </p>
+                <p>{legal.notAffiliated}</p>
+              </>
+            )}
+          </section>
+
+          <section id="no-commitment" class="card p-6 md:p-8">
+            <h2 class="h-step">3. Not an application, not a commitment</h2>
+            <p>{legal.notCommitment}</p>
+            <p>
+              The eligibility check does not lock any pricing, reserve any program, or create any obligation
+              on {isNetwork ? 'any lender' : `${brand.name}`} to lend, or on you to borrow. A written loan
+              estimate, commitment letter, or closing disclosure issued by {isNetwork ? 'a lender' : 'us'} after a
+              full application is the only document that describes actual loan terms.
+            </p>
+          </section>
+
+          <section id="eligibility-check" class="card p-6 md:p-8">
+            <h2 class="h-step">4. The eligibility check</h2>
+            <p>
+              The form asks about your goal, property, credit range, price, and state so that
+              {isNetwork ? ' a participating lender' : ' our loan team'} can start a useful conversation. It
+              does not produce a decision, a score, or a match ranking, and nothing on this site should be
+              read as one. Program minimums shown on the site (for example, a 620 credit score) describe the
+              programs generally and are not a promise that any particular lender will accept any particular
+              deal.
+            </p>
+            <p>
+              The credit range you enter is your own estimate. Submitting the form does not pull your credit
+              or create a credit inquiry. If you enter a range below the program minimum, the form will say
+              so and stop; that message is informational and is not a credit decision.
+            </p>
+          </section>
+
+          <section id="disclosure" class="card p-6 md:p-8">
+            <h2 class="h-step">5. {isNetwork ? 'Advertiser disclosure' : 'Lender relationships'}</h2>
+            {isNetwork ? (
+              <>
+                <p>{legal.advertiserDisclosure}</p>
+                <p>
+                  Any attribute shown next to a lender (states served, programs offered, entity closings) is
+                  supplied by that lender. {brand.name} does not independently verify it and does not vouch for
+                  any lender's performance, pricing, or service. Confirm every detail with the lender directly
+                  before relying on it.
+                </p>
+              </>
+            ) : (
+              <p>
+                Loans are made or arranged by {brand.legalName}. Where we broker a loan to a wholesale lender,
+                that lender's approval and terms govern. We may receive compensation from a lender in
+                connection with a loan we arrange, which is disclosed in the loan documents you receive after
+                a full application.
+              </p>
+            )}
+          </section>
+
+          <section id="contact" class="card p-6 md:p-8">
+            <h2 class="h-step">6. Consent to contact</h2>
+            <p>
+              Submitting the form requires checking a consent box, the text of which is reproduced in our
+              <a href="/privacy#consent-to-contact" class="link">Privacy Policy</a>. That consent lets
+              {isNetwork ? ` ${brand.legalName} and one or more participating DSCR lenders` : ` ${brand.legalName}`} contact
+              you by email, text, or phone, including with automated technology. Consent is not a condition
+              of purchase or of receiving services, and you can revoke it at any time; the Privacy Policy
+              explains how.
+            </p>
+          </section>
+
+          <section id="your-information" class="card p-6 md:p-8">
+            <h2 class="h-step">7. The information you provide</h2>
+            <p>
+              You agree that what you enter is accurate to the best of your knowledge, that the phone number
+              and email address are yours, and that you have the authority to consent to contact at them. Do
+              not submit someone else's information. A lender relying on inaccurate information may withdraw
+              any terms it offered.
+            </p>
+          </section>
+
+          <section id="acceptable-use" class="card p-6 md:p-8">
+            <h2 class="h-step">8. Acceptable use</h2>
+            <ul>
+              <li>Do not submit fake, test, or automated form entries, or scrape, crawl, or copy the site's content or lender listings.</li>
+              <li>Do not interfere with the site, its security, or its delivery, or attempt to access data that is not yours.</li>
+              <li>Do not use the site for any purpose that is unlawful or that violates these terms.</li>
+            </ul>
+            <p>We may block access, discard submissions, or take other reasonable steps in response to misuse.</p>
+          </section>
+
+          <section id="ip" class="card p-6 md:p-8">
+            <h2 class="h-step">9. Content and trademarks</h2>
+            <p>
+              The site's text, design, graphics, and code belong to {brand.legalName} or its licensors and are
+              protected by copyright and trademark law. Lender names and logos belong to their respective
+              owners and appear with permission or as nominative reference. You may view and print pages for
+              your own use in evaluating financing; any other use requires written permission.
+            </p>
+          </section>
+
+          <section id="third-parties" class="card p-6 md:p-8">
+            <h2 class="h-step">10. Third-party sites</h2>
+            <p>
+              Links to lender websites, NMLS Consumer Access, and other outside resources are provided for
+              convenience. We do not control those sites and are not responsible for their content, privacy
+              practices, or availability. Your dealings with any lender, including any application you submit
+              to them, are between you and that lender.
+            </p>
+          </section>
+
+          <section id="disclaimers" class="card p-6 md:p-8">
+            <h2 class="h-step">11. Disclaimers and limitation of liability</h2>
+            <p>
+              The site and the eligibility check are provided "as is" and "as available," without warranties
+              of any kind, express or implied, including any implied warranty of merchantability, fitness for
+              a particular purpose, accuracy, or non-infringement. Program descriptions and general education
+              on the site are informational, may not reflect every lender's current criteria, and are not
+              financial, legal, or tax advice.
+            </p>
+            <p>
+              To the fullest extent the law allows, {brand.legalName} and its owners, employees, and service
+              providers are not liable for indirect, incidental, consequential, special, or punitive damages,
+              or for lost profits or lost opportunities, arising from your use of the site or from any
+              lender's actions or decisions. Where liability cannot be excluded, it is limited to one hundred
+              dollars ($100). Some jurisdictions do not allow these limitations, so they may not apply to you
+              in full.
+            </p>
+          </section>
+
+          <section id="general" class="card p-6 md:p-8">
+            <h2 class="h-step">12. Governing law, changes, and contact</h2>
+            <p>
+              These terms are governed by the laws of the State of {governingState}, without regard to its
+              conflict-of-law rules, and any dispute will be brought in the state or federal courts located
+              there, unless applicable consumer-protection law gives you the right to bring it elsewhere. If
+              any part of these terms is found unenforceable, the rest remains in effect.
+            </p>
+            <p>
+              We may update these terms; the effective date at the top changes when we do, and continued use
+              after that date means you accept the update. These terms, together with the Privacy Policy, are
+              the entire agreement between you and {brand.legalName} about the site.
+            </p>
+            <p>Questions about these terms:</p>
+            <ul>
+              <li><strong>{brand.legalName}</strong>{brand.address ? `, ${brand.address}` : ''}</li>
+              <li>Phone: <a href={brand.phoneHref} class="link tabular">{brand.phone}</a></li>
+              {contactEmail && (
+                <li>Email: <a href={`mailto:${contactEmail}`} class="link">{contactEmail}</a></li>
+              )}
+              <li>Web: {siteUrl}</li>
+            </ul>
+            <p class="text-sm text-ink/55">{housingPhrase}.</p>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  /* Private prose rhythm for the legal cards. No @layer inside a component. */
+  .legal-flow h2 {
+    margin-bottom: 0.9rem;
+  }
+
+  .legal-flow p,
+  .legal-flow li {
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: rgba(26, 20, 24, 0.8);
+  }
+
+  .legal-flow p + p,
+  .legal-flow ul + p,
+  .legal-flow p + ul {
+    margin-top: 0.85rem;
+  }
+
+  .legal-flow ul {
+    display: grid;
+    gap: 0.55rem;
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+
+  .legal-flow li::marker {
+    color: var(--color-brand);
+  }
+
+  .legal-flow strong {
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+
+  .legal-flow section {
+    scroll-margin-top: 5rem;
+  }
+</style>

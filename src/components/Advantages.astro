@@ -1,0 +1,86 @@
+---
+// Split layout: pinned prose column left (data-pin="advantages"), card column
+// right (data-pin-end="advantages", the pin's endTrigger). The 2x2 grid failed
+// the pin-travel rule (grid must be >= 320px taller than the prose at
+// 1440x900), so the cards render as ONE stacked column of 4 tall cards (the
+// sanctioned fallback, BRIEF data-pin contract); the stacked column IS tall
+// enough, so the desktop pin engages. motion.ts still re-measures travel at
+// runtime and skips the pin if it ever drops under 320px.
+// NEVER .cv-auto here: paint containment kills pinning.
+import { advantages, advantagesProse, cta } from '../config/site';
+import Icon from './Icon.astro';
+---
+
+<section class="ground-paper relative">
+  <div class="container-x py-20 lg:py-28">
+    <div class="grid items-start gap-12 lg:grid-cols-[minmax(0,11fr)_minmax(0,9fr)] lg:gap-16">
+      <div data-pin="advantages" data-reveal="slide-left">
+        <p class="eyebrow">02 / Why DSCR</p>
+        <h2 class="h-section mt-3">Advantages of a DSCR loan</h2>
+        {advantagesProse.map((para) => <p class="prose-body mt-5">{para}</p>)}
+        <a href="#start" data-scroll-to="#start" class="btn-ghost mt-9">
+          {cta.primary}
+          <Icon name="arrow" size={18} />
+        </a>
+      </div>
+
+      <div class="flex flex-col gap-6" data-stagger data-pin-end="advantages">
+        {
+          advantages.map((a) => (
+            <div class="card-tilt">
+              <article class="card adv-card" data-child data-reveal="rotate-in" data-tilt>
+                <span class="opt-coin adv-coin" aria-hidden="true">
+                  <Icon name={a.icon} size={40} />
+                </span>
+                <h3 class="h-step mt-6">{a.title}</h3>
+                <p class="prose-body adv-body mt-3">{a.body}</p>
+              </article>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .adv-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 2rem 1.6rem;
+  }
+
+  @media (min-width: 1024px) {
+    .adv-card {
+      min-height: 18rem;
+      padding: 2.5rem 2.25rem;
+    }
+  }
+
+  .adv-coin {
+    width: 60px;
+    height: 60px;
+  }
+
+  .adv-coin svg {
+    width: 34px;
+    height: 34px;
+  }
+
+  @media (min-width: 1024px) {
+    .adv-coin {
+      width: 72px;
+      height: 72px;
+    }
+
+    .adv-coin svg {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  .adv-body {
+    font-size: 1rem;
+  }
+</style>

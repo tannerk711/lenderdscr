@@ -1,0 +1,109 @@
+---
+// Partners: "connect with experts" wordmark row (network mode only).
+// PROD excludes placeholder / unverified entries; zero real entries renders
+// nothing (no heading either). Dev shows placeholders with a SAMPLE tag.
+// Each tile: data-reveal="scale-up" inside a data-stagger parent. .cv-auto.
+import { site, partners } from '../config/site';
+
+const real = partners.filter((p) => !p.placeholder && p.verified === true);
+const visible = import.meta.env.PROD ? real : partners;
+const excluded = partners.length - real.length;
+if (import.meta.env.PROD && excluded > 0) {
+  console.warn(`WARN: ${excluded} placeholder partners excluded`);
+}
+const render = site.mode === 'network' && visible.length > 0;
+---
+
+{render && (
+  <section class="partners cv-auto">
+    <div class="container-x">
+      <div class="partners-head">
+        <p class="eyebrow">The network</p>
+        <h2 class="partners-title">Connect with DSCR loan experts.</h2>
+      </div>
+      <div class="partners-grid" data-stagger>
+        {visible.map((p) => (
+          <div class="card partner-tile" data-reveal="scale-up">
+            {p.placeholder && <span class="sample-tag partner-sample">Sample</span>}
+            {p.logoSrc ? (
+              <img src={p.logoSrc} alt={p.name} loading="lazy" width="150" height="40" />
+            ) : (
+              <span class="partner-wordmark">{p.name}</span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .partners {
+    background: var(--color-sheet);
+    color: var(--color-ink);
+    padding-block: clamp(3rem, 7vw, 5rem);
+  }
+
+  .partners-head {
+    text-align: center;
+    margin-bottom: clamp(1.75rem, 4vw, 2.75rem);
+  }
+
+  .partners-title {
+    margin: 0.6rem 0 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.5rem, 2.6vw, 2.2rem);
+    letter-spacing: -0.008em;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .partners-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    max-width: 58rem;
+    margin-inline: auto;
+  }
+
+  .partner-tile {
+    display: grid;
+    place-items: center;
+    min-height: 6.25rem;
+    padding: 1.5rem 1.25rem;
+  }
+
+  .partner-tile img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .partner-wordmark {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: -0.005em;
+    line-height: 1.2;
+    color: rgba(26, 20, 24, 0.72);
+    text-align: center;
+  }
+
+  .partner-sample {
+    position: absolute;
+    top: 0.7rem;
+    right: 0.7rem;
+  }
+
+  /* dev-only: keep the wordmark clear of the SAMPLE tag on narrow tiles */
+  .partner-tile:has(.partner-sample) {
+    padding-top: 2.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .partners-grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+    }
+  }
+</style>

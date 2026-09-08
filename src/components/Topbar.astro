@@ -1,17 +1,191 @@
 ---
-// PMF-model header (2026-08-24): white bar, logo left, "Call:" phone right,
-// exactly like the converting dscr.promortgagefunding.com page.
-import { brand } from '../config/funnel';
+// Topbar: thin legal notice bar + header (logo + tagline; audience line and
+// spec bullets on >= 768px; compact amber CTA; phone in lender mode only).
+// Static section: NO data-reveal anywhere here (composition table row 1).
+import { site, brand, specs, legal, cta } from '../config/site';
+import Icon from './Icon.astro';
+
+const showPhone = site.mode === 'lender' && Boolean(brand.phone);
+// Landing pages (/ and /dscr-loans/<state>) carry the #start form; every other
+// page routes the CTA home so the anchor is never dead.
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const hasForm = path === '/' || /^\/dscr-loans\/[a-z-]+$/.test(path);
+// Wordmark accent: whatever brand.name adds after logoText (".com" etc).
+const logoSuffix = brand.name.startsWith(brand.logoText) ? brand.name.slice(brand.logoText.length) : '';
 ---
 
-<header class="bg-white border-b border-ink/10 relative z-30">
-  <div class="max-w-6xl mx-auto px-5 lg:px-10 h-16 sm:h-20 flex items-center justify-between gap-4">
-    <a href="/" class="flex items-center gap-3">
-      <img src={brand.logo} alt={`${brand.name} logo`} class="h-9 sm:h-11 w-auto" width="50" height="36" />
-      <span class="hidden sm:inline font-bold text-[1.2rem] tracking-tight text-pine leading-tight">{brand.name}</span>
+<header class="topbar ground-paper">
+  <p class="tb-notice">{legal.noticeBar}</p>
+  <div class="container-x tb-row">
+    <a href="/" class="tb-logo" aria-label={brand.name}>
+      {brand.logoSrc ? (
+        <img src={brand.logoSrc} alt={brand.name} width="170" height="40" />
+      ) : (
+        <span class="tb-logotext">{brand.logoText}{logoSuffix && <span class="tb-logodot">{logoSuffix}</span>}</span>
+      )}
+      <span class="tb-tagline">{brand.tagline}</span>
     </a>
-    <a href={brand.phoneHref} class="font-bold text-[0.95rem] sm:text-[1.05rem] text-pine hover:text-ink transition-colors whitespace-nowrap">
-      Call: {brand.phone}
-    </a>
+
+    <div class="tb-audience">
+      <p class="tb-audline">DSCR loans for real estate investors</p>
+      <p class="tb-specs">
+        {specs.map((s) => <span class="tb-spec-item">{s.label}</span>)}
+      </p>
+    </div>
+
+    <div class="tb-actions">
+      {showPhone && (
+        <a href={brand.phoneHref} class="tb-phone">
+          <Icon name="phone" size={16} />
+          <span>{brand.phone}</span>
+        </a>
+      )}
+      <a href={hasForm ? '#start' : '/#start'} data-scroll-to={hasForm ? '#start' : undefined} class="btn-amber tb-cta">{cta.primary}</a>
+    </div>
   </div>
 </header>
+
+<style>
+  .tb-notice {
+    margin: 0;
+    padding: 0.45rem 1rem;
+    background: var(--color-brand);
+    color: rgba(244, 239, 227, 0.88);
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+  }
+
+  .tb-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-block: 0.85rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .tb-logo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-decoration: none;
+    color: var(--color-ink);
+    /* shrinkable: the tracked-uppercase tagline wraps instead of widening the row */
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .tb-logotext {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1rem, 4.6vw, 1.45rem);
+    line-height: 1.1;
+    letter-spacing: -0.008em;
+    white-space: nowrap;
+  }
+
+  .tb-logodot {
+    color: var(--color-brand);
+  }
+
+  .tb-tagline {
+    font-weight: 700;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    line-height: 1.35;
+    text-transform: uppercase;
+    color: rgba(26, 20, 24, 0.58);
+  }
+
+  .tb-audience {
+    display: none;
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .tb-audline {
+    margin: 0;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--color-ink);
+  }
+
+  .tb-specs {
+    margin: 0.25rem 0 0;
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    column-gap: 0.55rem;
+    row-gap: 0.15rem;
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: rgba(26, 20, 24, 0.62);
+  }
+
+  .tb-spec-item + .tb-spec-item::before {
+    content: "\00B7";
+    margin-right: 0.55rem;
+    color: var(--color-brand);
+    font-weight: 800;
+  }
+
+  .tb-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: auto;
+    flex: none;
+  }
+
+  .tb-phone {
+    display: none;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--color-brand);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .tb-phone:hover {
+    color: var(--color-brand-deep);
+  }
+
+  /* compact variant of .btn-amber for the header (scoped, unlayered, wins) */
+  .tb-cta {
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.78rem;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 480px) {
+    .tb-cta {
+      padding: 0.55rem 1.05rem;
+      font-size: 0.85rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .tb-audience {
+      display: block;
+    }
+
+    .tb-phone {
+      display: inline-flex;
+    }
+
+    .tb-actions {
+      margin-left: 0;
+    }
+
+    .tb-row {
+      gap: 1.25rem;
+      padding-block: 1rem;
+    }
+  }
+</style>

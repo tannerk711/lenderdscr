@@ -1,0 +1,129 @@
+---
+// Dark full-bleed stats band. Photo reads as TEXTURE: aerial-dusk under a 0.84
+// ink overlay plus a brand-deep duotone layer (mix-blend-mode: multiply).
+// Renders ONLY stats with confirmed:true; fewer than 3 confirmed = 2-up layout.
+// Centered content is allowed in this section only (BRIEF section 10).
+import { stats } from '../config/site';
+import { lqip } from '../data/lqip';
+
+const confirmed = stats.filter((s) => s.confirmed);
+
+/** Widest string the counter will show while animating (start or end value). */
+const digitsFor = (s: (typeof stats)[number]) => {
+  const end = s.value.toFixed(s.decimals).length;
+  const start = (s.from ?? 0).toFixed(s.decimals).length;
+  return Math.max(end, start);
+};
+
+const gridClass =
+  confirmed.length < 3
+    ? 'grid gap-12 sm:grid-cols-2 max-w-2xl mx-auto'
+    : confirmed.length === 3
+      ? 'grid gap-12 sm:grid-cols-3 max-w-4xl mx-auto'
+      : 'grid gap-12 sm:grid-cols-2 lg:grid-cols-4';
+---
+
+<section class="sb-band ground-dark cv-auto relative">
+  <div class="sb-media" aria-hidden="true">
+    <img
+      src="/images/aerial-dusk.webp"
+      alt=""
+      width="1344"
+      height="768"
+      loading="lazy"
+      decoding="async"
+      style={`background-image:url(${lqip.aerialDusk});background-size:cover;background-position:center;`}
+    />
+    <div class="sb-ink"></div>
+    <div class="sb-duo"></div>
+  </div>
+
+  <div class="container-x relative z-10 py-20 text-center lg:py-28">
+    <p class="eyebrow sb-eyebrow">01 / By the numbers</p>
+    <h2 class="h-section mt-3" data-reveal="clip-up">What DSCR lenders actually check</h2>
+    <p class="sb-sub mx-auto mt-4">Rent qualifies the loan. Here is the bar it has to clear.</p>
+
+    <div class={`${gridClass} mt-14`} data-stagger>
+      {
+        confirmed.map((s) => (
+          <div class="sb-stat" data-child>
+            <p class="whitespace-nowrap">
+              <span
+                class="stat-number"
+                style={`--digits:${digitsFor(s)}`}
+                data-counter={s.value}
+                data-from={s.from ?? 0}
+                data-decimals={s.decimals}
+              >
+                {s.value.toFixed(s.decimals)}
+              </span>
+              {s.suffix && <span class="stat-suffix">{s.suffix}</span>}
+            </p>
+            <p class="sb-label mt-3">{s.label}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .sb-band {
+    overflow: hidden;
+  }
+
+  .sb-media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .sb-media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* Ink overlay: the photo becomes texture, never a background image fighting
+     text. 0.72 (down from 0.84 in pass 3): at 0.84 + duo 0.9 the gutters
+     measured lum 0.004 and the photo had effectively vanished. At 0.72/0.78 the
+     rooftop texture reads while cream + labels still measure >= 7:1 on the
+     brightest sampled composite pixel (pass3-contrast probe). */
+  .sb-ink {
+    position: absolute;
+    inset: 0;
+    background: rgba(26, 20, 24, 0.72);
+  }
+
+  /* brand-deep duotone pass so the texture carries the claret identity */
+  .sb-duo {
+    position: absolute;
+    inset: 0;
+    background: var(--color-brand-deep);
+    mix-blend-mode: multiply;
+    opacity: 0.78;
+  }
+
+  .sb-eyebrow {
+    color: var(--color-amber);
+  }
+
+  .sb-sub {
+    max-width: 40ch;
+    font-size: 1rem;
+    line-height: 1.55;
+    color: rgba(244, 239, 227, 0.72);
+  }
+
+  .sb-label {
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(244, 239, 227, 0.66);
+  }
+</style>
