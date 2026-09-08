@@ -54,3 +54,10 @@ This report only. Commit hash: see below (added after commit).
 ## Lighthouse (mobile, built output over gzip static server, 2026-09-08)
 
 Median of runs 2-3 on /: perf 100, FCP 1.02s, LCP 1.74s, TBT 29ms, CLS 0.000. Gate 90: PASS.
+
+## Edit 1: form embedded on the landing page (2026-09-08, commit 56d5909)
+
+The #start hero card now mounts the live V1 form (client:load, embedded). All LP CTAs target #start; /start stays as the full-page fallback.
+
+- `QA_FORM_PATH=/ node tools/form-walk.mjs` (PowerShell): 268/268 checks pass on / at desktop 1440x900 and mobile 390x844. Mobile fold: question + all three options above 844px.
+- Mobile Lighthouse on built output, median of runs 2-4 on /: perf 96, FCP 1.37s, LCP 2.66s, TBT 52ms, CLS 0.000 (was 100 with the static tiles; the delta is React + framer-motion now hydrating the fold). /start 99, /thank-you 99 single runs. Gate 90: PASS.
