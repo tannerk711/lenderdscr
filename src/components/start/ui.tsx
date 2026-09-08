@@ -4,17 +4,28 @@
 // and ErrorLine renders the inline [data-error] message. Class names are the
 // V1 originals so the look is Tanner's pick, unchanged.
 
-import { type ReactNode } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
+/** Where the form lives. 'page' = /start (the headline is the page h1).
+ *  'embedded' = inside the landing-page hero card (the LP h1 already exists,
+ *  so the step headline renders as an h2 at a size that sits under it). */
+export const FormPlacement = createContext<'page' | 'embedded'>('page');
+
 export function Headline({ children }: { children: ReactNode }) {
+  const placement = useContext(FormPlacement);
+  const embedded = placement === 'embedded';
+  const Tag = embedded ? 'h2' : 'h1';
   return (
-    <h1
+    <Tag
       data-step-title
-      className="v1lo-serif v1lo-headline text-center text-[1.9rem] font-semibold text-[#1E3A5F] sm:text-[2.4rem]"
+      className={[
+        'v1lo-serif v1lo-headline text-center font-semibold text-[#1E3A5F]',
+        embedded ? 'text-[1.55rem] sm:text-[1.95rem]' : 'text-[1.9rem] sm:text-[2.4rem]',
+      ].join(' ')}
     >
       {children}
-    </h1>
+    </Tag>
   );
 }
 

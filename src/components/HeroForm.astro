@@ -1,12 +1,17 @@
 ---
-// The hero IS step 1 (BRIEF section 10, variant B). Static H1 (the LCP element,
-// never animated), sub line (desktop only), the #start card with a STATIC step-1
-// tile group (three t4 option cards, each an anchor to /start?goal=...), and the
-// ONE fine-print line under the card. No island, no hydration: the tiles are
-// plain links, so the fold paints with the HTML. Nothing inside #start ever
-// receives GSAP / tilt / entrance motion.
+// The hero IS the form (Tanner, 2026-09-08: "the form should be on the landing
+// page, seamlessly available", not a form-looking tile group that links out).
+// Static H1 (the LCP element, never animated), sub line (desktop only), then
+// the #start card carrying the LIVE V1 (LeaderOne-style) eight-step form as a
+// React island, hydrated on load because it is the fold. Astro server-renders
+// step 1, so the fold paints with the HTML and the first tap works the moment
+// React attaches. The card keeps V1's cream ground so the form reads exactly
+// as it does on /start (which stays as the full-page fallback). Nothing inside
+// #start ever receives GSAP / tilt / entrance motion (motion.ts guards on it).
 import Icon from './Icon.astro';
-import { form, goals, legal, housingPhrase } from '../config/site';
+import FormV1 from './start/FormV1';
+import { legal, housingPhrase } from '../config/site';
+import '../styles/start.css';
 
 interface Props {
   h1: string;
@@ -14,7 +19,6 @@ interface Props {
 }
 
 const { h1, sub } = Astro.props;
-const phases = form.phases;
 ---
 
 <section class="relative" aria-labelledby="hero-h1">
@@ -26,32 +30,11 @@ const phases = form.phases;
       <p class="prose-body mx-auto mt-4 hidden text-center md:block">{sub}</p>
     </div>
 
-    <div id="start" class="card-lg mx-auto mt-5 w-full max-w-[52rem] scroll-mt-4 p-4 sm:p-6 md:mt-9 md:p-8">
-      <div class="flex flex-wrap items-center gap-1.5" aria-hidden="true">
-        {phases.map((p, i) => (
-          <span class={`phase-pill${i === 0 ? ' is-active' : ''}`} data-phase-pill data-phase={p.id}>{p.label}</span>
-        ))}
-      </div>
-      <p class="sr-only" data-step-label>Step 1 of {form.totalSteps}</p>
-      <div class="progress-track mt-3" aria-hidden="true">
-        <div class="progress-fill" style={`width:${Math.round(100 / form.totalSteps)}%`}></div>
-      </div>
-
-      <h2 class="h-step mt-5 text-center md:mt-6" data-step-title>{form.titles.goal}</h2>
-
-      <nav class="tiles mt-4 grid gap-3 md:mt-6 md:grid-cols-3 md:gap-4" aria-label={form.titles.goal} data-step="goal">
-        {goals.map((g) => (
-          <a href={`/start?goal=${g.value}`} class="opt-card tile" data-value={g.value}>
-            <span class="opt-coin" aria-hidden="true">
-              <Icon name={g.icon} size={24} />
-            </span>
-            <span>{g.label}</span>
-          </a>
-        ))}
-      </nav>
+    <div id="start" class="card-lg hero-form-card mx-auto mt-5 w-full max-w-[46rem] scroll-mt-4 p-5 sm:p-7 md:mt-9 md:p-9">
+      <FormV1 client:load embedded />
     </div>
 
-    <p class="mx-auto mt-4 flex max-w-[52rem] flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-[0.78rem] leading-snug text-ink/60">
+    <p class="mx-auto mt-4 flex max-w-[46rem] flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-[0.78rem] leading-snug text-ink/60">
       <span>{legal.underForm}</span>
       <span class="eh-mark" role="img" aria-label={housingPhrase}>
         <Icon name="equal-housing" />
@@ -62,13 +45,11 @@ const phases = form.phases;
 </section>
 
 <style>
-  /* Anchors reuse the shared .opt-card look; only the link defaults change here. */
-  .tile {
-    text-decoration: none;
-  }
-
-  .tile:focus-visible {
-    outline: 2px solid var(--color-brand);
-    outline-offset: 3px;
+  /* V1's own cream ground and hairline inside the t4 card shell, so the white
+     option cards and gold buttons keep the contrast they have on /start. */
+  .hero-form-card {
+    background: #f6f3ec;
+    border-color: #e4e0d5;
+    color: #1e3a5f;
   }
 </style>

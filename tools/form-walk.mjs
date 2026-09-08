@@ -28,6 +28,15 @@ const BASE = (process.env.QA_BASE || 'http://localhost:4332').replace(/\/+$/, ''
 const CHROME = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const BRAND = 'Internet Loans Direct';
 const only = process.argv.slice(2).find((a) => !a.startsWith('--'));
+// QA_FORM_PATH=/ walks the form embedded in the landing-page hero (2026-09-08);
+// default /start (the full-page fallback). Both share the #start DOM contract.
+const FORM = (process.env.QA_FORM_PATH || '/start').replace(/\/+$/, '') || '/';
+const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, (m) => '\\' + m);
+// full-URL test (page.url(), tcpaConsentUrl) and pathname test (landingPage)
+const FORM_RE = FORM === '/' ? /^https?:\/\/[^/]+\/(\?|$)/ : new RegExp(esc(FORM));
+const FORM_PATH_RE = FORM === '/' ? /^\/(\?|$)/ : new RegExp('^' + esc(FORM));
+const FORM_QUERY_RE = new RegExp((FORM === '/' ? '^/' : '^' + esc(FORM)) + '\\?gclid=QAGCLID123');
+const formUrl = (q = '') => FORM + q;
 
 const VIEWPORTS = {
   desktop: { name: 'desktop', width: 1440, height: 900, deviceScaleFactor: 1 },
@@ -238,8 +247,8 @@ function checkPayloadShape(label, p) {
       p.tcpaConsentText.endsWith('Consent is not a condition of purchase or of receiving services and can be revoked at any time.'),
     `${String(p.tcpaConsentText).length} chars`);
   check(`${label}: tcpaConsentAt is an ISO click timestamp`, ISO.test(String(p.tcpaConsentAt)), String(p.tcpaConsentAt));
-  check(`${label}: tcpaConsentUrl is the /start URL`, /\/start/.test(String(p.tcpaConsentUrl)), String(p.tcpaConsentUrl));
-  check(`${label}: landingPage = pathname + search`, /^\/start/.test(String(p.landingPage)), String(p.landingPage));
+  check(`${label}: tcpaConsentUrl is the /start URL`, FORM_RE.test(String(p.tcpaConsentUrl)), String(p.tcpaConsentUrl));
+  check(`${label}: landingPage = pathname + search`, FORM_PATH_RE.test(String(p.landingPage)), String(p.landingPage));
   check(`${label}: state Texas, city ''`, p.state === 'Texas' && p.city === '');
   check(`${label}: partial false, website ''`, p.partial === false && p.website === '');
   check(`${label}: variant b-t4-v1, source ild-split-test`, p.variant === 'b-t4-v1' && p.source === 'ild-split-test', `${p.variant}/${p.source}`);
@@ -292,7 +301,7 @@ async function buyWalk(browser, vp) {
   const page = await newPage(browser, vp, sink);
   const shot = shooter(page, vp);
   // desktop carries attribution so the optional keys get exercised; mobile is bare
-  await open(page, vp.name === 'desktop' ? '/start?gclid=QAGCLID123&utm_source=qa-walk&utm_campaign=split-b' : '/start');
+  await open(page, vp.name === 'desktop' ? formUrl('?gclid=QAGCLID123&utm_source=qa-walk&utm_campaign=split-b') : formUrl(''));
 
   await waitStep(page, 'goal');
   await shot('01-goal');
@@ -349,7 +358,7 @@ async function buyWalk(browser, vp) {
   check(`${label}: submit disabled with consent unchecked`, (await isDisabled(page, 'submit')) === true);
   await clickAction(page, 'submit');
   await settle(400);
-  check(`${label}: unchecked consent = zero POSTs, still on /start`, sink.posts.length === 0 && /\/start/.test(page.url()), page.url());
+  check(`${label}: unchecked consent = zero POSTs, still on /start`, sink.posts.length === 0 && FORM_RE.test(page.url()), page.url());
   const checked = await page.evaluate(() => {
     const cb = document.querySelector('#ff-tcpa');
     cb.click();
@@ -383,7 +392,7 @@ async function buyWalk(browser, vp) {
   check(`${label}: names + email`, p.firstName === 'Quinn' && p.lastName === 'Walker' && p.email === 'qa@example.com', `${p.firstName} ${p.lastName} ${p.email}`);
   if (vp.name === 'desktop') {
     check(`${label}: attribution shipped (gclid, utm_source, utm_campaign) in order`, p.gclid === 'QAGCLID123' && p.utm_source === 'qa-walk' && p.utm_campaign === 'split-b' && !('utm_medium' in p), `${p.gclid}/${p.utm_source}/${p.utm_campaign}`);
-    check(`${label}: landingPage carries the query`, /\/start\?gclid=QAGCLID123/.test(String(p.landingPage)), String(p.landingPage));
+    check(`${label}: landingPage carries the query`, FORM_QUERY_RE.test(String(p.landingPage)), String(p.landingPage));
   } else {
     check(`${label}: no attribution keys when none present`, !ATTR_KEYS.some((k) => k in p));
   }
@@ -435,7 +444,7 @@ async function preselectAndForks(browser, vp) {
   const shot = shooter(page, vp);
 
   // preselect: opens on step 2, Back returns to a highlighted step 1
-  await open(page, '/start?goal=refinance');
+  await open(page, formUrl('?goal=refinance'));
   await waitStep(page, 'stage');
   check(`${label}: /start?goal=refinance opens on step 2`, (await mountedStep(page)) === 'stage' && (await stepLabel(page)) === 'Step 2 of 8', await stepLabel(page));
   await shot('preselect-stage');
@@ -486,7 +495,7 @@ async function preselectAndForks(browser, vp) {
   writeFileSync(`${SHOTS}walk-payload-${vp.name}-refi.json`, JSON.stringify(r, null, 2));
 
   // flip path: rehab fork
-  await open(page, '/start?goal=bridge');
+  await open(page, formUrl('?goal=bridge'));
   await waitStep(page, 'stage');
   await clickValue(page, 'deal-under-contract');
   await waitStep(page, 'propertyType');
@@ -534,7 +543,7 @@ async function kickout(browser, vp) {
   const sink = makeSink();
   const page = await newPage(browser, vp, sink);
   const shot = shooter(page, vp);
-  await open(page, '/start');
+  await open(page, formUrl(''));
   await waitStep(page, 'goal');
   await clickValue(page, 'purchase');
   await waitStep(page, 'stage');
@@ -548,7 +557,7 @@ async function kickout(browser, vp) {
   check(`${label}: kick-out shows Step 4 of 8`, (await stepLabel(page)) === 'Step 4 of 8', await stepLabel(page));
   const href = await page.evaluate(() => document.querySelector('#start [data-action="not-yet"]')?.getAttribute('href'));
   check(`${label}: kick-out links to /not-yet`, href === '/not-yet', String(href));
-  check(`${label}: still on /start, zero POSTs`, /\/start/.test(page.url()) && sink.posts.length === 0);
+  check(`${label}: still on /start, zero POSTs`, FORM_RE.test(page.url()) && sink.posts.length === 0);
   await shot('kickout');
   await clickAction(page, 'back');
   await waitStep(page, 'credit');
@@ -578,7 +587,7 @@ async function failedPostRetry(browser, vp) {
       /* already handled */
     }
   });
-  await open(page, '/start?goal=purchase');
+  await open(page, formUrl('?goal=purchase'));
   await waitStep(page, 'stage');
   await clickValue(page, 'made-an-offer-or-under-contract');
   await waitStep(page, 'propertyType');
@@ -603,7 +612,7 @@ async function failedPostRetry(browser, vp) {
   await settle(1200);
   const err = await visibleError(page);
   check(`${label}: 500 shows the inline error`, /didn't go through/.test(err), err || 'no [data-error]');
-  check(`${label}: still on /start after the failure`, /\/start/.test(page.url()), page.url());
+  check(`${label}: still on /start after the failure`, FORM_RE.test(page.url()), page.url());
   check(`${label}: submit re-enabled for the retry`, (await isDisabled(page, 'submit')) === false);
   await shot('retry-error');
   const url = await submitAndLand(page);
@@ -624,7 +633,7 @@ async function backNavigation(browser, vp) {
   const page = await newPage(browser, vp, sink);
   const shot = shooter(page, vp);
   const selectedOn = (step) => page.evaluate((s) => document.querySelector(`#start [data-step="${s}"] [data-selected="true"]`)?.getAttribute('data-value') ?? null, step);
-  await open(page, '/start');
+  await open(page, formUrl(''));
   await waitStep(page, 'goal');
   await clickValue(page, 'purchase');
   await waitStep(page, 'stage');
@@ -739,7 +748,7 @@ async function handBuiltPosts(browser, vp) {
   const sink = makeSink();
   sink.expect400 = true;
   const page = await newPage(browser, vp, sink);
-  await open(page, '/start');
+  await open(page, formUrl(''));
   const base = {
     goal: 'purchase', goalLabel: 'Buy a rental', stage: 'comparing-lenders', stageLabel: 'Comparing lenders',
     propertyType: 'sfr', propertyTypeLabel: 'Single-family', credit: '740+', price: 300000, priceDisplay: '$300,000',

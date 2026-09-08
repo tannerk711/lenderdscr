@@ -30,7 +30,16 @@ const lenderPicksVisible =
 const sub = network ? hero.subNetwork : hero.subLender;
 ---
 
-<Layout title={seo.title} description={seo.description} noindex={false}>
+<Layout
+  title={seo.title}
+  description={seo.description}
+  noindex={false}
+  preloadFonts={[
+    '/fonts/bricolage-grotesque-latin-wght-normal.woff2',
+    '/fonts/manrope-latin-wght-normal.woff2',
+    '/fonts/fraunces-latin-standard-normal.woff2',
+  ]}
+>
   <Topbar />
   <main id="main">
     <HeroForm h1={hero.h1} sub={sub} />

@@ -291,7 +291,7 @@ export const directory: { columns: DirectoryColumn[] } = {
     {
       title: 'Company',
       links: [
-        { label: 'Check eligibility', href: '/start' },
+        { label: 'Check eligibility', href: '#start' },
         { label: 'Questions', href: '#faq' },
         { label: 'Privacy', href: '/privacy' },
         { label: 'Legal', href: '/legal' },

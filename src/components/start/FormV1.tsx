@@ -37,6 +37,7 @@ import {
   recordTestLead,
 } from '../../lib/flow';
 import { Step1, Step2, Step3, Step4, Step5, Step6, Step6Buy, Step7, Step8, KickoutScreen } from './steps';
+import { FormPlacement } from './ui';
 
 const ADVANCE_DELAY = 250; // show the selected state, then slide
 const ENTER_GUARD_MS = 350; // ignore Enter/submit this soon after a step mounts
@@ -66,7 +67,14 @@ function headlineFor(view: View, step: number, path: PathId): string {
   }
 }
 
-export default function FormV1() {
+interface FormV1Props {
+  /** true when the form is mounted inside the landing-page hero card (#start
+   *  belongs to the card, the card supplies padding and ground, the step
+   *  headline is an h2). Default false = the full /start page. */
+  embedded?: boolean;
+}
+
+export default function FormV1({ embedded = false }: FormV1Props) {
   const [view, setView] = useState<View>('form');
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState<Dir>(1);
@@ -113,6 +121,22 @@ export default function FormV1() {
     navLock.current = false;
     enteredAt.current = Date.now();
   }, [step, view]);
+
+  // Embedded on the LP: when a step changes while the card's top has scrolled
+  // off screen (a tall step on a short phone), bring the card back so the new
+  // question is in view. Never fires on first mount (step 1 is the fold).
+  const mounted = useRef(false);
+  useEffect(() => {
+    if (!embedded) return;
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
+    const card = document.getElementById('start');
+    if (!card) return;
+    const top = card.getBoundingClientRect().top;
+    if (top < 0) card.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
+  }, [step, view, embedded, reduceMotion]);
 
   // bfcache back-nav: never leave the button stuck on the submitting label.
   useEffect(() => {
@@ -394,12 +418,16 @@ export default function FormV1() {
   }
 
   return (
-    <div id="start" className="v1lo-root flex flex-1 flex-col px-4 pb-8 pt-6 sm:px-6 sm:pt-8">
+    <FormPlacement.Provider value={embedded ? 'embedded' : 'page'}>
+    <div
+      id={embedded ? undefined : 'start'}
+      className={embedded ? 'v1lo-root relative flex flex-col' : 'v1lo-root flex flex-1 flex-col px-4 pb-8 pt-6 sm:px-6 sm:pt-8'}
+    >
       {/* honeypot: in the always-mounted shell so its value survives step changes */}
       <input id="ff-website" name="website" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" className="v1lo-hp" />
 
-      <div className="mx-auto flex w-full max-w-[640px] flex-1 flex-col justify-center">
-        <div className="mb-10">
+      <div className={embedded ? 'mx-auto flex w-full max-w-[640px] flex-col' : 'mx-auto flex w-full max-w-[640px] flex-1 flex-col justify-center'}>
+        <div className={embedded ? 'mb-7' : 'mb-10'}>
           <div className="mb-2.5 flex items-baseline justify-between">
             <span className="text-[12px] font-medium uppercase tracking-[0.22em] text-[#636D7C]" data-step-label>
               Step {shownStep} of {TOTAL_STEPS}
@@ -422,5 +450,6 @@ export default function FormV1() {
         </AnimatePresence>
       </div>
     </div>
+    </FormPlacement.Provider>
   );
 }
