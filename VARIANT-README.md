@@ -126,7 +126,59 @@ Server adds `tcpaConsentIp`, `tcpaConsentUserAgent`, `tcpaConsentReceivedAt`.
   dashes under src/public/tools/scripts, mobile fold at 390x844: H1 bottom 250px, third
   tile bottom 622px, form card bottom 639px.
 
-### Stage 2 (form): pending
+### Stage 2 (form), 2026-09-07
+
+- `/start` is now the V1 (LeaderOne-style) eight-step form, full page: cream `#F6F3EC`
+  ground, Fraunces headlines (self-hosted `standard` woff2 in `public/fonts/`, `font-display:
+  optional`, `opsz 72`; the unused `fraunces-latin-full-normal.woff2` was dropped), gold
+  gradient CTAs, "Step n of 8" + percent progress bar, no wordmark inside the form, a slim
+  ILD topbar (logo + `Call (855) 545-2022`) above it, and a one-line footer (Privacy, Legal,
+  Equal Housing Opportunity, copyright). Body face is the brand sans (Manrope).
+- Files: `src/lib/flow.ts` (flow spec + `buildPayload()` + `buildLeadSummary()` + test-lead
+  storage; option VALUES come from `site.ts`, wording from `site.ts` `form` and
+  `_ref/form-templates/flow.ts`), `src/components/start/{FormV1,steps,ui,LeadInspector}.tsx`,
+  `src/styles/start.css` (page-scoped, unlayered like the V1 original), `src/pages/start.astro`,
+  `src/pages/test-leads.astro`. `Layout.astro` takes `preloadFonts` so `/start` preloads
+  Fraunces + Manrope instead of Bricolage + Manrope. The stage-1 `/start` placeholder is gone.
+- Steps (BRIEF section 4): goal (Buy a rental / Refinance / Fix & Flip/Hold, `?goal=` preselect
+  opens on step 2 and Back returns to a highlighted step 1) > process (per path) > property
+  (7) > credit (4, micro labels; Below 620 = in-form kick-out with a gold link to `/not-yet`
+  and an "I picked the wrong range" undo, nothing recorded, never posted) > price slider
+  ($100K to $3M+, $50K steps, default $300K) > fork (buy: down slider 20% to 50%+ with the
+  exact live dollar line; refi: balance options; flip: rehab options) > first/last/email >
+  phone + ONE gated TCPA box (ILD `tcpaCopy` verbatim, unchecked, click-stamped) + submit
+  (`Check My DSCR Eligibility`, V1's own label). Auto-advance 250ms after the selected
+  state shows. Enter on the two typed steps is guarded (nav lock + 350ms mount guard) so a
+  held key advances once. `submit()` re-validates name, email, 10-digit phone and consent
+  itself; a failed POST shows `form.errors.submit` inline and the button re-enables for a
+  retry.
+- Payload: exactly the section-5 keys in order (attribution keys only when present), then
+  `variant: 'b-t4-v1'`, `source: 'ild-split-test'`. Price ships the number or the string
+  `'3000000+'` (`priceDisplay` `$3,000,000+`); buy ships `downPct` / `downPctDisplay` /
+  `downPayment` (`round(pct/100 * price)`, null at $3M+) / `downPaymentDisplay`; refi ships
+  `balanceDisplay` = option text with `balance` / `equity` / `equityDisplay` null; flip ships
+  `rehabDisplay` with `rehab` null; `scenarioDetail` = one human line. `stage` is the kebab
+  slug of the option text, `stageLabel` the text.
+- Test mode: on a 200 the payload goes to `localStorage['ild_variant_test_leads']` +
+  `console.log('[variant TEST LEAD]', payload)`, `sessionStorage['lead-summary']` is set,
+  then `window.location.href = '/thank-you'`. `/test-leads` (noindex, not in the sitemap)
+  lists the captured leads newest first as pretty JSON in the brand sans, with Clear.
+- Verified with `tools/form-walk.mjs` (puppeteer, real dev server, both viewports): 218/218
+  checks; every request during every walk stayed on localhost; `/api/lead` answered
+  `{ok:true, forwarded:false, testMode:true}`; payload keys match section 5 in order for
+  buy, refi and flip; unchecked consent = zero POSTs; kick-out = zero POSTs; 500 then retry
+  lands on `/thank-you`. Screenshot passes on every step at 1440x900 and 390x844 fixed two
+  defects: the buy-fork dollar line rounded to $1,000 while the payload shipped the exact
+  figure (now exact, `$87,500` both places), and the LP topbar program-word separators
+  hugged the previous word (`margin-inline` on the dot). `overflow-check` OK at 390 and
+  320 on all nine routes. Mobile fold at 390x844: step 1 shows the question and all three
+  options (third card bottom ~645px).
+- Left as is for later stages: the interim template thank-you page (stage 3 replaces it with
+  the LeaderOne clone); `tools/step-walk-qa.mjs` / `tcpa-test.mjs` / `gtag-test.mjs` still
+  assert template 4's contract (form-walk covers their ground; the QA stage decides);
+  Lighthouse (perf stage). The `/start` JS is React + framer-motion + lucide (about 107 KB gz
+  total); if the perf stage finds `/start` under 90 on mobile, swapping framer-motion for the
+  CSS step transitions already in `global.css` is the first cut.
 
 ### Stage 3 (thank-you): pending
 

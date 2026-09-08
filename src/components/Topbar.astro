@@ -112,9 +112,10 @@ import Icon from './Icon.astro';
     text-align: right;
   }
 
+  /* flex items carry no whitespace, so the dot needs a gap on BOTH sides */
   .tb-spec-item + .tb-spec-item::before {
     content: "\00B7";
-    margin-right: 0.55rem;
+    margin-inline: 0.55rem;
     color: var(--color-brand);
     font-weight: 800;
   }

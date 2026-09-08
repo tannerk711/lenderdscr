@@ -1,0 +1,55 @@
+---
+// /test-leads (BRIEF section 3): the TEST MODE inspector. Lists every payload
+// the form on this browser POSTed to /api/lead and got a 200 for, newest
+// first, with a Clear button. noindex in every mode; excluded from the sitemap.
+import Layout from '../layouts/Layout.astro';
+import Topbar from '../components/Topbar.astro';
+import Footer from '../components/Footer.astro';
+import LeadInspector from '../components/start/LeadInspector';
+import { brand, leadDelivery, variant } from '../config/site';
+
+const title = `Test leads | ${brand.name}`;
+const description = 'Test-mode lead inspector for the split-test variant. Internal.';
+---
+
+<Layout title={title} description={description} noindex>
+  <Topbar />
+
+  <main id="main" class="ground-paper">
+    <section class="container-x py-12 md:py-16">
+      <div class="mx-auto max-w-3xl">
+        <p class="eyebrow">Variant {variant} · lead delivery: {leadDelivery}</p>
+        <h1 class="h-section mt-3">Test leads</h1>
+        <p class="prose-body mt-4">
+          {leadDelivery === 'test'
+            ? 'While the variant is in test mode, /api/lead accepts each lead, logs it, and forwards nothing. The accepted payload is kept in this browser only; this page reads it back. Clear it any time.'
+            : 'The variant is LIVE: leads forward to the Zap and are no longer kept in the browser. Anything listed here is left over from test mode.'}
+        </p>
+        <div class="mt-8">
+          <LeadInspector client:load />
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style is:global>
+  /* Pretty JSON in the brand body face (no monospace in designed UI). */
+  .lead-json {
+    margin: 0;
+    padding: 1rem 1.1rem;
+    border-radius: 12px;
+    border: 1px solid var(--color-line);
+    background: var(--color-mist);
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: rgba(26, 20, 24, 0.82);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    max-height: 32rem;
+    overflow: auto;
+  }
+</style>

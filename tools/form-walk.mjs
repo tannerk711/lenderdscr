@@ -1,0 +1,634 @@
+// Real-browser walk of the /start V1 form (variant B, stage 2). Drives the form
+// by its DOM contract (#start [data-step], [data-value], [data-action], #ff-*),
+// screenshots every step at desktop 1440x900 (dsf 1) and mobile 390x844 (dsf 2,
+// hasTouch, never isMobile), captures the real POST /api/lead body + response,
+// and diffs the payload keys against BRIEF section 5 in order. Also proves:
+//   - ?goal= preselect opens on step 2 and Back returns to a highlighted step 1
+//   - refi + flip forks (balance / rehab options, $3M+ price edge) submit cleanly
+//   - Below 620 = in-form kick-out with zero POSTs and a link to /not-yet
+//   - a double Enter on the contact step advances exactly once
+//   - an unchecked consent box blocks submit with zero POSTs
+//   - a failed POST shows the inline error and the retry lands on /thank-you
+//   - no request leaves localhost during any walk (TEST MODE contract)
+// Exit 1 on any failed check. Needs the dev server: CI=true npx astro dev --port 4332
+//
+//   node tools/form-walk.mjs [desktop|mobile]
+import puppeteer from 'puppeteer-core';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = fileURLToPath(new URL('../', import.meta.url));
+const SHOTS = `${ROOT}tools/shots/`;
+const BASE = (process.env.QA_BASE || 'http://localhost:4332').replace(/\/+$/, '');
+const CHROME = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
+const BRAND = 'Internet Loans Direct';
+const only = process.argv.slice(2).find((a) => !a.startsWith('--'));
+
+const VIEWPORTS = {
+  desktop: { name: 'desktop', width: 1440, height: 900, deviceScaleFactor: 1 },
+  mobile: { name: 'mobile', width: 390, height: 844, deviceScaleFactor: 2, hasTouch: true },
+};
+
+// BRIEF section 5, in order. The attribution block ships only the keys present.
+const HEAD_KEYS = [
+  'goal', 'goalLabel', 'stage', 'stageLabel', 'propertyType', 'propertyTypeLabel', 'credit',
+  'price', 'priceDisplay', 'downPct', 'downPctDisplay', 'downPayment', 'downPaymentDisplay',
+  'balance', 'balanceDisplay', 'equity', 'equityDisplay', 'rehab', 'rehabDisplay', 'scenarioDetail',
+  'city', 'state', 'firstName', 'lastName', 'email', 'phone',
+  'partial',
+  'tcpaConsent', 'tcpaConsentText', 'tcpaConsentAt', 'tcpaConsentUrl',
+];
+const ATTR_KEYS = ['gclid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+const TAIL_KEYS = ['landingPage', 'secondsToComplete', 'website', 'submittedAt', 'variant', 'source'];
+
+const results = [];
+const check = (label, ok, detail = '') => {
+  results.push({ label, ok });
+  console.log(`  ${ok ? 'PASS' : 'FAIL'}  ${label}${detail ? `  (${detail})` : ''}`);
+  return ok;
+};
+const settle = (ms) => new Promise((r) => setTimeout(r, ms));
+const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+
+if (!existsSync(CHROME)) {
+  console.error(`Chrome not found at ${CHROME}`);
+  process.exit(1);
+}
+mkdirSync(SHOTS, { recursive: true });
+
+// ---------------------------------------------------------------------------
+// page helpers
+// ---------------------------------------------------------------------------
+async function newPage(browser, vp, sink) {
+  const { name, ...viewport } = vp;
+  const page = await browser.newPage();
+  await page.setViewport(viewport);
+  // Record the /api/lead response INSIDE the page, before the form navigates to
+  // /thank-you: puppeteer's response.json() races that navigation and can read
+  // null. The wrapper awaits the cloned body before handing the response back,
+  // and sessionStorage survives the same-origin navigation.
+  await page.evaluateOnNewDocument(() => {
+    const orig = window.fetch;
+    window.fetch = async (...args) => {
+      const res = await orig(...args);
+      try {
+        const url = typeof args[0] === 'string' ? args[0] : args[0] && args[0].url;
+        if (url && String(url).includes('/api/lead')) {
+          const body = await res.clone().text();
+          sessionStorage.setItem('__qa_lead_response', JSON.stringify({ status: res.status, body }));
+        }
+      } catch {
+        /* ignore */
+      }
+      return res;
+    };
+  });
+  page.on('request', (r) => {
+    sink.requests.push(r.url());
+    if (r.url().includes('/api/lead') && r.method() === 'POST') {
+      try {
+        sink.posts.push(JSON.parse(r.postData() || '{}'));
+      } catch {
+        sink.posts.push({ __unparseable: r.postData() });
+      }
+    }
+  });
+  page.on('response', (r) => {
+    if (r.url().includes('/api/lead')) {
+      r.json()
+        .then((body) => sink.responses.push({ status: r.status(), body }))
+        .catch(() => sink.responses.push({ status: r.status(), body: null }));
+    }
+  });
+  page.on('pageerror', (e) => sink.errors.push(`[pageerror ${name}] ${e.message}`));
+  page.on('console', (m) => {
+    if (m.type() === 'error') sink.errors.push(`[console ${name}] ${m.text()}`);
+  });
+  return page;
+}
+
+const makeSink = () => ({ requests: [], posts: [], responses: [], errors: [] });
+
+async function open(page, path) {
+  await page.goto(BASE + path, { waitUntil: 'networkidle0', timeout: 45000 });
+  const title = await page.title();
+  if (!title.includes(BRAND)) throw new Error(`title "${title}" lacks "${BRAND}" on ${path}: wrong server on ${BASE}?`);
+  await settle(300);
+}
+
+async function waitStep(page, id, timeout = 8000) {
+  try {
+    await page.waitForSelector(`#start [data-step="${id}"]`, { timeout });
+  } catch {
+    const mounted = await page.evaluate(() => [...document.querySelectorAll('#start [data-step]')].map((e) => e.getAttribute('data-step')));
+    throw new Error(`step "${id}" never mounted (mounted: ${mounted.join(',') || 'none'}; if every step misses in dev, rm -rf node_modules/.vite .astro and restart)`);
+  }
+  await settle(420); // auto-advance delay + slide
+}
+
+async function mountedStep(page) {
+  return page.evaluate(() => document.querySelector('#start [data-step]')?.getAttribute('data-step') ?? '');
+}
+
+async function clickValue(page, value) {
+  const ok = await page.evaluate((v) => {
+    const el = document.querySelector(`#start [data-value="${v}"]`);
+    if (!el) return false;
+    el.scrollIntoView({ block: 'center' });
+    el.click();
+    return true;
+  }, value);
+  if (!ok) throw new Error(`no #start [data-value="${value}"] on step ${await mountedStep(page)}`);
+}
+
+async function clickAction(page, action) {
+  const ok = await page.evaluate((a) => {
+    const el = document.querySelector(`#start [data-action="${a}"]`);
+    if (!el) return false;
+    el.scrollIntoView({ block: 'center' });
+    el.click();
+    return true;
+  }, action);
+  if (!ok) throw new Error(`no #start [data-action="${action}"] on step ${await mountedStep(page)}`);
+}
+
+async function setRange(page, value) {
+  await page.evaluate((v) => {
+    const el = document.querySelector('#start #ff-range');
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+    setter.call(el, String(v));
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  }, value);
+  await settle(150);
+}
+
+async function typeInto(page, sel, text) {
+  await page.waitForSelector(sel, { timeout: 8000 });
+  await page.click(sel, { clickCount: 3 });
+  await page.type(sel, text, { delay: 8 });
+}
+
+async function isDisabled(page, action) {
+  return page.evaluate((a) => document.querySelector(`#start [data-action="${a}"]`)?.disabled ?? null, action);
+}
+
+async function visibleError(page) {
+  return page.evaluate(() => {
+    const el = document.querySelector('#start [data-error]');
+    if (!el) return '';
+    const r = el.getBoundingClientRect();
+    return r.width > 1 && r.height > 1 ? el.textContent.trim() : '';
+  });
+}
+
+async function stepLabel(page) {
+  return page.evaluate(() => document.querySelector('#start [data-step-label]')?.textContent.trim() ?? '');
+}
+
+function shooter(page, vp) {
+  return async (name) => {
+    const file = `${SHOTS}walk-${vp.name}-${name}.png`;
+    await page.screenshot({ path: file });
+    console.log(`  shot ${file}`);
+  };
+}
+
+async function submitAndLand(page) {
+  const nav = page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 15000 }).catch(() => null);
+  await clickAction(page, 'submit');
+  await nav;
+  const deadline = Date.now() + 15000;
+  while (Date.now() < deadline) {
+    if (/\/thank-you/.test(page.url())) break;
+    await settle(200);
+  }
+  await settle(700);
+  return page.url();
+}
+
+// ---------------------------------------------------------------------------
+// payload assertions
+// ---------------------------------------------------------------------------
+function expectedKeys(payload) {
+  const attrs = ATTR_KEYS.filter((k) => k in payload);
+  return [...HEAD_KEYS, ...attrs, ...TAIL_KEYS];
+}
+
+function checkPayloadShape(label, p) {
+  const got = Object.keys(p);
+  const want = expectedKeys(p);
+  const missing = want.filter((k) => !got.includes(k));
+  const extra = got.filter((k) => !want.includes(k));
+  const sameOrder = got.length === want.length && got.every((k, i) => k === want[i]);
+  check(`${label}: payload keys = BRIEF section 5 in order`, sameOrder && !missing.length && !extra.length,
+    missing.length || extra.length ? `missing [${missing}] extra [${extra}]` : `${got.length} keys`);
+  check(`${label}: no missing keys (null/'' allowed, absent not)`, missing.length === 0, missing.join(',') || 'none');
+  check(`${label}: tcpaConsent === true`, p.tcpaConsent === true);
+  check(`${label}: tcpaConsentText is ILD tcpaCopy verbatim`,
+    typeof p.tcpaConsentText === 'string' &&
+      p.tcpaConsentText.startsWith(`By continuing you expressly consent to having ${BRAND} contact you about your inquiry by email, text message, or phone call at the number you provided`) &&
+      p.tcpaConsentText.endsWith('Consent is not a condition of purchase or of receiving services and can be revoked at any time.'),
+    `${String(p.tcpaConsentText).length} chars`);
+  check(`${label}: tcpaConsentAt is an ISO click timestamp`, ISO.test(String(p.tcpaConsentAt)), String(p.tcpaConsentAt));
+  check(`${label}: tcpaConsentUrl is the /start URL`, /\/start/.test(String(p.tcpaConsentUrl)), String(p.tcpaConsentUrl));
+  check(`${label}: landingPage = pathname + search`, /^\/start/.test(String(p.landingPage)), String(p.landingPage));
+  check(`${label}: state Texas, city ''`, p.state === 'Texas' && p.city === '');
+  check(`${label}: partial false, website ''`, p.partial === false && p.website === '');
+  check(`${label}: variant b-t4-v1, source ild-split-test`, p.variant === 'b-t4-v1' && p.source === 'ild-split-test', `${p.variant}/${p.source}`);
+  check(`${label}: phone is 10 digits`, /^\d{10}$/.test(String(p.phone)), String(p.phone));
+  check(`${label}: secondsToComplete is a number`, typeof p.secondsToComplete === 'number', String(p.secondsToComplete));
+  check(`${label}: submittedAt ISO`, ISO.test(String(p.submittedAt)));
+}
+
+async function checkResponse(label, page, sink) {
+  // primary: the in-page record (survives the navigation); fallback: puppeteer's listener
+  let res = null;
+  try {
+    const raw = await page.evaluate(() => sessionStorage.getItem('__qa_lead_response'));
+    if (raw) {
+      const rec = JSON.parse(raw);
+      res = { status: rec.status, body: JSON.parse(rec.body) };
+    }
+  } catch {
+    res = null;
+  }
+  if (!res) res = sink.responses[sink.responses.length - 1] ?? null;
+  check(`${label}: /api/lead answered {ok:true, forwarded:false, testMode:true}`,
+    !!res && res.status === 200 && !!res.body && res.body.ok === true && res.body.forwarded === false && res.body.testMode === true,
+    JSON.stringify(res));
+}
+
+function checkNetwork(label, sink) {
+  const hosts = new Set();
+  for (const u of sink.requests) {
+    try {
+      const h = new URL(u).hostname;
+      if (h) hosts.add(h);
+    } catch {
+      /* data: / about: */
+    }
+  }
+  const foreign = [...hosts].filter((h) => h !== 'localhost' && h !== '127.0.0.1');
+  check(`${label}: every request stayed on localhost`, foreign.length === 0, foreign.join(',') || `${sink.requests.length} requests`);
+  check(`${label}: no zapier / googletagmanager / google-analytics request`, !sink.requests.some((u) => /zapier|googletagmanager|google-analytics/.test(u)));
+}
+
+// ---------------------------------------------------------------------------
+// walks
+// ---------------------------------------------------------------------------
+async function buyWalk(browser, vp) {
+  const label = `${vp.name} buy`;
+  console.log(`\n-- ${label}`);
+  const sink = makeSink();
+  const page = await newPage(browser, vp, sink);
+  const shot = shooter(page, vp);
+  // desktop carries attribution so the optional keys get exercised; mobile is bare
+  await open(page, vp.name === 'desktop' ? '/start?gclid=QAGCLID123&utm_source=qa-walk&utm_campaign=split-b' : '/start');
+
+  await waitStep(page, 'goal');
+  await shot('01-goal');
+  check(`${label}: step 1 label reads "Step 1 of 8"`, (await stepLabel(page)) === 'Step 1 of 8', await stepLabel(page));
+  await clickValue(page, 'purchase');
+  await waitStep(page, 'stage');
+  await shot('02-stage');
+  await clickValue(page, 'actively-looking-at-properties');
+  await waitStep(page, 'propertyType');
+  await shot('03-property');
+  await clickValue(page, 'sfr');
+  await waitStep(page, 'credit');
+  await shot('04-credit');
+  await clickValue(page, '680-739');
+  await waitStep(page, 'price');
+  await shot('05-price');
+  await setRange(page, 350000);
+  await shot('05-price-350k');
+  await clickAction(page, 'continue');
+  await waitStep(page, 'secondary');
+  const fork = await page.evaluate(() => document.querySelector('#start [data-step="secondary"]')?.getAttribute('data-fork'));
+  check(`${label}: buy fork is the down slider`, fork === 'down', String(fork));
+  await shot('06-down');
+  await clickAction(page, 'continue');
+  await waitStep(page, 'contact');
+  await shot('07-contact');
+  check(`${label}: contact Continue disabled while empty`, (await isDisabled(page, 'continue')) === true);
+  await typeInto(page, '#ff-first', 'Quinn');
+  await typeInto(page, '#ff-last', 'Walker');
+  await typeInto(page, '#ff-email', 'qa@example.com');
+  await settle(120);
+  await shot('07-contact-filled');
+  // Enter guard: two Enters in a row must advance exactly once (no skip, no submit)
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
+  await waitStep(page, 'phone');
+  check(`${label}: double Enter advanced exactly one step (phone mounted, 0 POSTs)`, (await mountedStep(page)) === 'phone' && sink.posts.length === 0, `${sink.posts.length} posts`);
+  check(`${label}: phone step label reads "Step 8 of 8"`, (await stepLabel(page)) === 'Step 8 of 8', await stepLabel(page));
+  const chips = await page.evaluate(() => [...document.querySelectorAll('#start [data-chips] span span')].map((c) => c.textContent.trim()));
+  check(`${label}: recap chips = goal, property, Texas, price`, chips.join('|') === 'Buy a rental|Single-family|Texas|$350,000', chips.join('|'));
+  await shot('08-phone');
+  await typeInto(page, '#ff-phone', '5555550123');
+  await settle(120);
+  await shot('08-phone-typed');
+  check(`${label}: submit disabled with consent unchecked`, (await isDisabled(page, 'submit')) === true);
+  await clickAction(page, 'submit');
+  await settle(400);
+  check(`${label}: unchecked consent = zero POSTs, still on /start`, sink.posts.length === 0 && /\/start/.test(page.url()), page.url());
+  const checked = await page.evaluate(() => {
+    const cb = document.querySelector('#ff-tcpa');
+    cb.click();
+    return cb.checked;
+  });
+  check(`${label}: consent box checks on click`, checked === true);
+  await settle(200);
+  const boxAboveSubmit = await page.evaluate(() => {
+    const cb = document.querySelector('#ff-tcpa')?.getBoundingClientRect();
+    const btn = document.querySelector('#start [data-action="submit"]')?.getBoundingClientRect();
+    return !!cb && !!btn && cb.bottom <= btn.top;
+  });
+  check(`${label}: consent box sits above the submit button`, boxAboveSubmit);
+  await shot('08-phone-consented');
+  check(`${label}: submit enabled after consent`, (await isDisabled(page, 'submit')) === false);
+
+  const url = await submitAndLand(page);
+  check(`${label}: landed on /thank-you`, /\/thank-you/.test(url), url);
+  check(`${label}: exactly one POST /api/lead`, sink.posts.length === 1, `${sink.posts.length}`);
+  const p = sink.posts[0] || {};
+  await checkResponse(label, page, sink);
+  checkPayloadShape(label, p);
+  check(`${label}: goal/goalLabel`, p.goal === 'purchase' && p.goalLabel === 'Buy a rental', `${p.goal}/${p.goalLabel}`);
+  check(`${label}: stage slug + label`, p.stage === 'actively-looking-at-properties' && p.stageLabel === 'Actively looking at properties', `${p.stage}/${p.stageLabel}`);
+  check(`${label}: propertyType sfr / Single-family`, p.propertyType === 'sfr' && p.propertyTypeLabel === 'Single-family', `${p.propertyType}/${p.propertyTypeLabel}`);
+  check(`${label}: credit 680-739`, p.credit === '680-739', String(p.credit));
+  check(`${label}: price 350000 / $350,000`, p.price === 350000 && p.priceDisplay === '$350,000', `${p.price}/${p.priceDisplay}`);
+  check(`${label}: downPct 25 / 25% / 87500 / $87,500`, p.downPct === 25 && p.downPctDisplay === '25%' && p.downPayment === 87500 && p.downPaymentDisplay === '$87,500', `${p.downPct}/${p.downPctDisplay}/${p.downPayment}/${p.downPaymentDisplay}`);
+  check(`${label}: refi/flip fields null`, p.balance === null && p.balanceDisplay === null && p.equity === null && p.equityDisplay === null && p.rehab === null && p.rehabDisplay === null);
+  check(`${label}: scenarioDetail "25% down (about $87,500)"`, p.scenarioDetail === '25% down (about $87,500)', String(p.scenarioDetail));
+  check(`${label}: names + email`, p.firstName === 'Quinn' && p.lastName === 'Walker' && p.email === 'qa@example.com', `${p.firstName} ${p.lastName} ${p.email}`);
+  if (vp.name === 'desktop') {
+    check(`${label}: attribution shipped (gclid, utm_source, utm_campaign) in order`, p.gclid === 'QAGCLID123' && p.utm_source === 'qa-walk' && p.utm_campaign === 'split-b' && !('utm_medium' in p), `${p.gclid}/${p.utm_source}/${p.utm_campaign}`);
+    check(`${label}: landingPage carries the query`, /\/start\?gclid=QAGCLID123/.test(String(p.landingPage)), String(p.landingPage));
+  } else {
+    check(`${label}: no attribution keys when none present`, !ATTR_KEYS.some((k) => k in p));
+  }
+  writeFileSync(`${SHOTS}walk-payload-${vp.name}-buy.json`, JSON.stringify(p, null, 2));
+
+  // thank-you personalization + storage side effects
+  const ty = await page.evaluate(() => {
+    let leads = [];
+    let summary = null;
+    try {
+      leads = JSON.parse(localStorage.getItem('ild_variant_test_leads') || '[]');
+    } catch {}
+    try {
+      summary = JSON.parse(sessionStorage.getItem('lead-summary') || 'null');
+    } catch {}
+    return {
+      name: document.querySelector('#ty-name')?.textContent.trim() ?? null,
+      chips: document.querySelectorAll('#ty-chips .deal-chip').length,
+      leads: leads.length,
+      summaryKeys: summary ? Object.keys(summary) : [],
+      summary,
+    };
+  });
+  check(`${label}: /thank-you H1 personalized with the first name`, !!ty.name && ty.name.includes('Quinn'), String(ty.name));
+  check(`${label}: /thank-you chips rendered`, ty.chips > 0, `${ty.chips} chips`);
+  check(`${label}: localStorage ild_variant_test_leads holds the lead`, ty.leads >= 1, `${ty.leads}`);
+  check(`${label}: lead-summary keys per BRIEF`, ty.summaryKeys.join(',') === 'firstName,goal,goalLabel,propertyType,propertyTypeLabel,credit,price,priceDisplay,state', ty.summaryKeys.join(','));
+  check(`${label}: lead-summary state Texas + priceDisplay`, ty.summary?.state === 'Texas' && ty.summary?.priceDisplay === '$350,000');
+  await shot('09-thank-you');
+
+  // /test-leads lists it
+  await open(page, '/test-leads');
+  await page.waitForSelector('[data-lead-count]', { timeout: 8000 });
+  await settle(300);
+  const count = await page.evaluate(() => Number(document.querySelector('[data-lead-count]')?.getAttribute('data-lead-count')));
+  check(`${label}: /test-leads lists the captured lead`, count >= 1, `${count}`);
+  await shot('10-test-leads');
+
+  checkNetwork(label, sink);
+  await page.close();
+  return sink;
+}
+
+async function preselectAndForks(browser, vp) {
+  const label = `${vp.name} preselect/forks`;
+  console.log(`\n-- ${label}`);
+  const sink = makeSink();
+  const page = await newPage(browser, vp, sink);
+  const shot = shooter(page, vp);
+
+  // preselect: opens on step 2, Back returns to a highlighted step 1
+  await open(page, '/start?goal=refinance');
+  await waitStep(page, 'stage');
+  check(`${label}: /start?goal=refinance opens on step 2`, (await mountedStep(page)) === 'stage' && (await stepLabel(page)) === 'Step 2 of 8', await stepLabel(page));
+  await shot('preselect-stage');
+  await clickAction(page, 'back');
+  await waitStep(page, 'goal');
+  const highlighted = await page.evaluate(() => document.querySelector('#start [data-value="refinance"]')?.getAttribute('data-selected'));
+  check(`${label}: Back from step 2 highlights Refinance on step 1`, highlighted === 'true', String(highlighted));
+  await shot('preselect-back');
+
+  // refi path with the $3M+ edge and the balance fork
+  await clickValue(page, 'refinance');
+  await waitStep(page, 'stage');
+  await clickValue(page, 'comparing-lenders');
+  await waitStep(page, 'propertyType');
+  await clickValue(page, 'condo');
+  await waitStep(page, 'credit');
+  await clickValue(page, '740+');
+  await waitStep(page, 'price');
+  const refiTitle = await page.evaluate(() => document.querySelector('#start [data-step-title]')?.textContent.trim());
+  check(`${label}: refi price title`, refiTitle === "About what's the property worth?", String(refiTitle));
+  await setRange(page, 3000000);
+  await shot('refi-price-3m');
+  await clickAction(page, 'continue');
+  await waitStep(page, 'secondary');
+  const refiFork = await page.evaluate(() => document.querySelector('#start [data-step="secondary"]')?.getAttribute('data-fork'));
+  check(`${label}: refi fork = balance options`, refiFork === 'balance', String(refiFork));
+  await shot('fork-refi');
+  await clickValue(page, 'less-than-50');
+  await waitStep(page, 'contact');
+  await typeInto(page, '#ff-first', 'Riley');
+  await typeInto(page, '#ff-last', 'Refi');
+  await typeInto(page, '#ff-email', 'refi@example.com');
+  await clickAction(page, 'continue');
+  await waitStep(page, 'phone');
+  await typeInto(page, '#ff-phone', '5555550124');
+  await page.evaluate(() => document.querySelector('#ff-tcpa').click());
+  await settle(200);
+  const refiUrl = await submitAndLand(page);
+  check(`${label}: refi submit landed on /thank-you`, /\/thank-you/.test(refiUrl), refiUrl);
+  const r = sink.posts[sink.posts.length - 1] || {};
+  await checkResponse(`${label} refi`, page, sink);
+  checkPayloadShape(`${label} refi`, r);
+  check(`${label}: refi goal/goalLabel`, r.goal === 'refinance' && r.goalLabel === 'Refinance', `${r.goal}/${r.goalLabel}`);
+  check(`${label}: refi price string '3000000+' / '$3,000,000+'`, r.price === '3000000+' && r.priceDisplay === '$3,000,000+', `${r.price}/${r.priceDisplay}`);
+  check(`${label}: refi balanceDisplay + scenarioDetail`, r.balance === null && r.balanceDisplay === 'Less than 50%' && r.equity === null && r.equityDisplay === null && r.scenarioDetail === 'Owes: Less than 50% of the value', `${r.balanceDisplay} / ${r.scenarioDetail}`);
+  check(`${label}: refi buy/flip fields null`, r.downPct === null && r.downPctDisplay === null && r.downPayment === null && r.downPaymentDisplay === null && r.rehab === null && r.rehabDisplay === null);
+  check(`${label}: refi propertyType condo`, r.propertyType === 'condo' && r.propertyTypeLabel === 'Townhome or condo');
+  writeFileSync(`${SHOTS}walk-payload-${vp.name}-refi.json`, JSON.stringify(r, null, 2));
+
+  // flip path: rehab fork
+  await open(page, '/start?goal=bridge');
+  await waitStep(page, 'stage');
+  await clickValue(page, 'deal-under-contract');
+  await waitStep(page, 'propertyType');
+  await clickValue(page, '2-4');
+  await waitStep(page, 'credit');
+  await clickValue(page, '620-679');
+  await waitStep(page, 'price');
+  const flipTitle = await page.evaluate(() => document.querySelector('#start [data-step-title]')?.textContent.trim());
+  check(`${label}: flip price title`, flipTitle === "About what's the purchase price?", String(flipTitle));
+  await clickAction(page, 'continue');
+  await waitStep(page, 'secondary');
+  const flipFork = await page.evaluate(() => document.querySelector('#start [data-step="secondary"]')?.getAttribute('data-fork'));
+  check(`${label}: flip fork = rehab options`, flipFork === 'rehab', String(flipFork));
+  await shot('fork-flip');
+  await clickValue(page, '25k-to-50k');
+  await waitStep(page, 'contact');
+  await typeInto(page, '#ff-first', 'Finn');
+  await typeInto(page, '#ff-last', 'Flip');
+  await typeInto(page, '#ff-email', 'flip@example.com');
+  await clickAction(page, 'continue');
+  await waitStep(page, 'phone');
+  await typeInto(page, '#ff-phone', '5555550125');
+  await page.evaluate(() => document.querySelector('#ff-tcpa').click());
+  await settle(200);
+  const flipUrl = await submitAndLand(page);
+  check(`${label}: flip submit landed on /thank-you`, /\/thank-you/.test(flipUrl), flipUrl);
+  const f = sink.posts[sink.posts.length - 1] || {};
+  await checkResponse(`${label} flip`, page, sink);
+  checkPayloadShape(`${label} flip`, f);
+  check(`${label}: flip goal bridge / Fix & Flip/Hold`, f.goal === 'bridge' && f.goalLabel === 'Fix & Flip/Hold', `${f.goal}/${f.goalLabel}`);
+  check(`${label}: flip rehabDisplay + scenarioDetail`, f.rehab === null && f.rehabDisplay === '$25K to $50K' && f.scenarioDetail === 'Rehab budget: $25K to $50K', `${f.rehabDisplay} / ${f.scenarioDetail}`);
+  check(`${label}: flip buy/refi fields null`, f.downPct === null && f.downPayment === null && f.balance === null && f.balanceDisplay === null && f.equity === null && f.equityDisplay === null);
+  check(`${label}: flip stage slug`, f.stage === 'deal-under-contract' && f.stageLabel === 'Deal under contract', `${f.stage}`);
+  check(`${label}: flip price default 300000`, f.price === 300000 && f.priceDisplay === '$300,000', `${f.price}`);
+  writeFileSync(`${SHOTS}walk-payload-${vp.name}-flip.json`, JSON.stringify(f, null, 2));
+
+  checkNetwork(label, sink);
+  await page.close();
+  return sink;
+}
+
+async function kickout(browser, vp) {
+  const label = `${vp.name} kick-out`;
+  console.log(`\n-- ${label}`);
+  const sink = makeSink();
+  const page = await newPage(browser, vp, sink);
+  const shot = shooter(page, vp);
+  await open(page, '/start');
+  await waitStep(page, 'goal');
+  await clickValue(page, 'purchase');
+  await waitStep(page, 'stage');
+  await clickValue(page, 'just-starting-my-research');
+  await waitStep(page, 'propertyType');
+  await clickValue(page, 'sfr');
+  await waitStep(page, 'credit');
+  await clickValue(page, '<620');
+  await waitStep(page, 'kickout');
+  check(`${label}: Below 620 mounts the in-form kick-out`, (await mountedStep(page)) === 'kickout');
+  check(`${label}: kick-out shows Step 4 of 8`, (await stepLabel(page)) === 'Step 4 of 8', await stepLabel(page));
+  const href = await page.evaluate(() => document.querySelector('#start [data-action="not-yet"]')?.getAttribute('href'));
+  check(`${label}: kick-out links to /not-yet`, href === '/not-yet', String(href));
+  check(`${label}: still on /start, zero POSTs`, /\/start/.test(page.url()) && sink.posts.length === 0);
+  await shot('kickout');
+  await clickAction(page, 'back');
+  await waitStep(page, 'credit');
+  const anySelected = await page.evaluate(() => !!document.querySelector('#start [data-step="credit"] [data-selected="true"]'));
+  check(`${label}: "I picked the wrong range" returns to credit with nothing selected`, !anySelected);
+  checkNetwork(label, sink);
+  await page.close();
+}
+
+async function failedPostRetry(browser, vp) {
+  const label = `${vp.name} failed-POST retry`;
+  console.log(`\n-- ${label}`);
+  const sink = makeSink();
+  const page = await newPage(browser, vp, sink);
+  const shot = shooter(page, vp);
+  let failed = 0;
+  await page.setRequestInterception(true);
+  page.on('request', (r) => {
+    try {
+      if (r.url().includes('/api/lead') && r.method() === 'POST' && failed === 0) {
+        failed++;
+        r.respond({ status: 500, contentType: 'application/json', body: '{"ok":false,"error":"qa-induced"}' });
+        return;
+      }
+      r.continue();
+    } catch {
+      /* already handled */
+    }
+  });
+  await open(page, '/start?goal=purchase');
+  await waitStep(page, 'stage');
+  await clickValue(page, 'made-an-offer-or-under-contract');
+  await waitStep(page, 'propertyType');
+  await clickValue(page, '5-9');
+  await waitStep(page, 'credit');
+  await clickValue(page, '740+');
+  await waitStep(page, 'price');
+  await clickAction(page, 'continue');
+  await waitStep(page, 'secondary');
+  await setRange(page, 50);
+  await clickAction(page, 'continue');
+  await waitStep(page, 'contact');
+  await typeInto(page, '#ff-first', 'Retry');
+  await typeInto(page, '#ff-last', 'Case');
+  await typeInto(page, '#ff-email', 'retry@example.com');
+  await clickAction(page, 'continue');
+  await waitStep(page, 'phone');
+  await typeInto(page, '#ff-phone', '5555550126');
+  await page.evaluate(() => document.querySelector('#ff-tcpa').click());
+  await settle(200);
+  await clickAction(page, 'submit');
+  await settle(1200);
+  const err = await visibleError(page);
+  check(`${label}: 500 shows the inline error`, /didn't go through/.test(err), err || 'no [data-error]');
+  check(`${label}: still on /start after the failure`, /\/start/.test(page.url()), page.url());
+  check(`${label}: submit re-enabled for the retry`, (await isDisabled(page, 'submit')) === false);
+  await shot('retry-error');
+  const url = await submitAndLand(page);
+  check(`${label}: retry landed on /thank-you`, /\/thank-you/.test(url), url);
+  check(`${label}: two POSTs total (fail + retry)`, sink.posts.length === 2, `${sink.posts.length}`);
+  const p = sink.posts[1] || {};
+  check(`${label}: 50%+ down ships downPct 50 / '50%+'`, p.downPct === 50 && p.downPctDisplay === '50%+' && p.downPayment === 150000 && p.scenarioDetail === '50%+ down (about $150,000)', `${p.downPct}/${p.downPctDisplay}/${p.downPayment}/${p.scenarioDetail}`);
+  checkNetwork(label, sink);
+  await page.close();
+}
+
+// ---------------------------------------------------------------------------
+// run
+// ---------------------------------------------------------------------------
+console.log(`form-walk: ${BASE}`);
+const allErrors = [];
+for (const vp of Object.values(VIEWPORTS)) {
+  if (only && only !== vp.name) continue;
+  console.log(`\n== ${vp.name} ${vp.width}x${vp.height} ==`);
+  const { name, ...viewport } = vp;
+  const browser = await puppeteer.launch({
+    executablePath: CHROME,
+    headless: true,
+    defaultViewport: viewport,
+    args: ['--hide-scrollbars', '--force-color-profile=srgb', '--window-size=1500,1000', '--no-first-run', '--no-default-browser-check'],
+  });
+  try {
+    for (const fn of [buyWalk, preselectAndForks, kickout, failedPostRetry]) {
+      try {
+        const sink = await fn(browser, vp);
+        if (sink?.errors?.length) allErrors.push(...sink.errors);
+      } catch (e) {
+        check(`${vp.name} ${fn.name}: completed`, false, e.message);
+      }
+    }
+  } finally {
+    await browser.close();
+  }
+}
+
+const pageErrors = allErrors.filter((e) => e.startsWith('[pageerror'));
+if (allErrors.length) console.log(`\nbrowser errors:\n  ${allErrors.join('\n  ')}`);
+check('no uncaught page errors during the walks', pageErrors.length === 0, `${pageErrors.length}`);
+const failed = results.filter((r) => !r.ok);
+console.log(`\n${results.length - failed.length}/${results.length} checks passed${failed.length ? `\nFAILED:\n  ${failed.map((f) => f.label).join('\n  ')}` : ''}`);
+process.exit(failed.length ? 1 : 0);

@@ -303,9 +303,9 @@ export const directory: { columns: DirectoryColumn[] } = {
 
 // ---------------------------------------------------------------------------
 // Form copy (BRIEF section 4; the wording source of truth is
-// _ref/form-templates/flow.ts as Tanner edited it). Stage 2 ports the V1 form
-// to /start and reads these tokens; the LP's static step-1 tiles read
-// `titles.goal` + `phases`.
+// _ref/form-templates/flow.ts as Tanner edited it). The /start V1 form reads
+// these through src/lib/flow.ts (question wording, submit label, errors); the
+// LP's static step-1 tiles read `titles.goal` + `phases`.
 // ---------------------------------------------------------------------------
 export const form = {
   titles: {
@@ -326,7 +326,7 @@ export const form = {
     price: 'An estimate is fine.',
     balance: "Of the property's value, roughly.",
   },
-  submit: 'Check My Eligibility', // stage 2: keep V1's own Tanner-edited submit label
+  submit: 'Check My DSCR Eligibility', // V1's own Tanner-edited submit label (BRIEF section 4)
   submitting: 'Checking your eligibility…',
   reassurance: 'No obligation.',
   totalSteps: 8,

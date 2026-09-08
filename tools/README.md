@@ -23,11 +23,22 @@ Kill it when done (PowerShell):
 | Command | What it does | Status |
 | --- | --- | --- |
 | `node tools/shoot.mjs [desktop\|mobile] [--sections]` | Screenshots to `tools/shots/<viewport>-<name>.png`: home fold + full page (+ every LP section in-viewport with `--sections`), `/start` bare + `?goal=refinance`, `/not-yet`, `/thank-you` (seeded lead-summary), mobile sticky, `/privacy`, `/legal`. Prints the mobile fold report (H1 + all three tiles above 844px). | Stage 1, working |
-| `node tools/overflow-check.mjs` | `scrollWidth <= clientWidth` at 390 and 320 on every variant B route (includes `/test-leads`, stage 2). | Stage 1, working |
-| `node scripts/check-links.mjs` | Every internal href in `dist/client` resolves to a built file (needs a prior `npm run build`). | Stage 1, PASS |
+| `node tools/form-walk.mjs [desktop\|mobile]` (`npm run walk`) | Real-browser walk of the `/start` V1 form: buy path end to end (every step shot at both viewports, real POST to `/api/lead`, payload keys diffed against BRIEF section 5 in order, values asserted, `{ok:true, forwarded:false, testMode:true}` response, `/thank-you` personalization, `localStorage` capture, `/test-leads` listing), `?goal=refinance` preselect + Back highlight, refi fork ($3M+ edge) and flip fork submits, Below 620 kick-out, double-Enter guard, unchecked-consent block, failed-POST retry, and a zero-foreign-host network assertion on every walk. Writes `tools/shots/walk-<viewport>-*.png` and `walk-payload-<viewport>-<path>.json`. 218 checks. | Stage 2, 218/218 |
+| `node tools/overflow-check.mjs` | `scrollWidth <= clientWidth` at 390 and 320 on every variant B route (includes `/test-leads`). | Stage 2, all OK |
+| `node scripts/check-links.mjs` | Every internal href in `dist/client` resolves to a built file (needs a prior `npm run build`). | Stage 2, PASS |
 | `npm run lh` | `astro build`, serve `dist` gzipped on `LH_PORT` (default 4342), Lighthouse mobile x4 on `/` + x1 each on `/start` and `/thank-you`, median of runs 2-4, reports in `tools/lh-reports/`, exit 1 below 90. `--skip-build` reuses the existing dist. Kill other servers and Chrome windows first. Runs in the perf stage, not before. | Ready |
 | `node tools/serve-dist.mjs` | Just the gzip static server for the built output on 4342. | Ready |
-| `node tools/step-walk-qa.mjs` / `tcpa-test.mjs` / `gtag-test.mjs` | Written for template 4's in-hero React island (`#start [data-step]`, `#ff-*` ids). Stage 2 moves the form to `/start` (V1 form) and the QA stage rewrites these against the BRIEF section 4/5 contract (or adapts `foundation/tools/walk-form.mjs`). `gtag-test` also predates TEST MODE, where no gtag renders at all. | Needs rewrite (stage 2 / QA) |
+| `node tools/step-walk-qa.mjs` / `tcpa-test.mjs` / `gtag-test.mjs` | Written for template 4's in-hero island (credit values `700-739`, `#ff-name`, state step, `source: dscr-funnel-template-4`). The `/start` V1 form keeps the same primitives (`#start [data-step]`, `[data-value]`, `[data-action]`, `#ff-range`, `#ff-tcpa`, `[data-step-title]`, `[data-error]`) so `qa-lib.mjs` still drives it, but these three scripts assert the old contract; `form-walk.mjs` covers their ground for now and the QA stage retires or rewrites them. `gtag-test` also predates TEST MODE, where no gtag renders at all. | Superseded by form-walk (QA stage decides) |
+
+## /start DOM contract (what form-walk drives)
+
+`#start` root; each step root carries `data-step="goal|stage|propertyType|credit|price|secondary|contact|phone|kickout"`
+(`secondary` also carries `data-fork="down|balance|rehab"`); option cards `[data-value]` (goal values,
+kebab-slugged option text for stage / balance / rehab, property + credit values) with
+`data-selected="true|false"`; sliders `#ff-range`; inputs `#ff-first`, `#ff-last`, `#ff-email`,
+`#ff-phone`; consent `#ff-tcpa` (label `[data-consent]`); buttons `[data-action="continue|back|submit|not-yet"]`;
+headline `h1[data-step-title]`; visible `[data-step-label]` ("Step n of 8"); inline error `[data-error]`;
+recap chips `[data-chips]`; honeypot `#ff-website` (`name="website"`).
 
 `?qa=1` sets `sessionStorage.qa = '1'` (kept for live-mode conversion suppression on `/thank-you`);
 `?demo=1` fires the conversion for Tag Assistant in live mode only. In TEST MODE nothing fires.
