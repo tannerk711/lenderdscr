@@ -4,8 +4,8 @@
    inline <style>): these rules must beat the Tailwind utilities on the same
    elements (selected-state borders, slider chrome, button gradients).
 
-   Changes from the source: Playfair -> Fraunces (self-hosted, opsz 72), Inter ->
-   the brand body face (Hanken Grotesk via --font-body), plus the slim ILD topbar, the
+   Changes from the source: Playfair -> Manrope 800 (the ILD logo's geometric
+   sans, via --font-display), Inter -> Manrope (--font-body), plus the slim ILD topbar, the
    honeypot, and the footer line. Palette (2026-09-08): ILD sky & slate, cream #e9f2f8 ground,
    ink #122431, action green #0e7c69 / #12967f. Class prefix v1lo-. */
 
@@ -18,9 +18,9 @@
   font-family: var(--font-body);
 }
 
+/* class name kept for the walker/markup; the face is the display sans now */
 .v1lo-serif {
-  font-family: var(--font-serif);
-  font-variation-settings: "opsz" 72, "SOFT" 40, "WONK" 0;
+  font-family: var(--font-display);
 }
 
 .v1lo-headline {

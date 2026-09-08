@@ -20,7 +20,7 @@ export function Headline({ children }: { children: ReactNode }) {
     <Tag
       data-step-title
       className={[
-        'v1lo-serif v1lo-headline text-center font-semibold text-[#122431]',
+        'v1lo-serif v1lo-headline text-center font-extrabold text-[#122431]',
         embedded ? 'text-[1.55rem] sm:text-[1.95rem]' : 'text-[1.9rem] sm:text-[2.4rem]',
       ].join(' ')}
     >

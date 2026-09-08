@@ -184,7 +184,7 @@ export function Step5({
     <div data-step="price">
       <Headline>{PRICE_LABELS[path]}</Headline>
       {path === 'buy' ? <SubLine>{PRICE_SUB}</SubLine> : null}
-      <div className="v1lo-serif mt-8 text-center text-[3rem] font-semibold leading-none text-[#122431] sm:text-[4rem]" data-price-display>
+      <div className="v1lo-serif mt-8 text-center text-[3rem] font-extrabold leading-none text-[#122431] sm:text-[4rem]" data-price-display>
         {formatPrice(price)}
       </div>
       <MicroLine>{path === 'buy' ? downMicro : estimateMicro}</MicroLine>
@@ -240,7 +240,7 @@ export function Step6Buy({
   return (
     <div data-step="secondary" data-fork="down">
       <Headline>{FORK_QUESTIONS.buy.label}</Headline>
-      <div className="v1lo-serif mt-8 text-center text-[3rem] font-semibold leading-none text-[#122431] sm:text-[4rem]" data-down-display>
+      <div className="v1lo-serif mt-8 text-center text-[3rem] font-extrabold leading-none text-[#122431] sm:text-[4rem]" data-down-display>
         {formatDownPct(pct)}
       </div>
       <MicroLine>{dollarLine}</MicroLine>

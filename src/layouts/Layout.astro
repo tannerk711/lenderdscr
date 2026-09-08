@@ -8,8 +8,7 @@ interface Props {
   noindex?: boolean;
   ogImage?: string;
   /** First-paint font files to preload (same-origin woff2). The LP preloads
-   *  Fraunces + Hanken; /start preloads Fraunces + Hanken; /thank-you
-   *  preloads Fraunces (normal + italic) + Hanken Grotesk. */
+   *  Manrope, the one family on this variant; every page passes the same. */
   preloadFonts?: string[];
 }
 
@@ -18,7 +17,7 @@ const {
   description = seo.description,
   noindex = false,
   ogImage = '/images/og.jpg',
-  preloadFonts = ['/fonts/fraunces-latin-standard-normal.woff2', '/fonts/hanken-grotesk-latin-wght-normal.woff2'],
+  preloadFonts = ['/fonts/manrope-latin-wght-normal.woff2'],
 } = Astro.props;
 
 // Canonical without a trailing slash (root stays the bare origin + '/').

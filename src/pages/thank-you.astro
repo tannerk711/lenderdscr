@@ -1,7 +1,7 @@
 ---
 // /thank-you: the LeaderOne thank-you clone (BRIEF section 6). Structure,
 // spacing, type and palette reproduce _ref/leaderone/thank-you.astro with ILD
-// content; the LO palette and the Fraunces + Hanken faces are scoped to this
+// content; the LO palette tokens (now ILD values) and Manrope type are scoped to this
 // page by src/styles/thank-you.css (the LP keeps template 4's claret/amber
 // identity and never loads that sheet).
 //
@@ -43,9 +43,7 @@ const description = `Your Texas DSCR eligibility check is in. Keep your phone cl
     // not ready at first layout is dropped for the page; fewer and smaller
     // preloads are what raise the cold hit rate, and the roman is warm from
     // /start on the funnel path. tools/thank-you-cold-fonts.mjs measures it.
-    '/fonts/hanken-grotesk-latin-wght-normal.woff2',
-    '/fonts/fraunces-latin-standard-normal.woff2',
-    '/fonts/fraunces-latin-standard-italic.woff2',
+    '/fonts/manrope-latin-wght-normal.woff2',
   ]}
 >
   <!-- GOOGLE ADS CONVERSION (LIVE MODE ONLY). Identical gating to the LeaderOne

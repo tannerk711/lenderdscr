@@ -1,17 +1,17 @@
 /* /thank-you page styles: the LeaderOne thank-you clone (BRIEF section 6).
    Loaded by thank-you.astro only, so the landing page never carries it.
    Deliberately UNLAYERED and scoped under .lo, so LO's paper/ink/pine/brass
-   palette and its Fraunces + Hanken type stay on this page while the rest of
-   the variant keeps template 4's claret/amber identity.
+   palette stayed scoped here; since 2026-09-08 the whole variant shares the ILD
+   palette and Manrope type, so the .lo tokens simply carry those values.
 
    Structure, spacing, type sizes and colors mirror _ref/leaderone/thank-you.astro
    + global.css. Two deliberate deltas: LO's monospace eyebrows/labels render in
-   Hanken 600 uppercase tracked (no monospace rule), and display tracking sits
+   Manrope 600 uppercase tracked (no monospace rule), and display tracking sits
    at -0.008em (BRIEF section 8 floor) instead of Tailwind's tracking-tight. */
 
-/* The Hanken Grotesk faces this page uses are declared in global.css with the
-   other first-paint fonts (see the note there: a page-scoped @font-face is
-   parsed after first layout and loses the font-display: optional window). */
+/* The Manrope face this page uses is declared in global.css with the other
+   first-paint fonts (a page-scoped @font-face is parsed after first layout
+   and loses the font-display: optional window). */
 
 /* ---------- page scope: LO palette + faces ---------- */
 
@@ -25,16 +25,15 @@
   --lo-brass-2: #29a3e0;
   --lo-cream: #e9f2f8;
   --lo-line: rgba(18, 36, 49, 0.1);
-  font-family: "Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-body);
   background: var(--lo-paper);
   color: var(--lo-ink);
 }
 
-/* Fraunces display face (self-hosted standard axes: SOFT/WONK are absent and ignored) */
+/* display face: the brand sans at the logo's weight (class name kept from the LO clone) */
 .lo-display {
-  font-family: var(--font-serif);
-  font-variation-settings: "opsz" 72, "SOFT" 40, "WONK" 0;
-  font-weight: 400;
+  font-family: var(--font-display);
+  font-weight: 800;
 }
 
 /* LO's mono eyebrow, rendered in the brand sans */
@@ -255,7 +254,7 @@
 /* the italic tail never splits across lines: with a first name in the H1 the
    phone wrap put "the" alone at the end of line two (LO's tail stays intact) */
 .lo-h1 em {
-  font-style: italic;
+  font-style: normal;
   color: var(--lo-pine);
   white-space: nowrap;
 }
