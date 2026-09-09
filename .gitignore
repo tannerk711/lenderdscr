@@ -11,3 +11,6 @@ tools/shots/
 # lead exports / PII never go to GitHub
 Export_Contacts_*.csv
 lead-audit/
+
+# Lighthouse json/html reports written by tools/lh.mjs
+tools/lh-reports/

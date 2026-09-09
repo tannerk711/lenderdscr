@@ -5,21 +5,21 @@
 // this file is one of ILD's published claims (BRIEF section 2); do not inflate,
 // do not add. No NMLS exists: the lead-generator disclaimer stands in for it.
 //
-// TEST MODE (BRIEF section 3): `leadDelivery` below is the ONE flag. While it is
+// LEAD DELIVERY (BRIEF section 3): `leadDelivery` below is the ONE flag. While it is
 // 'test', nothing leaves the browser except the same-origin POST to /api/lead,
-// which logs the payload and returns { ok: true, forwarded: false, testMode: true }.
-// Every page carries noindex,nofollow and renders no gtag at all. To go live:
-//   1. set `leadDelivery = 'live'` below,
-//   2. set LEAD_WEBHOOK_URL on the Vercel project (Zapier catch hook, printf recipe
-//      in .env.example),
-//   3. redeploy and send one test lead.
+// which logs the payload and returns { ok: true, forwarded: false, testMode: true },
+// and no gtag renders. 'live' (since 2026-09-09, the split test): /api/lead forwards
+// to LEAD_WEBHOOK_URL (the lenderdscr Vercel project's PREVIEW scope, because this
+// branch deploys as a branch domain) and Layout renders the deferred gtag.
+// Indexing is a SEPARATE switch (`seo.noindexSite` below): this funnel is a paid
+// traffic challenger on a subdomain and stays noindex even while live.
 // ============================================================================
 
 export type SiteMode = 'network' | 'lender';
 export type LeadDelivery = 'test' | 'live';
 
-/** ONE flag. 'test' = no webhook, no gtag, noindex everywhere. Flip to 'live' at launch. */
-export const leadDelivery: LeadDelivery = 'test';
+/** ONE flag. 'test' = no webhook, no gtag. 'live' = webhook + gtag. Flipped 2026-09-09. */
+export const leadDelivery: LeadDelivery = 'live';
 
 /** Ships on every payload as `variant` so the split test can be read in the CRM. */
 export const variant = 'b-t4-v1';
@@ -132,6 +132,13 @@ export type DirectoryColumn = { title: string; links: DirectoryLink[] };
 export const seo = {
   title: `Check Your ${site.year} Texas DSCR Loan Eligibility | ${brand.name}`,
   description: `DSCR rental property loans for Texas real estate investors. Qualify on the rent, not your tax returns. Check your ${site.year} eligibility in about a minute.`,
+  /**
+   * Every page carries noindex,nofollow while true, independent of leadDelivery.
+   * The split-test challenger lives on a subdomain of the live site; a second
+   * indexable copy of the funnel helps nobody and splits organic signals. Test
+   * mode forces noindex regardless (Layout.astro).
+   */
+  noindexSite: true,
 };
 
 export const hero = {

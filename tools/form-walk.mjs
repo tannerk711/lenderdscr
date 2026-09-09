@@ -19,7 +19,18 @@
 // Exit 1 on any failed check. Needs the dev server: CI=true npx astro dev --port 4332
 //
 //   node tools/form-walk.mjs [desktop|mobile]
+//
+// LIVE MODE (QA_LEAD_MODE=live, since the 2026-09-09 go-live): the dev server runs
+// with leadDelivery 'live' and LEAD_WEBHOOK_URL=http://localhost:4399/hook; this
+// walker hosts that hook, expects /api/lead to answer {ok:true, forwarded:true},
+// asserts the hook received the same payload plus the three server stamps, skips
+// the test-lead storage checks, and keeps the browser hermetic (every non-localhost
+// host resolves to 127.0.0.1, so the deferred gtag.js request is attempted and
+// fails, which is the only foreign request allowed).
+//
+//   $env:QA_LEAD_MODE='live'; node tools/form-walk.mjs
 import puppeteer from 'puppeteer-core';
+import http from 'node:http';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
@@ -38,6 +49,28 @@ const FORM_RE = FORM === '/' ? /^https?:\/\/[^/]+\/(\?|$)/ : new RegExp(esc(FORM
 const FORM_PATH_RE = FORM === '/' ? /^\/(\?|$)/ : new RegExp('^' + esc(FORM));
 const FORM_QUERY_RE = new RegExp((FORM === '/' ? '^/' : '^' + esc(FORM)) + '\\?gclid=QAGCLID123');
 const formUrl = (q = '') => FORM + q;
+
+const LIVE = process.env.QA_LEAD_MODE === 'live';
+const HOOK_PORT = Number(process.env.QA_HOOK_PORT || 4399);
+const hookBodies = [];
+let hookServer = null;
+if (LIVE) {
+  hookServer = http.createServer((req, res) => {
+    let raw = '';
+    req.on('data', (c) => (raw += c));
+    req.on('end', () => {
+      try {
+        hookBodies.push({ path: req.url, contentType: req.headers['content-type'] || '', body: JSON.parse(raw) });
+      } catch {
+        hookBodies.push({ path: req.url, contentType: req.headers['content-type'] || '', body: null, raw });
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end('{"status":"success"}');
+    });
+  });
+  await new Promise((resolve, reject) => hookServer.listen(HOOK_PORT, '127.0.0.1', resolve).on('error', reject));
+  console.log(`live mode: hosting the webhook at http://localhost:${HOOK_PORT}/hook (dev server must carry LEAD_WEBHOOK_URL=that)`);
+}
 
 const VIEWPORTS = {
   desktop: { name: 'desktop', width: 1440, height: 900, deviceScaleFactor: 1 },
@@ -281,6 +314,30 @@ async function checkResponse(label, page, sink) {
     res = null;
   }
   if (!res) res = sink.responses[sink.responses.length - 1] ?? null;
+  if (LIVE) {
+    check(`${label}: /api/lead answered {ok:true, forwarded:true} (live)`,
+      !!res && res.status === 200 && !!res.body && res.body.ok === true && res.body.forwarded === true && !('testMode' in res.body),
+      JSON.stringify(res));
+    const posted = sink.posts[sink.posts.length - 1] || {};
+    const hit = [...hookBodies].reverse().find((h) => h.body && h.body.firstName === posted.firstName && h.body.submittedAt === posted.submittedAt);
+    check(`${label}: webhook received the same payload (firstName + submittedAt match)`, !!hit, `${hookBodies.length} hook bodies`);
+    if (hit) {
+      const b = hit.body;
+      check(`${label}: webhook body is JSON at /hook`, hit.path === '/hook' && /application\/json/.test(hit.contentType), `${hit.path} ${hit.contentType}`);
+      const browserKeys = Object.keys(posted);
+      const hookKeys = Object.keys(b);
+      check(`${label}: webhook keys = browser payload keys + tcpaConsentIp, tcpaConsentUserAgent, tcpaConsentReceivedAt`,
+        hookKeys.join(',') === [...browserKeys, 'tcpaConsentIp', 'tcpaConsentUserAgent', 'tcpaConsentReceivedAt'].join(','),
+        `${hookKeys.length} keys`);
+      check(`${label}: server stamps present (UA string, ISO receivedAt, ip key)`,
+        typeof b.tcpaConsentUserAgent === 'string' && b.tcpaConsentUserAgent.length > 10 && ISO.test(String(b.tcpaConsentReceivedAt)) && 'tcpaConsentIp' in b,
+        `${String(b.tcpaConsentIp)} / ${String(b.tcpaConsentReceivedAt)}`);
+      check(`${label}: webhook values equal the browser payload on every shared key`,
+        browserKeys.every((k) => JSON.stringify(b[k]) === JSON.stringify(posted[k])),
+        browserKeys.filter((k) => JSON.stringify(b[k]) !== JSON.stringify(posted[k])).join(',') || 'all equal');
+    }
+    return;
+  }
   check(`${label}: /api/lead answered {ok:true, forwarded:false, testMode:true}`,
     !!res && res.status === 200 && !!res.body && res.body.ok === true && res.body.forwarded === false && res.body.testMode === true,
     JSON.stringify(res));
@@ -297,6 +354,15 @@ function checkNetwork(label, sink) {
     }
   }
   const foreign = [...hosts].filter((h) => h !== 'localhost' && h !== '127.0.0.1');
+  if (LIVE) {
+    // live mode: the deferred gtag.js loader is the ONE allowed foreign request
+    // (it resolves to 127.0.0.1 under --host-resolver-rules and fails, so nothing
+    // downstream of it ever loads); the Zap is called by the server, never the browser.
+    const other = foreign.filter((h) => h !== 'www.googletagmanager.com');
+    check(`${label}: only localhost + the gtag.js loader host requested (live)`, other.length === 0, other.join(',') || `${sink.requests.length} requests`);
+    check(`${label}: no zapier / google-analytics / doubleclick request from the browser`, !sink.requests.some((u) => /zapier|google-analytics|doubleclick|googleadservices/.test(u)));
+    return;
+  }
   check(`${label}: every request stayed on localhost`, foreign.length === 0, foreign.join(',') || `${sink.requests.length} requests`);
   check(`${label}: no zapier / googletagmanager / google-analytics request`, !sink.requests.some((u) => /zapier|googletagmanager|google-analytics/.test(u)));
 }
@@ -448,18 +514,36 @@ async function buyWalk(browser, vp) {
   });
   check(`${label}: /thank-you H1 personalized with the first name`, !!ty.name && ty.name.includes('Quinn'), String(ty.name));
   check(`${label}: /thank-you chips rendered`, ty.chips > 0, `${ty.chips} chips`);
-  check(`${label}: localStorage ild_variant_test_leads holds the lead`, ty.leads >= 1, `${ty.leads}`);
+  if (LIVE) {
+    check(`${label}: live mode keeps no test lead in localStorage`, ty.leads === 0, `${ty.leads}`);
+  } else {
+    check(`${label}: localStorage ild_variant_test_leads holds the lead`, ty.leads >= 1, `${ty.leads}`);
+  }
   check(`${label}: lead-summary keys per BRIEF`, ty.summaryKeys.join(',') === 'firstName,goal,goalLabel,propertyType,propertyTypeLabel,credit,price,priceDisplay,state', ty.summaryKeys.join(','));
   check(`${label}: lead-summary state Texas + priceDisplay`, ty.summary?.state === 'Texas' && ty.summary?.priceDisplay === '$350,000');
   await shot('10-thank-you');
 
-  // /test-leads lists it
-  await open(page, '/test-leads');
-  await page.waitForSelector('[data-lead-count]', { timeout: 8000 });
-  await settle(300);
-  const count = await page.evaluate(() => Number(document.querySelector('[data-lead-count]')?.getAttribute('data-lead-count')));
-  check(`${label}: /test-leads lists the captured lead`, count >= 1, `${count}`);
-  await shot('11-test-leads');
+  if (LIVE) {
+    // live mode: the page carries the gtag stub + loader and the conversion pushes
+    // into the (never-drained) dataLayer because gtag.js cannot load here.
+    const gt = await page.evaluate(() => {
+      const dl = Array.isArray(window.dataLayer) ? window.dataLayer : [];
+      const conv = dl.filter((e) => e && e[0] === 'event' && e[1] === 'conversion').map((e) => e[2] && e[2].send_to);
+      const stub = [...document.head.querySelectorAll('script')].some((s) => /dataLayer.*gtag\('config'/.test(s.textContent || ''));
+      const loader = [...document.head.querySelectorAll('script')].some((s) => /window\.addEventListener\('load'.*googletagmanager\.com\/gtag\/js/.test(s.textContent || ''));
+      return { conv, stub, loader, fired: sessionStorage.getItem('conv_fired') };
+    });
+    check(`${label}: /thank-you head carries the dataLayer stub + deferred gtag loader (live)`, gt.stub && gt.loader, JSON.stringify({ stub: gt.stub, loader: gt.loader }));
+    check(`${label}: one conversion event pushed for the accepted lead (no ?qa=1 on this walk)`, gt.conv.length === 1 && gt.conv[0] === 'AW-16956033989/cwbHCNCflbAaEMWXopU_' && gt.fired === '1', JSON.stringify(gt.conv));
+  } else {
+    // /test-leads lists it
+    await open(page, '/test-leads');
+    await page.waitForSelector('[data-lead-count]', { timeout: 8000 });
+    await settle(300);
+    const count = await page.evaluate(() => Number(document.querySelector('[data-lead-count]')?.getAttribute('data-lead-count')));
+    check(`${label}: /test-leads lists the captured lead`, count >= 1, `${count}`);
+    await shot('11-test-leads');
+  }
 
   checkNetwork(label, sink);
   await page.close();
@@ -841,7 +925,13 @@ async function handBuiltPosts(browser, vp) {
   });
   check(`${label}: malformed JSON = 400`, badJson === 400, String(badJson));
   const full = await post(base);
-  check(`${label}: complete consented lead = {ok:true, forwarded:false, testMode:true}`, full.status === 200 && full.json?.ok === true && full.json?.forwarded === false && full.json?.testMode === true, JSON.stringify(full));
+  if (LIVE) {
+    check(`${label}: complete consented lead = {ok:true, forwarded:true} (live)`, full.status === 200 && full.json?.ok === true && full.json?.forwarded === true && !('testMode' in (full.json || {})), JSON.stringify(full));
+    const hookHits = hookBodies.filter((h) => h.body && h.body.firstName === base.firstName && h.body.email === base.email).length;
+    check(`${label}: exactly one webhook hit for the hand-built lead (gated POSTs never reached the hook)`, hookHits === 1, `${hookHits}`);
+  } else {
+    check(`${label}: complete consented lead = {ok:true, forwarded:false, testMode:true}`, full.status === 200 && full.json?.ok === true && full.json?.forwarded === false && full.json?.testMode === true, JSON.stringify(full));
+  }
   checkNetwork(label, sink);
   await page.close();
   return sink;
@@ -860,7 +950,11 @@ for (const vp of Object.values(VIEWPORTS)) {
     executablePath: CHROME,
     headless: true,
     defaultViewport: viewport,
-    args: ['--hide-scrollbars', '--force-color-profile=srgb', '--window-size=1500,1000', '--no-first-run', '--no-default-browser-check'],
+    args: [
+      '--hide-scrollbars', '--force-color-profile=srgb', '--window-size=1500,1000', '--no-first-run', '--no-default-browser-check',
+      // live mode: hermetic browser; every non-localhost host dead-ends on 127.0.0.1
+      ...(LIVE ? ['--host-resolver-rules=MAP * 127.0.0.1, EXCLUDE localhost'] : []),
+    ],
   });
   try {
     const walks = [buyWalk, preselectAndForks, kickout, failedPostRetry, backNavigation];
@@ -881,6 +975,10 @@ for (const vp of Object.values(VIEWPORTS)) {
 const pageErrors = allErrors.filter((e) => e.startsWith('[pageerror'));
 if (allErrors.length) console.log(`\nbrowser errors:\n  ${allErrors.join('\n  ')}`);
 check('no uncaught page errors during the walks', pageErrors.length === 0, `${pageErrors.length}`);
+if (LIVE) {
+  check('live mode: the webhook host saw only /hook POSTs', hookBodies.every((h) => h.path === '/hook' && h.body), `${hookBodies.length} bodies`);
+  hookServer?.close();
+}
 const failed = results.filter((r) => !r.ok);
 console.log(`\n${results.length - failed.length}/${results.length} checks passed${failed.length ? `\nFAILED:\n  ${failed.map((f) => f.label).join('\n  ')}` : ''}`);
 process.exit(failed.length ? 1 : 0);

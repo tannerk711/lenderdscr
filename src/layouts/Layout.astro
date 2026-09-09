@@ -27,12 +27,14 @@ const canonical = new URL(path, site).href;
 const ogImageAbs = new URL(ogImage, site).href;
 
 // TEST MODE (BRIEF section 3): no gtag at all (no stub, no loader, no
-// googletagmanager script) and noindex,nofollow on every page. LIVE MODE
-// restores the template's deferred-gtag pattern: dataLayer stub + gtag queue in
-// the head, gtag.js injected on window load (never in the startup path).
+// googletagmanager script). LIVE MODE restores the template's deferred-gtag
+// pattern: dataLayer stub + gtag queue in the head, gtag.js injected on window
+// load (never in the startup path).
+// Indexing is decoupled from lead delivery: test mode forces noindex,nofollow,
+// and so does seo.noindexSite (the split-test subdomain, live or not).
 const isLive = leadDelivery === 'live';
 const gtagId = isLive ? tracking.gtagId : '';
-const robots = !isLive ? 'noindex, nofollow' : noindex ? 'noindex' : '';
+const robots = !isLive || seo.noindexSite ? 'noindex, nofollow' : noindex ? 'noindex' : '';
 
 // Inline head script: (live) dataLayer stub + gtag queue, then first-touch
 // attribution (both modes): gclid/utm_* -> sessionStorage.attr_*, landing,
