@@ -2,12 +2,17 @@
 // The hero IS the form (Tanner, 2026-09-08: "the form should be on the landing
 // page, seamlessly available", not a form-looking tile group that links out).
 // Static H1 (the LCP element, never animated), sub line (desktop only), then
-// the #start card carrying the LIVE V1 (LeaderOne-style) eight-step form as a
+// the #start card carrying the LIVE V1 (LeaderOne-style) nine-step form as a
 // React island, hydrated on load because it is the fold. Astro server-renders
 // step 1, so the fold paints with the HTML and the first tap works the moment
 // React attaches. The card keeps V1's cream ground so the form reads exactly
 // as it does on /start (which stays as the full-page fallback). Nothing inside
 // #start ever receives GSAP / tilt / entrance motion (motion.ts guards on it).
+//
+// Mobile pass (Tanner's 2026-09-08 video, "super scrunched on iPhone SE"):
+// under 768px the H1 runs clamp(1.6rem, 6.9vw, 2.4rem) so it holds two lines
+// at 375px, and the hero / card paddings drop so step 1 (question + all three
+// options) fits a 375x667 fold, the way LeaderOne's does.
 import Icon from './Icon.astro';
 import FormV1 from './start/FormV1';
 import { legal, housingPhrase } from '../config/site';
@@ -24,13 +29,13 @@ const { h1, sub } = Astro.props;
 <section class="relative" aria-labelledby="hero-h1">
   <div class="hero-atmo" aria-hidden="true"></div>
 
-  <div class="container-x relative z-10 pt-5 pb-10 md:pt-14 md:pb-16">
+  <div class="container-x relative z-10 pt-4 pb-8 md:pt-14 md:pb-16">
     <div class="mx-auto max-w-4xl text-center">
-      <h1 id="hero-h1" class="h-display">{h1}</h1>
+      <h1 id="hero-h1" class="h-display hero-h1">{h1}</h1>
       <p class="prose-body mx-auto mt-4 hidden text-center md:block">{sub}</p>
     </div>
 
-    <div id="start" class="card-lg hero-form-card mx-auto mt-5 w-full max-w-[46rem] scroll-mt-4 p-5 sm:p-7 md:mt-9 md:p-9">
+    <div id="start" class="card-lg hero-form-card mx-auto mt-4 w-full max-w-[46rem] scroll-mt-4 p-4 sm:p-7 md:mt-9 md:p-9">
       <FormV1 client:load embedded />
     </div>
 
@@ -51,5 +56,16 @@ const { h1, sub } = Astro.props;
     background: #e9f2f8;
     border-color: #dbe5ec;
     color: #122431;
+  }
+
+  /* Phones: two lines at 375px ("Check Your 2026 Texas / DSCR Loan Eligibility"),
+     never three. Scoped + unlayered, so it beats .h-display's clamp. */
+  @media (max-width: 767px) {
+    .hero-h1 {
+      font-size: clamp(1.6rem, 6.9vw, 2.4rem);
+      --tw-leading: 1.12;
+      line-height: var(--tw-leading);
+      padding-inline: 0.25rem;
+    }
   }
 </style>

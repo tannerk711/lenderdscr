@@ -145,6 +145,17 @@ export const hero = {
 // Topbar (desktop only): the three program words. Says WHAT once, in the header.
 export const programs: string[] = ['Long-term rentals', 'Short-term rentals', 'Fix and flip'];
 
+// CityMarquee: the Texas geo strip that slides under the hero form (Tanner,
+// 2026-09-08 video: "get the exact same thing as LeaderOne's, right underneath
+// the form"). Cities only, never claims (marquees carry names, not copy).
+export const texasCities: string[] = [
+  'Dallas', 'Fort Worth', 'Houston', 'San Antonio', 'Austin', 'El Paso',
+  'Arlington', 'Corpus Christi', 'Plano', 'Lubbock', 'Laredo', 'Irving',
+  'Garland', 'Frisco', 'McKinney', 'Amarillo', 'Waco', 'Killeen',
+  'Tyler', 'Round Rock', 'Denton', 'Midland', 'Abilene', 'College Station',
+];
+export const marqueeLabel = 'Serving investors across Texas';
+
 // TrustBand: ILD's speed and structure specs. Numbers (620, 0 tax returns,
 // 100+ lenders) live in the StatsBand and nowhere else on the page.
 export const specs: Spec[] = [
@@ -319,17 +330,25 @@ export const form = {
     down: 'Please estimate your down payment.',
     balance: 'About how much do you still owe?',
     rehab: "What's your rehab budget?",
+    // Step 7 (Tanner, 2026-09-08 video): the LeaderOne city question, after the
+    // down payment / balance / rehab fork on every path. Free-typed city.
+    cityBuy: 'Where in Texas are you buying?',
+    cityRefi: 'Where in Texas is the property?',
+    cityFlip: 'Where in Texas are you flipping?',
     contact: 'Almost done. Who are we talking to?',
     phone: 'Last step: best mobile number?',
   },
   subs: {
     price: 'An estimate is fine.',
     balance: "Of the property's value, roughly.",
+    city: 'City is perfect.',
+    // Phone-step sub headline (Tanner, 2026-09-08 video; mirrors LeaderOne's line).
+    phone: `An ${brand.name} loan officer will personally text and call you about your eligibility.`,
   },
   submit: 'Check My DSCR Eligibility', // V1's own Tanner-edited submit label (BRIEF section 4)
   submitting: 'Checking your eligibility…',
   reassurance: 'No obligation.',
-  totalSteps: 8,
+  totalSteps: 9,
   // Goal · Details · Contact: matches the /start V1 form's milestone frame.
   phases: [
     { id: 'goal', label: 'Goal' },
@@ -339,6 +358,7 @@ export const form = {
   errors: {
     name: 'Add your first and last name so we know who to address.',
     email: "That email doesn't look right. Mind checking it?",
+    city: 'Add the city so your options get priced to the right market.',
     phone: 'Enter a 10-digit mobile number so we can text you.',
     consent: 'Please check the consent box so we have your permission to contact you.',
     submit: "That didn't go through. Give it one more try. Your answers are saved.",
@@ -348,6 +368,7 @@ export const form = {
   firstNamePlaceholder: 'First name',
   lastNamePlaceholder: 'Last name',
   emailPlaceholder: 'Email',
+  cityPlaceholder: 'City',
   phonePlaceholder: '(555) 555-0123',
 };
 
@@ -356,7 +377,7 @@ export const cta = {
   sticky: 'Check Eligibility',
   final: {
     heading: 'Ready when you are.',
-    body: 'Eight quick questions, about a minute, no obligation.',
+    body: 'Nine quick questions, about a minute, no obligation.',
   },
 };
 
@@ -481,7 +502,6 @@ export const legal = {
   networkNotice: '',
   advertiserDisclosure: '',
   notCommitment: 'This is not a commitment to lend. All loans subject to credit approval, underwriting, and property review. Rates, terms, and programs subject to change without notice.',
-  noticeBar: 'Not affiliated with or endorsed by any government agency.',
   notAffiliated: `${brand.name} is not endorsed by, or acting on behalf of, any government agency.`,
   deviceLine: 'Information from your device may be used to personalize your ad experience.',
   /** Under-form fine print (one line; the Equal Housing mark renders next to it). */

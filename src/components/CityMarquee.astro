@@ -1,0 +1,98 @@
+---
+// CityMarquee: LeaderOne's Texas city ticker, cloned (Tanner, 2026-09-08 video:
+// "get the exact same thing as this, a little sliding thing with the fade in,
+// fade out, right underneath the form, between the hero and the blue section").
+// CSS-only: one 42s linear loop over a doubled track, edges masked to
+// transparent so names fade in and out. Deliberately NOT data-marquee (that
+// attribute is motion.ts's scrubbed template-4 marquee); nothing here waits
+// on JS, and reduced-motion freezes it. Cities only, never claims.
+import { texasCities, marqueeLabel } from '../config/site';
+---
+
+<section class="ground-dark city-marquee" aria-label={marqueeLabel}>
+  <div class="cm-mask">
+    <div class="cm-track" aria-hidden="true">
+      {[0, 1].map(() =>
+        texasCities.map((c) => (
+          <span class="cm-item">
+            <span class="cm-dot"></span>
+            {c}
+          </span>
+        ))
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  @keyframes cm-slide {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .city-marquee {
+    border-top: 1px solid rgba(233, 242, 248, 0.1);
+    border-bottom: 1px solid rgba(233, 242, 248, 0.1);
+    padding-block: 0.7rem;
+  }
+
+  .cm-mask {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  }
+
+  .cm-track {
+    display: flex;
+    width: max-content;
+    animation: cm-slide 42s linear infinite;
+    will-change: transform;
+  }
+
+  .city-marquee:hover .cm-track {
+    animation-play-state: paused;
+  }
+
+  .cm-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding-inline: 1.1rem;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    line-height: 1.6;
+    color: var(--color-cream);
+    white-space: nowrap;
+  }
+
+  .cm-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--color-sky);
+    flex: none;
+  }
+
+  @media (min-width: 768px) {
+    .city-marquee {
+      padding-block: 0.85rem;
+    }
+
+    .cm-item {
+      font-size: 0.78rem;
+      padding-inline: 1.4rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cm-track {
+      animation: none;
+    }
+  }
+</style>

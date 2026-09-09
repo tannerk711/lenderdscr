@@ -1,9 +1,10 @@
-// /start: the V1 (LeaderOne-style) eight-step form for Internet Loans Direct,
+// /start: the V1 (LeaderOne-style) nine-step form for Internet Loans Direct,
 // variant B. Ported from _ref/form-templates/v1/FormV1.tsx with the ILD contract
 // (BRIEF sections 3, 4, 5) on top:
-//   - eight steps, three paths, no state step (Texas is fixed)
+//   - nine steps, three paths, no state step (Texas is fixed); step 7 is the
+//     typed Texas city after the fork (Tanner, 2026-09-08 video)
 //   - ?goal=purchase|refinance|bridge preselects step 1 and opens on step 2
-//   - auto-advance ~250ms after the selected state shows; Enter on the two
+//   - auto-advance ~250ms after the selected state shows; Enter on the three
 //     typed steps is guarded (a pick in flight is a nav state)
 //   - sub-620 = in-form kick-out, nothing recorded, never posted
 //   - ONE gated TCPA checkbox; the click timestamp is the consent time
@@ -23,10 +24,12 @@ import {
   KICKOUT,
   PRICE_LABELS,
   FORK_QUESTIONS,
+  CITY_LABELS,
   CONTACT_LABEL,
   PHONE_LABEL,
   ERRORS,
   isTestMode,
+  isValidCity,
   isValidEmail,
   isValidFirstName,
   isValidLastName,
@@ -36,7 +39,7 @@ import {
   buildLeadSummary,
   recordTestLead,
 } from '../../lib/flow';
-import { Step1, Step2, Step3, Step4, Step5, Step6, Step6Buy, Step7, Step8, KickoutScreen } from './steps';
+import { Step1, Step2, Step3, Step4, Step5, Step6, Step6Buy, Step7City, Step7, Step8, KickoutScreen } from './steps';
 import { FormPlacement } from './ui';
 
 const ADVANCE_DELAY = 250; // show the selected state, then slide
@@ -61,6 +64,8 @@ function headlineFor(view: View, step: number, path: PathId): string {
     case 6:
       return FORK_QUESTIONS[path].label;
     case 7:
+      return CITY_LABELS[path];
+    case 8:
       return CONTACT_LABEL;
     default:
       return PHONE_LABEL;
@@ -241,6 +246,10 @@ export default function FormV1({ embedded = false }: FormV1Props) {
 
     // Re-validate everything the payload depends on, independent of the
     // button's disabled state.
+    if (!isValidCity(answers.city)) {
+      setError(ERRORS.city);
+      return;
+    }
     if (!isValidFirstName(answers.firstName) || !isValidLastName(answers.lastName)) {
       setError(ERRORS.name);
       return;
@@ -376,6 +385,20 @@ export default function FormV1({ embedded = false }: FormV1Props) {
         break;
       case 7:
         content = (
+          <Step7City
+            path={path}
+            city={answers.city}
+            onChange={(v) => {
+              touch();
+              patch({ city: v });
+            }}
+            onContinue={() => guardedForward(8)}
+            onBack={goBack}
+          />
+        );
+        break;
+      case 8:
+        content = (
           <Step7
             firstName={answers.firstName}
             lastName={answers.lastName}
@@ -384,7 +407,7 @@ export default function FormV1({ embedded = false }: FormV1Props) {
               touch();
               patch(p);
             }}
-            onContinue={() => guardedForward(8)}
+            onContinue={() => guardedForward(9)}
             onBack={goBack}
           />
         );
@@ -427,8 +450,8 @@ export default function FormV1({ embedded = false }: FormV1Props) {
       <input id="ff-website" name="website" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" className="v1lo-hp" />
 
       <div className={embedded ? 'mx-auto flex w-full max-w-[640px] flex-col' : 'mx-auto flex w-full max-w-[640px] flex-1 flex-col justify-center'}>
-        <div className={embedded ? 'mb-7' : 'mb-10'}>
-          <div className="mb-2.5 flex items-baseline justify-between">
+        <div className={embedded ? 'mb-5 sm:mb-7' : 'mb-10'}>
+          <div className="mb-2 flex items-baseline justify-between sm:mb-2.5">
             <span className="text-[12px] font-medium uppercase tracking-[0.22em] text-[#3f6c8c]" data-step-label>
               Step {shownStep} of {TOTAL_STEPS}
             </span>

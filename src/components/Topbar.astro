@@ -1,15 +1,16 @@
 ---
-// Topbar: thin notice bar + header. Left: ILD logo (on paper, no chip needed)
-// + wordmark (>= 480px) + tagline (>= 768px). Middle (>= 768px): the three
-// program words, said once here and nowhere else at display size. Right:
-// phone (>= 768px) + compact amber CTA to /start.
+// Topbar: header only (the government-agency notice bar is CUT, Tanner's
+// 2026-09-08 video, mobile and desktop). LeaderOne's shape: ILD logo left,
+// the phone number right, on every viewport; the "Check My Eligibility"
+// header button is gone (the form is the hero, the number is the header CTA).
+// Middle (>= 1024px): the three program words, said once here and nowhere
+// else at display size. Slim on phones (52px bar, 32px logo, like LO's).
 // Static section: NO data-reveal anywhere here.
-import { brand, programs, legal, cta } from '../config/site';
+import { brand, programs } from '../config/site';
 import Icon from './Icon.astro';
 ---
 
 <header class="topbar ground-paper">
-  <p class="tb-notice">{legal.noticeBar}</p>
   <div class="container-x tb-row">
     <a href="/" class="tb-logo" aria-label={brand.name}>
       {brand.logoSrc ? (
@@ -25,36 +26,22 @@ import Icon from './Icon.astro';
       {programs.map((p) => <span class="tb-spec-item">{p}</span>)}
     </p>
 
-    <div class="tb-actions">
-      {brand.phone && (
-        <a href={brand.phoneHref} class="tb-phone">
-          <Icon name="phone" size={16} />
-          <span>{brand.phone}</span>
-        </a>
-      )}
-      <a href="#start" data-scroll-to="#start" class="btn-amber tb-cta">{cta.primary}</a>
-    </div>
+    {brand.phone && (
+      <a href={brand.phoneHref} class="tb-phone">
+        <Icon name="phone" size={16} />
+        <span>{brand.phone}</span>
+      </a>
+    )}
   </div>
 </header>
 
 <style>
-  .tb-notice {
-    margin: 0;
-    padding: 0.45rem 1rem;
-    background: var(--color-brand);
-    color: rgba(233, 242, 248, 0.88);
-    text-align: center;
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    line-height: 1.4;
-  }
-
   .tb-row {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding-block: 0.7rem;
+    min-height: 3.25rem;
+    padding-block: 0.4rem;
     border-bottom: 1px solid var(--color-line);
   }
 
@@ -70,7 +57,7 @@ import Icon from './Icon.astro';
 
   .tb-logo-img {
     display: block;
-    height: 2.5rem;
+    height: 2rem;
     width: auto;
     flex: none;
   }
@@ -121,46 +108,35 @@ import Icon from './Icon.astro';
     font-weight: 800;
   }
 
-  .tb-actions {
-    display: flex;
+  /* the number IS the header CTA: ink, bold, tabular, 44px tap target */
+  .tb-phone {
+    display: inline-flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.45rem;
     margin-left: auto;
     flex: none;
-  }
-
-  .tb-phone {
-    display: none;
-    align-items: center;
-    gap: 0.4rem;
+    min-height: 2.75rem;
+    padding: 0.35rem 0.1rem;
     font-weight: 700;
-    font-size: 0.9rem;
-    color: var(--color-brand);
+    font-size: 0.95rem;
+    letter-spacing: -0.005em;
+    color: var(--color-ink);
     text-decoration: none;
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tb-phone svg {
+    color: var(--color-amber);
   }
 
   .tb-phone:hover {
-    color: var(--color-brand-deep);
-  }
-
-  /* compact variant of .btn-amber for the header (scoped, unlayered, wins) */
-  .tb-cta {
-    min-height: 2.75rem;
-    padding: 0.5rem 0.85rem;
-    font-size: 0.8rem;
-    border-radius: 10px;
-    white-space: nowrap;
+    color: var(--color-amber);
   }
 
   @media (min-width: 480px) {
     .tb-logo-text {
       display: flex;
-    }
-
-    .tb-cta {
-      padding: 0.55rem 1.05rem;
-      font-size: 0.85rem;
     }
   }
 
@@ -169,27 +145,29 @@ import Icon from './Icon.astro';
       display: block;
     }
 
-    .tb-phone {
-      display: inline-flex;
-    }
-
-    .tb-actions {
-      margin-left: 0;
-    }
-
     .tb-row {
       gap: 1.25rem;
-      padding-block: 0.85rem;
+      min-height: 4rem;
+      padding-block: 0.6rem;
     }
 
     .tb-logo-img {
-      height: 2.9rem;
+      height: 2.6rem;
+    }
+
+    .tb-phone {
+      font-size: 1.05rem;
+      gap: 0.5rem;
     }
   }
 
   @media (min-width: 1024px) {
     .tb-programs {
       display: flex;
+    }
+
+    .tb-phone {
+      margin-left: 1.5rem;
     }
   }
 </style>

@@ -21,7 +21,7 @@ export function Headline({ children }: { children: ReactNode }) {
       data-step-title
       className={[
         'v1lo-serif v1lo-headline text-center font-extrabold text-[#122431]',
-        embedded ? 'text-[1.55rem] sm:text-[1.95rem]' : 'text-[1.9rem] sm:text-[2.4rem]',
+        embedded ? 'text-[1.4rem] sm:text-[1.95rem]' : 'text-[1.7rem] sm:text-[2.4rem]',
       ].join(' ')}
     >
       {children}
@@ -31,7 +31,7 @@ export function Headline({ children }: { children: ReactNode }) {
 
 export function SubLine({ children }: { children: ReactNode }) {
   return (
-    <p className="mx-auto mt-3 max-w-[480px] text-center text-[15px] leading-relaxed text-[#3f6c8c] sm:text-base">
+    <p className="mx-auto mt-2 max-w-[480px] text-center text-[14px] leading-snug text-[#3f6c8c] sm:mt-3 sm:text-base sm:leading-relaxed">
       {children}
     </p>
   );
@@ -64,12 +64,12 @@ export function OptionCard({ label, value, micro, icon, selected, onSelect, clas
       data-value={value}
       data-selected={selected ? 'true' : 'false'}
       className={[
-        'v1lo-card flex min-h-[60px] w-full items-center gap-4 rounded-[14px] border border-[#dbe5ec] bg-white px-5 py-4 text-left sm:px-6 sm:py-5',
+        'v1lo-card flex min-h-[56px] w-full items-center gap-3.5 rounded-[14px] border border-[#dbe5ec] bg-white px-4 py-3 text-left sm:min-h-[60px] sm:gap-4 sm:px-6 sm:py-5',
         className ?? '',
       ].join(' ')}
     >
       {icon ? (
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#b8d3e6] bg-[#e3f1fa] text-[#122431]">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#b8d3e6] bg-[#e3f1fa] text-[#122431] sm:h-12 sm:w-12">
           {icon}
         </span>
       ) : null}

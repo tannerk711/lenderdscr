@@ -1,7 +1,7 @@
-// Flow spec for the /start form: the V1 (LeaderOne-style) eight-step DSCR
-// eligibility form exactly as Tanner edited it on 2026-09-04
-// (_ref/form-templates/flow.ts), minus the state step because Texas is fixed
-// (BRIEF section 4). Option VALUES come from src/config/site.ts: they are the
+// Flow spec for the /start form: the V1 (LeaderOne-style) DSCR eligibility
+// form exactly as Tanner edited it on 2026-09-04 (_ref/form-templates/flow.ts),
+// minus the state step because Texas is fixed (BRIEF section 4), plus the
+// LeaderOne city step after the fork (Tanner, 2026-09-08 video): nine steps. Option VALUES come from src/config/site.ts: they are the
 // Zap field-map contract and never change here. Question wording comes from
 // site.ts `form` where it exists and from this file otherwise.
 //
@@ -119,9 +119,20 @@ export const FORK_QUESTIONS: Record<PathId, { label: string; sub?: string; optio
   },
 };
 
-// Steps 7 + 8
+// Step 7: the city (Tanner, 2026-09-08 video: LeaderOne's "Where in Texas are
+// you buying?" step after the fork on every path; typed, city is enough).
+export const CITY_LABELS: Record<PathId, string> = {
+  buy: form.titles.cityBuy,
+  refi: form.titles.cityRefi,
+  flip: form.titles.cityFlip,
+};
+export const CITY_SUB = form.subs.city;
+export const CITY_PLACEHOLDER = form.cityPlaceholder;
+
+// Steps 8 + 9
 export const CONTACT_LABEL = form.titles.contact;
-export const PHONE_LABEL = form.titles.phone; // no phone-step subtitle (Tanner, 2026-08-26)
+export const PHONE_LABEL = form.titles.phone;
+export const PHONE_SUB = form.subs.phone; // added back 2026-09-08 (video): the LO-style "will personally text and call you" line
 export const SUBMIT_LABEL = form.submit;
 export const SUBMITTING_LABEL = form.submitting;
 export const ERRORS = form.errors;
@@ -142,6 +153,7 @@ export interface Answers {
   downPct: number; // DOWN_MIN..DOWN_MAX (buy path)
   balance?: string; // option text (refi path)
   rehab?: string; // option text (flip path)
+  city: string; // typed Texas city (step 7); trimmed into payload.city
   firstName: string;
   lastName: string;
   email: string;
@@ -151,6 +163,7 @@ export interface Answers {
 export const INITIAL_ANSWERS: Answers = {
   price: PRICE_DEFAULT,
   downPct: DOWN_DEFAULT,
+  city: '',
   firstName: '',
   lastName: '',
   email: '',
@@ -184,6 +197,16 @@ export const isValidEmail = (v: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]{2,
 export const isValidPhone = (v: string): boolean => phoneDigits(v).length === 10;
 export const isValidFirstName = (v: string): boolean => v.trim().length >= 2; // server floor
 export const isValidLastName = (v: string): boolean => v.trim().length >= 1;
+export const isValidCity = (v: string): boolean => v.trim().length >= 2;
+
+/** "Fort Worth" from "fort worth" / "FORT WORTH"; leaves "McKinney" alone. */
+export function cleanCity(raw: string): string {
+  const t = raw.trim().replace(/\s+/g, ' ');
+  if (t === t.toLowerCase() || t === t.toUpperCase()) {
+    return t.toLowerCase().replace(/(^|[\s-])([a-z])/g, (_, sep: string, ch: string) => sep + ch.toUpperCase());
+  }
+  return t;
+}
 
 export const slugify = (s: string): string =>
   s
@@ -288,7 +311,7 @@ export function buildPayload(a: Answers, meta: PayloadMeta): LeadPayload {
     rehab: null,
     rehabDisplay,
     scenarioDetail,
-    city: '',
+    city: cleanCity(a.city),
     state: fixedState,
     firstName: a.firstName.trim(),
     lastName: a.lastName.trim(),
@@ -327,14 +350,15 @@ export function buildLeadSummary(a: Answers) {
   };
 }
 
-/** Recap chips on the phone step: goal, property, Texas, price. */
+/** Recap chips on the phone step: goal, property, "City, TX" (or Texas), price. */
 export function summaryChips(a: Answers): string[] {
   const chips: string[] = [];
   const path = PATHS.find((p) => p.id === a.path);
   if (path) chips.push(path.label);
   const prop = propertyOf(a);
   if (prop) chips.push(prop.label);
-  chips.push(fixedState);
+  const city = cleanCity(a.city);
+  chips.push(city ? `${city}, TX` : fixedState);
   chips.push(formatPrice(a.price));
   return chips;
 }

@@ -1,9 +1,11 @@
-// The eight step screens + the sub-620 kick-out, ported from
+// The nine step screens + the sub-620 kick-out, ported from
 // _ref/form-templates/v1/steps.tsx (Tanner's 2026-09-04 edit) for Internet
-// Loans Direct: no state step (Texas is fixed), no phone-step subtitle, the ILD
-// tcpaCopy next to the consent box, an inline error line for the phone step,
-// and a real link to /not-yet on the kick-out. Every step root carries
-// data-step="<id>" for the QA walker.
+// Loans Direct: no state step (Texas is fixed), the LeaderOne city step after
+// the fork (2026-09-08), the LO-style phone-step sub headline, the ILD tcpaCopy
+// next to the consent box, an inline error line for the phone step, and a real
+// link to /not-yet on the kick-out. Every step root carries data-step="<id>"
+// for the QA walker. Option lists use mt-6/space-y-3 under 640px so a step
+// fits an iPhone SE fold inside the LP hero card (2026-09-08 mobile pass).
 
 import { type FormEvent } from 'react';
 import { Hammer, Home, RefreshCw } from 'lucide-react';
@@ -25,8 +27,12 @@ import {
   DOWN_MAX,
   DOWN_STEP,
   FORK_QUESTIONS,
+  CITY_LABELS,
+  CITY_SUB,
+  CITY_PLACEHOLDER,
   CONTACT_LABEL,
   PHONE_LABEL,
+  PHONE_SUB,
   SUBMIT_LABEL,
   SUBMITTING_LABEL,
   CONSENT_TEXT,
@@ -35,6 +41,7 @@ import {
   formatPrice,
   formatPhone,
   isMaxPrice,
+  isValidCity,
   isValidEmail,
   isValidFirstName,
   isValidLastName,
@@ -59,7 +66,7 @@ export function Step1({ selected, onSelect }: { selected?: PathId; onSelect: (p:
     <div data-step="goal">
       <Headline>What are you looking to do?</Headline>
       <SubLine>{STEP1_SUB}</SubLine>
-      <div className="mt-8 space-y-4">
+      <div className="mt-6 space-y-3 sm:mt-8 sm:space-y-4">
         {PATHS.map((p) => {
           const Icon = PATH_ICONS[p.id];
           return (
@@ -93,7 +100,7 @@ export function Step2({
   return (
     <div data-step="stage">
       <Headline>Where are you in the process?</Headline>
-      <div className="mt-8 space-y-4">
+      <div className="mt-6 space-y-3 sm:mt-8 sm:space-y-4">
         {PROCESS_OPTIONS[path].map((opt) => (
           <OptionCard key={opt} value={slugify(opt)} label={opt} selected={selected === opt} onSelect={() => onSelect(opt)} />
         ))}
@@ -116,7 +123,7 @@ export function Step3({
   return (
     <div data-step="propertyType">
       <Headline>Tell us about the property.</Headline>
-      <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4">
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:gap-4">
         {PROPERTY_TYPES.map((opt, i) => (
           <OptionCard
             key={opt.value}
@@ -146,7 +153,7 @@ export function Step4({
   return (
     <div data-step="credit">
       <Headline>How&rsquo;s your credit right now?</Headline>
-      <div className="mt-8 space-y-4">
+      <div className="mt-6 space-y-3 sm:mt-8 sm:space-y-4">
         {CREDIT_OPTIONS.map((opt) => (
           <OptionCard
             key={opt.value}
@@ -290,7 +297,7 @@ export function Step6({
     <div data-step="secondary" data-fork={path === 'refi' ? 'balance' : 'rehab'}>
       <Headline>{q.label}</Headline>
       {q.sub ? <SubLine>{q.sub}</SubLine> : null}
-      <div className="mt-8 space-y-4">
+      <div className="mt-6 space-y-3 sm:mt-8 sm:space-y-4">
         {q.options.map((opt) => (
           <OptionCard key={opt} value={slugify(opt)} label={opt} selected={selected === opt} onSelect={() => onSelect(opt)} />
         ))}
@@ -300,7 +307,53 @@ export function Step6({
   );
 }
 
-// Step 7: first name, last name, email. Enter = the same guarded continue.
+// Step 7: the Texas city, typed (LeaderOne's step; Tanner, 2026-09-08 video).
+// Enter = the same guarded continue as the contact step.
+export function Step7City({
+  path,
+  city,
+  onChange,
+  onContinue,
+  onBack,
+}: {
+  path: PathId;
+  city: string;
+  onChange: (v: string) => void;
+  onContinue: () => void;
+  onBack: () => void;
+}) {
+  const valid = isValidCity(city);
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    if (valid) onContinue();
+  };
+  return (
+    <form onSubmit={submit} noValidate data-step="city">
+      <Headline>{CITY_LABELS[path]}</Headline>
+      <SubLine>{CITY_SUB}</SubLine>
+      <div className="mt-6 sm:mt-8">
+        <TextField
+          id="ff-city"
+          value={city}
+          onChange={onChange}
+          placeholder={CITY_PLACEHOLDER}
+          ariaLabel={CITY_LABELS[path]}
+          autoComplete="address-level2"
+          centered
+          large
+        />
+      </div>
+      <div className="mt-6">
+        <GoldButton type="submit" disabled={!valid} action="continue">
+          Continue
+        </GoldButton>
+      </div>
+      <BackButton onClick={onBack} />
+    </form>
+  );
+}
+
+// Step 8: first name, last name, email. Enter = the same guarded continue.
 export function Step7({
   firstName,
   lastName,
@@ -364,7 +417,8 @@ export function Step7({
   );
 }
 
-// Step 8: phone + the ONE gated consent box + submit. No subtitle (Tanner, 2026-08-26).
+// Step 9: phone + the ONE gated consent box + submit. The LO-style sub headline
+// ("will personally text and call you") is back (Tanner, 2026-09-08 video).
 export function Step8({
   answers,
   phone,
@@ -394,7 +448,8 @@ export function Step8({
   return (
     <form onSubmit={submit} noValidate data-step="phone">
       <Headline>{PHONE_LABEL}</Headline>
-      <div className="mt-7">
+      <SubLine>{PHONE_SUB}</SubLine>
+      <div className="mt-6">
         <ChipRow items={summaryChips(answers)} />
       </div>
       <div className="mt-6">

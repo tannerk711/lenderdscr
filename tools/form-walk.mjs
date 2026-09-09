@@ -1,4 +1,5 @@
-// Real-browser walk of the /start V1 form (variant B, stage 2). Drives the form
+// Real-browser walk of the V1 form (variant B; nine steps since the 2026-09-08
+// city step: goal, stage, property, credit, price, fork, CITY, contact, phone). Drives the form
 // by its DOM contract (#start [data-step], [data-value], [data-action], #ff-*),
 // screenshots every step at desktop 1440x900 (dsf 1) and mobile 390x844 (dsf 2,
 // hasTouch, never isMobile), captures the real POST /api/lead body + response,
@@ -185,6 +186,15 @@ async function typeInto(page, sel, text) {
   await page.type(sel, text, { delay: 8 });
 }
 
+// Step 7 (2026-09-08): the typed Texas city between the fork and the contact
+// step. Continue is disabled until 2+ chars; the value ships title-cased.
+async function cityStep(page, city) {
+  await waitStep(page, 'city');
+  await typeInto(page, '#ff-city', city);
+  await settle(120);
+  await clickAction(page, 'continue');
+}
+
 async function isDisabled(page, action) {
   return page.evaluate((a) => document.querySelector(`#start [data-action="${a}"]`)?.disabled ?? null, action);
 }
@@ -231,7 +241,7 @@ function expectedKeys(payload) {
   return [...HEAD_KEYS, ...attrs, ...TAIL_KEYS];
 }
 
-function checkPayloadShape(label, p) {
+function checkPayloadShape(label, p, city = '') {
   const got = Object.keys(p);
   const want = expectedKeys(p);
   const missing = want.filter((k) => !got.includes(k));
@@ -249,7 +259,7 @@ function checkPayloadShape(label, p) {
   check(`${label}: tcpaConsentAt is an ISO click timestamp`, ISO.test(String(p.tcpaConsentAt)), String(p.tcpaConsentAt));
   check(`${label}: tcpaConsentUrl is the /start URL`, FORM_RE.test(String(p.tcpaConsentUrl)), String(p.tcpaConsentUrl));
   check(`${label}: landingPage = pathname + search`, FORM_PATH_RE.test(String(p.landingPage)), String(p.landingPage));
-  check(`${label}: state Texas, city ''`, p.state === 'Texas' && p.city === '');
+  check(`${label}: state Texas, city "${city}"`, p.state === 'Texas' && p.city === city, `${p.state} / ${p.city}`);
   check(`${label}: partial false, website ''`, p.partial === false && p.website === '');
   check(`${label}: variant b-t4-v1, source ild-split-test`, p.variant === 'b-t4-v1' && p.source === 'ild-split-test', `${p.variant}/${p.source}`);
   check(`${label}: phone is 10 digits`, /^\d{10}$/.test(String(p.phone)), String(p.phone));
@@ -305,7 +315,7 @@ async function buyWalk(browser, vp) {
 
   await waitStep(page, 'goal');
   await shot('01-goal');
-  check(`${label}: step 1 label reads "Step 1 of 8"`, (await stepLabel(page)) === 'Step 1 of 8', await stepLabel(page));
+  check(`${label}: step 1 label reads "Step 1 of 9"`, (await stepLabel(page)) === 'Step 1 of 9', await stepLabel(page));
   if (vp.name === 'mobile') {
     // BRIEF section 8: /start at 390x844 shows the question and all of step 1's options
     const fold = await page.evaluate((h) => {
@@ -335,26 +345,46 @@ async function buyWalk(browser, vp) {
   check(`${label}: buy fork is the down slider`, fork === 'down', String(fork));
   await shot('06-down');
   await clickAction(page, 'continue');
+  await waitStep(page, 'city');
+  check(`${label}: down Continue lands on the city step (Step 7 of 9)`, (await stepLabel(page)) === 'Step 7 of 9', await stepLabel(page));
+  const cityTitle = await page.evaluate(() => document.querySelector('#start [data-step-title]')?.textContent.trim());
+  check(`${label}: buy city title`, cityTitle === 'Where in Texas are you buying?', String(cityTitle));
+  check(`${label}: city Continue disabled while empty`, (await isDisabled(page, 'continue')) === true);
+  await shot('07-city');
+  await typeInto(page, '#ff-city', 'f');
+  await settle(100);
+  check(`${label}: city Continue still disabled at 1 char`, (await isDisabled(page, 'continue')) === true);
+  await page.keyboard.press('Backspace'); // a triple-click cannot select a lone character reliably
+  await typeInto(page, '#ff-city', 'fort worth');
+  await settle(120);
+  check(`${label}: city Continue enabled at 2+ chars`, (await isDisabled(page, 'continue')) === false);
+  await shot('07-city-typed');
+  // Enter guard on the city step too: two Enters advance exactly once
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
   await waitStep(page, 'contact');
-  await shot('07-contact');
+  check(`${label}: double Enter on city advanced exactly one step (contact mounted)`, (await mountedStep(page)) === 'contact' && sink.posts.length === 0);
+  await shot('08-contact');
   check(`${label}: contact Continue disabled while empty`, (await isDisabled(page, 'continue')) === true);
   await typeInto(page, '#ff-first', 'Quinn');
   await typeInto(page, '#ff-last', 'Walker');
   await typeInto(page, '#ff-email', 'qa@example.com');
   await settle(120);
-  await shot('07-contact-filled');
+  await shot('08-contact-filled');
   // Enter guard: two Enters in a row must advance exactly once (no skip, no submit)
   await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
   await waitStep(page, 'phone');
   check(`${label}: double Enter advanced exactly one step (phone mounted, 0 POSTs)`, (await mountedStep(page)) === 'phone' && sink.posts.length === 0, `${sink.posts.length} posts`);
-  check(`${label}: phone step label reads "Step 8 of 8"`, (await stepLabel(page)) === 'Step 8 of 8', await stepLabel(page));
+  check(`${label}: phone step label reads "Step 9 of 9"`, (await stepLabel(page)) === 'Step 9 of 9', await stepLabel(page));
   const chips = await page.evaluate(() => [...document.querySelectorAll('#start [data-chips] span span')].map((c) => c.textContent.trim()));
-  check(`${label}: recap chips = goal, property, Texas, price`, chips.join('|') === 'Buy a rental|Single-family|Texas|$350,000', chips.join('|'));
-  await shot('08-phone');
+  check(`${label}: recap chips = goal, property, "City, TX", price`, chips.join('|') === 'Buy a rental|Single-family|Fort Worth, TX|$350,000', chips.join('|'));
+  const phoneSub = await page.evaluate(() => document.querySelector('#start [data-step="phone"] p')?.textContent.trim());
+  check(`${label}: phone step carries the "will personally text and call you" line`, /loan officer will personally text and call you about your eligibility/.test(String(phoneSub)), String(phoneSub));
+  await shot('09-phone');
   await typeInto(page, '#ff-phone', '5555550123');
   await settle(120);
-  await shot('08-phone-typed');
+  await shot('09-phone-typed');
   check(`${label}: submit disabled with consent unchecked`, (await isDisabled(page, 'submit')) === true);
   await clickAction(page, 'submit');
   await settle(400);
@@ -372,7 +402,7 @@ async function buyWalk(browser, vp) {
     return !!cb && !!btn && cb.bottom <= btn.top;
   });
   check(`${label}: consent box sits above the submit button`, boxAboveSubmit);
-  await shot('08-phone-consented');
+  await shot('09-phone-consented');
   check(`${label}: submit enabled after consent`, (await isDisabled(page, 'submit')) === false);
 
   const url = await submitAndLand(page);
@@ -380,7 +410,7 @@ async function buyWalk(browser, vp) {
   check(`${label}: exactly one POST /api/lead`, sink.posts.length === 1, `${sink.posts.length}`);
   const p = sink.posts[0] || {};
   await checkResponse(label, page, sink);
-  checkPayloadShape(label, p);
+  checkPayloadShape(label, p, 'Fort Worth'); // "fort worth" typed, title-cased on the way out
   check(`${label}: goal/goalLabel`, p.goal === 'purchase' && p.goalLabel === 'Buy a rental', `${p.goal}/${p.goalLabel}`);
   check(`${label}: stage slug + label`, p.stage === 'actively-looking-at-properties' && p.stageLabel === 'Actively looking at properties', `${p.stage}/${p.stageLabel}`);
   check(`${label}: propertyType sfr / Single-family`, p.propertyType === 'sfr' && p.propertyTypeLabel === 'Single-family', `${p.propertyType}/${p.propertyTypeLabel}`);
@@ -421,7 +451,7 @@ async function buyWalk(browser, vp) {
   check(`${label}: localStorage ild_variant_test_leads holds the lead`, ty.leads >= 1, `${ty.leads}`);
   check(`${label}: lead-summary keys per BRIEF`, ty.summaryKeys.join(',') === 'firstName,goal,goalLabel,propertyType,propertyTypeLabel,credit,price,priceDisplay,state', ty.summaryKeys.join(','));
   check(`${label}: lead-summary state Texas + priceDisplay`, ty.summary?.state === 'Texas' && ty.summary?.priceDisplay === '$350,000');
-  await shot('09-thank-you');
+  await shot('10-thank-you');
 
   // /test-leads lists it
   await open(page, '/test-leads');
@@ -429,7 +459,7 @@ async function buyWalk(browser, vp) {
   await settle(300);
   const count = await page.evaluate(() => Number(document.querySelector('[data-lead-count]')?.getAttribute('data-lead-count')));
   check(`${label}: /test-leads lists the captured lead`, count >= 1, `${count}`);
-  await shot('10-test-leads');
+  await shot('11-test-leads');
 
   checkNetwork(label, sink);
   await page.close();
@@ -446,7 +476,7 @@ async function preselectAndForks(browser, vp) {
   // preselect: opens on step 2, Back returns to a highlighted step 1
   await open(page, formUrl('?goal=refinance'));
   await waitStep(page, 'stage');
-  check(`${label}: /start?goal=refinance opens on step 2`, (await mountedStep(page)) === 'stage' && (await stepLabel(page)) === 'Step 2 of 8', await stepLabel(page));
+  check(`${label}: /start?goal=refinance opens on step 2`, (await mountedStep(page)) === 'stage' && (await stepLabel(page)) === 'Step 2 of 9', await stepLabel(page));
   await shot('preselect-stage');
   await clickAction(page, 'back');
   await waitStep(page, 'goal');
@@ -473,6 +503,11 @@ async function preselectAndForks(browser, vp) {
   check(`${label}: refi fork = balance options`, refiFork === 'balance', String(refiFork));
   await shot('fork-refi');
   await clickValue(page, 'less-than-50');
+  await waitStep(page, 'city');
+  const refiCity = await page.evaluate(() => document.querySelector('#start [data-step-title]')?.textContent.trim());
+  check(`${label}: refi city title`, refiCity === 'Where in Texas is the property?', String(refiCity));
+  await shot('city-refi');
+  await cityStep(page, 'Austin');
   await waitStep(page, 'contact');
   await typeInto(page, '#ff-first', 'Riley');
   await typeInto(page, '#ff-last', 'Refi');
@@ -486,7 +521,7 @@ async function preselectAndForks(browser, vp) {
   check(`${label}: refi submit landed on /thank-you`, /\/thank-you/.test(refiUrl), refiUrl);
   const r = sink.posts[sink.posts.length - 1] || {};
   await checkResponse(`${label} refi`, page, sink);
-  checkPayloadShape(`${label} refi`, r);
+  checkPayloadShape(`${label} refi`, r, 'Austin');
   check(`${label}: refi goal/goalLabel`, r.goal === 'refinance' && r.goalLabel === 'Refinance', `${r.goal}/${r.goalLabel}`);
   check(`${label}: refi price string '3000000+' / '$3,000,000+'`, r.price === '3000000+' && r.priceDisplay === '$3,000,000+', `${r.price}/${r.priceDisplay}`);
   check(`${label}: refi balanceDisplay + scenarioDetail`, r.balance === null && r.balanceDisplay === 'Less than 50%' && r.equity === null && r.equityDisplay === null && r.scenarioDetail === 'Owes: Less than 50% of the value', `${r.balanceDisplay} / ${r.scenarioDetail}`);
@@ -511,6 +546,10 @@ async function preselectAndForks(browser, vp) {
   check(`${label}: flip fork = rehab options`, flipFork === 'rehab', String(flipFork));
   await shot('fork-flip');
   await clickValue(page, '25k-to-50k');
+  await waitStep(page, 'city');
+  const flipCity = await page.evaluate(() => document.querySelector('#start [data-step-title]')?.textContent.trim());
+  check(`${label}: flip city title`, flipCity === 'Where in Texas are you flipping?', String(flipCity));
+  await cityStep(page, 'san antonio');
   await waitStep(page, 'contact');
   await typeInto(page, '#ff-first', 'Finn');
   await typeInto(page, '#ff-last', 'Flip');
@@ -524,7 +563,7 @@ async function preselectAndForks(browser, vp) {
   check(`${label}: flip submit landed on /thank-you`, /\/thank-you/.test(flipUrl), flipUrl);
   const f = sink.posts[sink.posts.length - 1] || {};
   await checkResponse(`${label} flip`, page, sink);
-  checkPayloadShape(`${label} flip`, f);
+  checkPayloadShape(`${label} flip`, f, 'San Antonio'); // "san antonio" typed
   check(`${label}: flip goal bridge / Fix & Flip/Hold`, f.goal === 'bridge' && f.goalLabel === 'Fix & Flip/Hold', `${f.goal}/${f.goalLabel}`);
   check(`${label}: flip rehabDisplay + scenarioDetail`, f.rehab === null && f.rehabDisplay === '$25K to $50K' && f.scenarioDetail === 'Rehab budget: $25K to $50K', `${f.rehabDisplay} / ${f.scenarioDetail}`);
   check(`${label}: flip buy/refi fields null`, f.downPct === null && f.downPayment === null && f.balance === null && f.balanceDisplay === null && f.equity === null && f.equityDisplay === null);
@@ -554,7 +593,7 @@ async function kickout(browser, vp) {
   await clickValue(page, '<620');
   await waitStep(page, 'kickout');
   check(`${label}: Below 620 mounts the in-form kick-out`, (await mountedStep(page)) === 'kickout');
-  check(`${label}: kick-out shows Step 4 of 8`, (await stepLabel(page)) === 'Step 4 of 8', await stepLabel(page));
+  check(`${label}: kick-out shows Step 4 of 9`, (await stepLabel(page)) === 'Step 4 of 9', await stepLabel(page));
   const href = await page.evaluate(() => document.querySelector('#start [data-action="not-yet"]')?.getAttribute('href'));
   check(`${label}: kick-out links to /not-yet`, href === '/not-yet', String(href));
   check(`${label}: still on /start, zero POSTs`, FORM_RE.test(page.url()) && sink.posts.length === 0);
@@ -599,6 +638,7 @@ async function failedPostRetry(browser, vp) {
   await waitStep(page, 'secondary');
   await setRange(page, 50);
   await clickAction(page, 'continue');
+  await cityStep(page, 'Plano');
   await waitStep(page, 'contact');
   await typeInto(page, '#ff-first', 'Retry');
   await typeInto(page, '#ff-last', 'Case');
@@ -648,13 +688,14 @@ async function backNavigation(browser, vp) {
   await waitStep(page, 'secondary');
   await setRange(page, 30);
   await clickAction(page, 'continue');
+  await cityStep(page, 'McKinney');
   await waitStep(page, 'contact');
   await typeInto(page, '#ff-first', 'Back');
   await typeInto(page, '#ff-last', 'Walker');
   await typeInto(page, '#ff-email', 'back@example.com');
   await clickAction(page, 'continue');
   await waitStep(page, 'phone');
-  check(`${label}: reached the phone step`, (await stepLabel(page)) === 'Step 8 of 8', await stepLabel(page));
+  check(`${label}: reached the phone step`, (await stepLabel(page)) === 'Step 9 of 9', await stepLabel(page));
 
   await clickAction(page, 'back');
   await waitStep(page, 'contact');
@@ -664,8 +705,15 @@ async function backNavigation(browser, vp) {
     email: document.querySelector('#ff-email')?.value,
   }));
   check(`${label}: Back from phone keeps the typed contact fields`, contact.first === 'Back' && contact.last === 'Walker' && contact.email === 'back@example.com', JSON.stringify(contact));
-  check(`${label}: contact step reads Step 7 of 8`, (await stepLabel(page)) === 'Step 7 of 8', await stepLabel(page));
-  await shot('back-07-contact');
+  check(`${label}: contact step reads Step 8 of 9`, (await stepLabel(page)) === 'Step 8 of 9', await stepLabel(page));
+  await shot('back-08-contact');
+
+  await clickAction(page, 'back');
+  await waitStep(page, 'city');
+  const cityKept = await page.evaluate(() => document.querySelector('#ff-city')?.value);
+  check(`${label}: Back from contact keeps the typed city`, cityKept === 'McKinney', String(cityKept));
+  check(`${label}: city step reads Step 7 of 9`, (await stepLabel(page)) === 'Step 7 of 9', await stepLabel(page));
+  await shot('back-07-city');
 
   await clickAction(page, 'back');
   await waitStep(page, 'secondary');
@@ -688,13 +736,13 @@ async function backNavigation(browser, vp) {
   await clickAction(page, 'back');
   await waitStep(page, 'credit');
   check(`${label}: Back from price highlights 740+`, (await selectedOn('credit')) === '740+', String(await selectedOn('credit')));
-  check(`${label}: credit step reads Step 4 of 8`, (await stepLabel(page)) === 'Step 4 of 8', await stepLabel(page));
+  check(`${label}: credit step reads Step 4 of 9`, (await stepLabel(page)) === 'Step 4 of 9', await stepLabel(page));
   // sticky-hover guard: only the selected card wears the gold border (the pointer
   // is parked over another card after the typed steps; on touch that hover must not paint)
   const borders = await page.evaluate(() =>
     [...document.querySelectorAll('#start [data-step="credit"] [data-value]')].map((c) => ({
       v: c.getAttribute('data-value'),
-      gold: getComputedStyle(c).borderColor !== 'rgb(231, 225, 210)',
+      gold: getComputedStyle(c).borderColor !== 'rgb(219, 229, 236)', // #dbe5ec, the ILD-theme resting border (2026-09-08)
       hoverMedia: matchMedia('(hover: hover)').matches,
     }))
   );
@@ -730,6 +778,9 @@ async function backNavigation(browser, vp) {
   await waitStep(page, 'price');
   await clickAction(page, 'continue');
   await waitStep(page, 'secondary');
+  await clickAction(page, 'continue');
+  await waitStep(page, 'city');
+  check(`${label}: forward again reaches city with the value retained`, (await page.evaluate(() => document.querySelector('#ff-city')?.value)) === 'McKinney');
   await clickAction(page, 'continue');
   await waitStep(page, 'contact');
   const again = await page.evaluate(() => document.querySelector('#ff-email')?.value);
