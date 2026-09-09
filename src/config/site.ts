@@ -137,7 +137,7 @@ export const seo = {
 export const hero = {
   h1: site.showYearInH1 ? `Check Your ${site.year} Texas DSCR Loan Eligibility` : 'Check Your Texas DSCR Loan Eligibility',
   subNetwork: 'Rent qualifies the loan, not your tax returns. See which lenders fit your Texas deal.',
-  subLender: 'Rent qualifies the loan, not your tax returns. See if your Texas deal fits.',
+  subLender: 'Check Updated Requirements. See What You Qualify For.', // Tanner, 2026-09-09
 };
 
 // Topbar (desktop only): the three program words. Says WHAT once, in the header.
