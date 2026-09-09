@@ -110,3 +110,82 @@ Footer. Build clean, check-links PASS, shoot.mjs full-page sweep read on both vi
 
 - Mobile Lighthouse on built output, median of runs 2-4 on /: perf 99, FCP 1.38s,
   LCP 1.99s, TBT 35ms, CLS 0.000. /start 99, /thank-you 100. Gate 90: PASS.
+
+## Edit 6: go-live (2026-09-09, commit ef2e5b7 + the docs commit after it)
+
+The ONE flag flipped: `leadDelivery = 'live'` in `src/config/site.ts`. Indexing was decoupled
+from it: `seo.noindexSite = true` keeps every page `noindex, nofollow` on the challenger
+subdomain (Layout.astro: test mode OR noindexSite). Nothing else under src changed.
+
+Dev gates (dev server started with `LEAD_WEBHOOK_URL=http://localhost:4399/hook`):
+
+- `tools/form-walk.mjs` gained `QA_LEAD_MODE=live`: it hosts that webhook, expects
+  `{ok:true, forwarded:true}`, asserts the hook body equals the browser payload key for key
+  plus the three server stamps (tcpaConsentIp / tcpaConsentUserAgent / tcpaConsentReceivedAt,
+  in that order at the end), and keeps the browser hermetic (every non-localhost host
+  resolves to 127.0.0.1, so the deferred gtag.js is attempted and fails; that is the one
+  allowed foreign request). /start 326/326; / (`QA_FORM_PATH=/`) 326/326. 9 hook bodies per
+  run, all at /hook; the gated POSTs (no consent, honeypot, sub-620, incomplete) never
+  reached the hook.
+- `tools/gtag-live-check.mjs` (new) 20/20 on dev: inline dataLayer stub +
+  `gtag('config','AW-16956033989')` in the head, no static googletagmanager script in the
+  server HTML, gtag.js appended exactly once at the load event (load 2395 ms, appended
+  2395 ms), robots noindex,nofollow on /, /start, /thank-you, /not-yet, /privacy; bare
+  /thank-you zero conversions; lead-summary path exactly one conversion to
+  `AW-16956033989/cwbHCNCflbAaEMWXopU_` and none on reload (conv_fired); a ?qa=1 session
+  zero conversions; ?demo=1 one.
+- Build clean. dist carries the gtag id, zero zapier strings, robots noindex,nofollow.
+
+Deploy:
+
+- First push of `split/b-t4-v1` (ef2e5b7): Vercel preview deployment
+  `lenderdscr-67tzxtzch-ai-wizard-junk.vercel.app`, READY in about three minutes, on the
+  same `lenderdscr` project (`vercel project ls` matched; the worktree link was restored by
+  copying the main checkout's `.vercel/project.json`, never `vercel link` by name).
+- `LEAD_WEBHOOK_URL` already existed on the Preview scope (Secret, set 2026-07-27 alongside
+  Production and Development). The prod submit below proves it forwards.
+- Domain `go.lenderdscr.com` added to the project through the API
+  (`POST /v10/projects/{id}/domains`, `gitBranch: split/b-t4-v1`), `verified: true` because
+  the apex is already on the project. DNS pending: Paul adds a CNAME `go` ->
+  `cname.vercel-dns.com` at GoDaddy (nameservers ns23/ns24.domaincontrol.com). Until then
+  the .vercel.app URL sits behind Vercel Authentication (`ssoProtection:
+  all_except_custom_domains`, no-bypass request -> 302); a Protection Bypass for Automation
+  secret was generated on the project for QA (`x-vercel-protection-bypass` header,
+  `QA_BYPASS` in the two prod tools). The custom domain needs none.
+
+Prod gates on the branch deployment (bypass header):
+
+- `tools/gtag-live-check.mjs` 20/20 (load 2274 ms, gtag.js appended 2275 ms).
+- `tools/prod-submit-qa.mjs` (new; real Chrome, 390x844, landing on
+  `/?qa=1&utm_source=prodqa&utm_content=prodqa-b`): 15/15 after one checker fix (the H1
+  greets by the first token, "Nice work, TEST"). `/api/lead` answered
+  `{ok:true, forwarded:true}`; one POST; payload firstName "TEST ProdQA", lastName
+  "DeleteMe", city "Fort Worth", variant b-t4-v1, source ild-split-test, utm_source +
+  utm_content shipped and landingPage carrying the query, tcpaConsent true with the
+  486-char text, ISO consentAt, consentUrl on the deployment; landed on /thank-you
+  personalized with five chips; gtag.js loaded from Google; zero conversion events and
+  conv_fired unset (?qa=1 suppression). **Tanner deletes the "TEST ProdQA DeleteMe"
+  contact in GHL.**
+- Headers: `/` 200 with `X-Robots-Tag: noindex` (Vercel stamps non-production deployments)
+  plus the meta; `/api/lead` without consent -> 400 `consent required`. `/_astro/*.css|js`
+  and `/fonts/*.woff2` answer `Cache-Control: public, max-age=0, must-revalidate`: the
+  adapter's immutable rule is dead (memory reference_vercel_boa_header_route_order), and
+  lenderdscr.com main serves exactly the same, so the two funnels are at parity. Fix both
+  sides together later (postbuild hoist); not part of the go-live.
+- Mobile Lighthouse, built output over the gzip static server, median of runs 2-4 on /:
+  perf 94, FCP 1.37s, LCP 1.98s, TBT 242 ms, CLS 0.000; /start 98, /thank-you 95. Gate
+  90: PASS. The 99 -> 94 delta is the live gtag.js (TBT 35 -> 242 ms); the tag is deferred
+  to window load and nothing else changed. pagespeed.web.dev on go.lenderdscr.com runs
+  once DNS resolves.
+
+Ads (`google-ads/clients/paul-howarth/split_b_ads.py`, `BUILD-RECORD-split-b-2026-09-09.md`):
+7 PAUSED duplicate RSAs in DSCR - TX (24041061079), one per SKAG, final URL
+`https://go.lenderdscr.com/`, utm_content = the control's slug + `-b`, utm_term={keyword}
+unchanged, headlines/descriptions/paths equal to each control; ad rotation ROTATE_FOREVER
+on all 7 ad groups (API v24 keeps it on the ad group, not the campaign; 1 was already set,
+6 were UNSPECIFIED); verify 21/21. Nothing enabled, no new campaign, no new conversion
+action (same gtag label on both funnels).
+
+Zap: same hook, same map, no required edit. New keys lastName, variant, source; city now
+populated. Optional GHL mapping: lastName -> Last Name, city -> City custom field,
+variant -> Variant field or tag.

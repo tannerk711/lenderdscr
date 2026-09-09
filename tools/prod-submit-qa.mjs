@@ -43,6 +43,9 @@ if (!existsSync(CHROME)) {
 const browser = await puppeteer.launch({ executablePath: CHROME, headless: true, args: ['--no-first-run', '--no-default-browser-check'] });
 const page = await browser.newPage();
 await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 2, hasTouch: true });
+// A .vercel.app preview URL sits behind Vercel Authentication; the custom domain
+// does not. QA_BYPASS = the project's Protection Bypass for Automation secret.
+if (process.env.QA_BYPASS) await page.setExtraHTTPHeaders({ 'x-vercel-protection-bypass': process.env.QA_BYPASS, 'x-vercel-set-bypass-cookie': 'true' });
 const posts = [];
 let response = null;
 await page.evaluateOnNewDocument(() => {
@@ -145,7 +148,8 @@ try {
     fired: sessionStorage.getItem('conv_fired'),
     gtagLoaded: typeof window.google_tag_manager === 'object' || [...document.scripts].some((s) => /googletagmanager\.com\/gtag\/js/.test(s.src)),
   }));
-  check('/thank-you personalized with the first name', !!ty.name && ty.name.includes('TEST ProdQA'), String(ty.name));
+  // the H1 greets by the FIRST TOKEN of firstName by design ("Nice work, TEST")
+  check('/thank-you personalized with the first name (first token)', !!ty.name && ty.name.includes(LEAD.first.split(' ')[0]), String(ty.name));
   check('/thank-you chips rendered', ty.chips.length >= 4, ty.chips.join('|'));
   check('/thank-you: gtag.js actually loaded from Google (live tag)', ty.gtagLoaded === true);
   check('/thank-you: conversion suppressed by ?qa=1 (no conversion event, conv_fired unset)', ty.convs === 0 && ty.fired === null, `${ty.convs} events, fired=${ty.fired}`);

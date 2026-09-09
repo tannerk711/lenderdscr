@@ -41,6 +41,8 @@ async function fresh(browser) {
   const ctx = await browser.createBrowserContext();
   const page = await ctx.newPage();
   await page.setViewport({ width: 1280, height: 800 });
+  // QA_BYPASS: Protection Bypass for Automation secret, for a protected .vercel.app preview URL
+  if (process.env.QA_BYPASS) await page.setExtraHTTPHeaders({ 'x-vercel-protection-bypass': process.env.QA_BYPASS, 'x-vercel-set-bypass-cookie': 'true' });
   const requests = [];
   page.on('request', (r) => requests.push({ url: r.url() }));
   // In-page timing (puppeteer's own load event arrives after the page's load

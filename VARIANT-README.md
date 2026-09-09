@@ -35,9 +35,28 @@ tools/serve-dist.mjs` (gzip, like Vercel) or `npm run lh` for the full mobile ga
 Kill the dev server when done (PowerShell):
 `Get-NetTCPConnection -LocalPort 4332 -State Listen | % { Stop-Process -Id $_.OwningProcess -Force }`
 
-## Test mode (the current state) and the one-line flip
+## LIVE since 2026-09-09 (the split test)
 
-`src/config/site.ts` exports `leadDelivery: 'test' | 'live'` (currently `'test'`) and
+`leadDelivery = 'live'` in `src/config/site.ts`: `/api/lead` forwards to `LEAD_WEBHOOK_URL`
+(the `lenderdscr` project's PREVIEW scope, the same Zapier catch hook as the live funnel)
+and Layout renders the deferred gtag. `seo.noindexSite = true` keeps every page
+noindex,nofollow regardless (a paid-traffic challenger on a subdomain is never indexed).
+
+- Branch `split/b-t4-v1` is pushed; every push deploys a preview on the SAME `lenderdscr`
+  Vercel project. Domain `go.lenderdscr.com` is assigned to this branch (DNS: CNAME `go` ->
+  `cname.vercel-dns.com`, Paul's GoDaddy). The .vercel.app preview URL is behind Vercel
+  Authentication; the custom domain is not.
+- Ads: 7 PAUSED "-b" duplicate RSAs in DSCR - TX point at `https://go.lenderdscr.com/`
+  (`google-ads/clients/paul-howarth/split_b_ads.py`); Tanner enables them once DNS resolves.
+- Live QA: `$env:QA_LEAD_MODE='live'; node tools/form-walk.mjs` against a dev server started
+  with `LEAD_WEBHOOK_URL=http://localhost:4399/hook` (the walker hosts that hook);
+  `node tools/gtag-live-check.mjs`; `QA_BASE=https://go.lenderdscr.com node
+  tools/prod-submit-qa.mjs` for the real-browser prod submit (posts a "TEST ProdQA DeleteMe"
+  lead with ?qa=1, conversion suppressed; delete it in GHL). Record: QA-REPORT.md Edit 6.
+
+## Test mode (the pre-launch state) and the one-line flip
+
+`src/config/site.ts` exports `leadDelivery: 'test' | 'live'` (now `'live'`) and
 `variant = 'b-t4-v1'`. While `leadDelivery === 'test'`:
 
 - `/api/lead` runs every gate (honeypot silent 200, `credit === '<620'` silent 200,
