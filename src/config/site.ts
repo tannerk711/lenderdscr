@@ -8,11 +8,11 @@
 // LEAD DELIVERY (BRIEF section 3): `leadDelivery` below is the ONE flag. While it is
 // 'test', nothing leaves the browser except the same-origin POST to /api/lead,
 // which logs the payload and returns { ok: true, forwarded: false, testMode: true },
-// and no gtag renders. 'live' (since 2026-09-09, the split test): /api/lead forwards
-// to LEAD_WEBHOOK_URL (the lenderdscr Vercel project's PREVIEW scope, because this
-// branch deploys as a branch domain) and Layout renders the deferred gtag.
-// Indexing is a SEPARATE switch (`seo.noindexSite` below): this funnel is a paid
-// traffic challenger on a subdomain and stays noindex even while live.
+// and no gtag renders. 'live' (since 2026-09-09): /api/lead forwards to
+// LEAD_WEBHOOK_URL (the lenderdscr Vercel project, Production scope on main) and
+// Layout renders the deferred gtag. Indexing is a SEPARATE switch (`seo.noindexSite`
+// below). Since 2026-09-09 this funnel is lenderdscr.com itself (it replaced the
+// PMF-model site; the old site lives on git branch archive/pmf-funnel-2026-09-08).
 // ============================================================================
 
 export type SiteMode = 'network' | 'lender';
@@ -21,7 +21,7 @@ export type LeadDelivery = 'test' | 'live';
 /** ONE flag. 'test' = no webhook, no gtag. 'live' = webhook + gtag. Flipped 2026-09-09. */
 export const leadDelivery: LeadDelivery = 'live';
 
-/** Ships on every payload as `variant` so the split test can be read in the CRM. */
+/** Ships on every payload as `variant`: the funnel build a lead came through (readable in the CRM). */
 export const variant = 'b-t4-v1';
 
 /** Texas-only client: the form never asks for a state; every payload ships this. */
@@ -133,12 +133,13 @@ export const seo = {
   title: `Check Your ${site.year} Texas DSCR Loan Eligibility | ${brand.name}`,
   description: `DSCR rental property loans for Texas real estate investors. Qualify on the rent, not your tax returns. Check your ${site.year} eligibility in about a minute.`,
   /**
-   * Every page carries noindex,nofollow while true, independent of leadDelivery.
-   * The split-test challenger lives on a subdomain of the live site; a second
-   * indexable copy of the funnel helps nobody and splits organic signals. Test
-   * mode forces noindex regardless (Layout.astro).
+   * Every page carries noindex,nofollow while true, independent of leadDelivery
+   * (test mode forces noindex regardless, Layout.astro). False since 2026-09-09:
+   * this funnel IS lenderdscr.com (Tanner's call, it replaced the PMF-model site
+   * on the apex, no split test), so the LP and legal pages index normally and
+   * /start, /thank-you, /not-yet keep their own page-level noindex.
    */
-  noindexSite: true,
+  noindexSite: false,
 };
 
 export const hero = {

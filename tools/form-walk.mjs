@@ -294,7 +294,7 @@ function checkPayloadShape(label, p, city = '') {
   check(`${label}: landingPage = pathname + search`, FORM_PATH_RE.test(String(p.landingPage)), String(p.landingPage));
   check(`${label}: state Texas, city "${city}"`, p.state === 'Texas' && p.city === city, `${p.state} / ${p.city}`);
   check(`${label}: partial false, website ''`, p.partial === false && p.website === '');
-  check(`${label}: variant b-t4-v1, source ild-split-test`, p.variant === 'b-t4-v1' && p.source === 'ild-split-test', `${p.variant}/${p.source}`);
+  check(`${label}: variant b-t4-v1, source lenderdscr`, p.variant === 'b-t4-v1' && p.source === 'lenderdscr', `${p.variant}/${p.source}`);
   check(`${label}: phone is 10 digits`, /^\d{10}$/.test(String(p.phone)), String(p.phone));
   check(`${label}: secondsToComplete is a number`, typeof p.secondsToComplete === 'number', String(p.secondsToComplete));
   check(`${label}: submittedAt ISO`, ISO.test(String(p.submittedAt)));

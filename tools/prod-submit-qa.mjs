@@ -91,7 +91,8 @@ try {
   await page.goto(`${BASE}${FORM}?qa=1&utm_source=prodqa&utm_content=prodqa-b`, { waitUntil: 'networkidle2', timeout: 60000 });
   const title = await page.title();
   check('page title carries the brand', title.includes(BRAND), title);
-  check('robots meta = noindex, nofollow', (await page.evaluate(() => document.querySelector('meta[name="robots"]')?.getAttribute('content'))) === 'noindex, nofollow');
+  // the LP indexes on the apex (seo.noindexSite false); a noindex,nofollow LP means the site flag is on
+  check('LP robots meta absent (indexable apex funnel)', (await page.evaluate(() => document.querySelector('meta[name="robots"]')?.getAttribute('content') ?? '')) === '');
   check('sessionStorage.qa = 1 (conversion suppressed for this tab)', (await page.evaluate(() => sessionStorage.getItem('qa'))) === '1');
   await waitStep('goal');
   await clickValue('purchase');
@@ -137,7 +138,7 @@ try {
   check('/api/lead answered {ok:true, forwarded:true}', !!response && response.status === 200 && response.body?.ok === true && response.body?.forwarded === true, JSON.stringify(response));
   check('exactly one POST /api/lead', posts.length === 1, `${posts.length}`);
   const p = posts[0] || {};
-  check('payload: firstName / lastName / city / variant / source', p.firstName === LEAD.first && p.lastName === LEAD.last && p.city === LEAD.city && p.variant === 'b-t4-v1' && p.source === 'ild-split-test', `${p.firstName} ${p.lastName} / ${p.city} / ${p.variant} / ${p.source}`);
+  check('payload: firstName / lastName / city / variant / source', p.firstName === LEAD.first && p.lastName === LEAD.last && p.city === LEAD.city && p.variant === 'b-t4-v1' && p.source === 'lenderdscr', `${p.firstName} ${p.lastName} / ${p.city} / ${p.variant} / ${p.source}`);
   check('payload: attribution shipped (utm_source, utm_content) + landingPage with the query', p.utm_source === 'prodqa' && p.utm_content === 'prodqa-b' && /qa=1/.test(String(p.landingPage)), `${p.utm_source}/${p.utm_content}/${p.landingPage}`);
   check('payload: tcpaConsent true + consent record fields', p.tcpaConsent === true && typeof p.tcpaConsentText === 'string' && p.tcpaConsentText.length > 400 && /^\d{4}-/.test(String(p.tcpaConsentAt)) && String(p.tcpaConsentUrl).startsWith(BASE), `${String(p.tcpaConsentText).length} chars`);
   check('payload: state Texas, phone 10 digits, partial false', p.state === 'Texas' && /^\d{10}$/.test(String(p.phone)) && p.partial === false);

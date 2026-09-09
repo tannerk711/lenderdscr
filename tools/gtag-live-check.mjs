@@ -105,11 +105,18 @@ try {
     const gtReqs = t.requests.filter((r) => /googletagmanager\.com\/gtag\/js\?id=AW-16956033989/.test(r.url)).length;
     const tm = head.timing || {};
     check('/: gtag.js appended once, at or after the load event (deferred)', gtReqs === 1 && tm.appended === 1 && tm.loadAt > 0 && tm.gtagAppendedAt >= tm.loadAt, `requests ${gtReqs}, load ${Math.round(tm.loadAt)}ms, appended ${Math.round(tm.gtagAppendedAt)}ms`);
-    check('/: robots meta = noindex, nofollow (seo.noindexSite)', (await t.robots()) === 'noindex, nofollow', await t.robots());
+    // Indexing: the apex funnel (seo.noindexSite false) indexes / and /privacy and
+    // keeps page-level noindex on /start, /thank-you, /not-yet. A site-wide
+    // noindex,nofollow LP means the site flag is on (challenger / test mode) and
+    // then every page must carry it.
+    const siteNoindex = (await t.robots()) === 'noindex, nofollow';
+    check(`/: robots meta ${siteNoindex ? 'noindex, nofollow (seo.noindexSite on)' : 'absent (indexable apex funnel)'}`, siteNoindex || (await t.robots()) === '', await t.robots());
     check('/: dataLayer has js + config, no conversion', (await t.convs()).length === 0 && head.dlLen >= 2, `${head.dlLen} entries`);
-    for (const p of ['/start', '/thank-you', '/not-yet', '/privacy']) {
+    const expect = { '/start': 'noindex', '/thank-you': 'noindex', '/not-yet': 'noindex', '/privacy': '' };
+    for (const p of Object.keys(expect)) {
       await t.goto(p);
-      check(`${p}: robots meta = noindex, nofollow`, (await t.robots()) === 'noindex, nofollow', await t.robots());
+      const want = siteNoindex ? 'noindex, nofollow' : expect[p];
+      check(`${p}: robots meta ${want ? `= ${want}` : 'absent'}`, (await t.robots()) === want, await t.robots());
     }
     await t.ctx.close();
   }

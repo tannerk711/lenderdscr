@@ -329,7 +329,7 @@ export function buildPayload(a: Answers, meta: PayloadMeta): LeadPayload {
     website: meta.honeypot,
     submittedAt: new Date().toISOString(),
     variant,
-    source: 'ild-split-test',
+    source: 'lenderdscr', // the apex funnel since 2026-09-09 (was 'ild-split-test' while B was a challenger)
   };
 }
 
