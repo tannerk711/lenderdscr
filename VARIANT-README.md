@@ -35,24 +35,27 @@ tools/serve-dist.mjs` (gzip, like Vercel) or `npm run lh` for the full mobile ga
 Kill the dev server when done (PowerShell):
 `Get-NetTCPConnection -LocalPort 4332 -State Listen | % { Stop-Process -Id $_.OwningProcess -Force }`
 
-## LIVE since 2026-09-09 (the split test)
+## LIVE on lenderdscr.com since 2026-09-09 (this tree IS the site)
 
-`leadDelivery = 'live'` in `src/config/site.ts`: `/api/lead` forwards to `LEAD_WEBHOOK_URL`
-(the `lenderdscr` project's PREVIEW scope, the same Zapier catch hook as the live funnel)
-and Layout renders the deferred gtag. `seo.noindexSite = true` keeps every page
-noindex,nofollow regardless (a paid-traffic challenger on a subdomain is never indexed).
+Tanner's call: B replaced the PMF-model funnel on the apex, no split test. `main` of
+`github.com/tannerk711/lenderdscr` is this tree, checked out at `clients/Internet-Loans-Direct/`;
+pushing `main` deploys production on the `lenderdscr` Vercel project (never a second one).
+The old site is on branch `archive/pmf-funnel-2026-09-08` + tag `pmf-funnel-final`.
 
-- Branch `split/b-t4-v1` is pushed; every push deploys a preview on the SAME `lenderdscr`
-  Vercel project. Domain `go.lenderdscr.com` is assigned to this branch (DNS: CNAME `go` ->
-  `cname.vercel-dns.com`, Paul's GoDaddy). The .vercel.app preview URL is behind Vercel
-  Authentication; the custom domain is not.
-- Ads: 7 PAUSED "-b" duplicate RSAs in DSCR - TX point at `https://go.lenderdscr.com/`
-  (`google-ads/clients/paul-howarth/split_b_ads.py`); Tanner enables them once DNS resolves.
+- `leadDelivery = 'live'`: `/api/lead` forwards to `LEAD_WEBHOOK_URL` (Production scope,
+  the Zapier catch hook Tanner maps into GHL) and Layout renders the deferred gtag
+  (`AW-16956033989`, conversion on /thank-you, gated, `?qa=1` suppresses it).
+- `seo.noindexSite = false`: the LP and legal pages index; /start, /thank-you, /not-yet
+  keep page-level noindex. Set it true only for a challenger copy on another host.
+- Payload = the Zap contract plus `lastName`, `city` (populated), `variant` (`b-t4-v1`,
+  the build marker) and `source` (`lenderdscr`). The Zap needs no edit; optional GHL map
+  for lastName / city / variant.
 - Live QA: `$env:QA_LEAD_MODE='live'; node tools/form-walk.mjs` against a dev server started
   with `LEAD_WEBHOOK_URL=http://localhost:4399/hook` (the walker hosts that hook);
-  `node tools/gtag-live-check.mjs`; `QA_BASE=https://go.lenderdscr.com node
-  tools/prod-submit-qa.mjs` for the real-browser prod submit (posts a "TEST ProdQA DeleteMe"
-  lead with ?qa=1, conversion suppressed; delete it in GHL). Record: QA-REPORT.md Edit 6.
+  `node tools/gtag-live-check.mjs` (dev or `QA_BASE=https://lenderdscr.com`);
+  `QA_BASE=https://lenderdscr.com node tools/prod-submit-qa.mjs` for the real-browser
+  production submit (posts a "TEST ProdQA DeleteMe" lead with ?qa=1, conversion
+  suppressed; delete it in GHL). Records: QA-REPORT.md Edits 6 and 7.
 
 ## Test mode (the pre-launch state) and the one-line flip
 

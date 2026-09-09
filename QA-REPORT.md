@@ -189,3 +189,55 @@ action (same gtag label on both funnels).
 Zap: same hook, same map, no required edit. New keys lastName, variant, source; city now
 populated. Optional GHL mapping: lastName -> Last Name, city -> City custom field,
 variant -> Variant field or tag.
+
+## Edit 7: B becomes lenderdscr.com (2026-09-09, commits 134a997 + 7006b45)
+
+Tanner, same day: "replace the current landing page with the new one, archive the old one
+somewhere just to keep it, pushed live to the main domain, not sub domain." So Edit 6's
+split-test plumbing was unwound and B went to the apex.
+
+- Config: `seo.noindexSite = false` (the LP and legal pages index; /start, /thank-you,
+  /not-yet keep page-level noindex); payload `source` is now `lenderdscr` (was
+  `ild-split-test`); `variant` stays `b-t4-v1` as the build marker. CLAUDE.md got a header
+  box pointing at VARIANT-README.md as the document of record. QA tools follow the
+  indexable-apex expectation. Build clean, dist index has no robots meta, /start and
+  /thank-you carry `noindex`.
+- Archive: the last PMF-model production commit (a77d142, deployed 2026-09-08) is kept on
+  branch `archive/pmf-funnel-2026-09-08` and annotated tag `pmf-funnel-final`, both on
+  origin.
+- Swap: on `main`, `git merge -s ours --no-commit split/b-t4-v1` then `git read-tree -u
+  --reset split/b-t4-v1`, committed as 7006b45 (a merge commit whose tree is byte-identical
+  to B's 134a997; `git diff --stat` empty). Pushed; Vercel production deployment READY in
+  28 s. The `b/` worktree was then removed (main IS that tree now, and two checkouts of one
+  tree only invite drift); the `split/b-t4-v1` branch itself was kept on Tanner's call (it
+  is fully contained in main at 134a997, and a push to it would only build a preview).
+- Domain: `go.lenderdscr.com` removed from the project (the first API attempt 403'd on a
+  rotated CLI token; the retry after the CLI refreshed it returned 200). Paul needs no DNS
+  change; lenderdscr.com already points at the project.
+- Ads: the 7 PAUSED `-b` ads from Edit 6 were REMOVED and the six ad groups' rotation set
+  back to OPTIMIZE (DSCR Loan stays ROTATE_FOREVER, its prior state); verify 28/28
+  (`split_b_ads.py --verify-rollback`, build record has the before/after). Tanner's
+  standing rule from this: no Ads changes unless he asks in the conversation. The account
+  is exactly as it was before this session; the 7 ENABLED control ads keep pointing at
+  https://lenderdscr.com/, which now serves B.
+
+Prod gates on https://lenderdscr.com (production deployment, no bypass):
+
+- `/` 200, title "Check Your 2026 Texas DSCR Loan Eligibility | Internet Loans Direct", no
+  robots meta, gtag id present twice (stub + loader), `#start` hero form present.
+  `/start` and `/thank-you` `noindex`. www -> 308 apex. Old GHL paths: `/dscr-loan-texas`
+  and `/dscr-loan-texas-2` -> 301 `/`, `/privacy-policy` -> 301 `/privacy`. `/api/lead`
+  without consent -> 400 `consent required`. Sitemap lists /, /legal, /privacy, /start.
+- `tools/gtag-live-check.mjs` 20/20 (apex mode: LP indexable, the three noindex pages
+  correct, deferred loader, once-per-tab conversion, ?qa=1 suppression, ?demo=1 path).
+- `tools/prod-submit-qa.mjs` 15/15: real Chrome on `/?qa=1&utm_source=prodqa&utm_content=
+  prodqa-b`, `/api/lead` -> `{ok:true, forwarded:true}` through the PRODUCTION-scope hook,
+  payload TEST ProdQA / DeleteMe / Fort Worth / b-t4-v1 / lenderdscr with attribution,
+  consent record (486 chars) and landingPage; landed on /thank-you personalized with five
+  chips; gtag.js loaded; zero conversion events. **Two "TEST ProdQA DeleteMe" contacts are
+  in GHL from today (one from the branch deployment, one from the apex); delete both.**
+- Asset cache headers unchanged (`max-age=0, must-revalidate` on /_astro and /fonts; the
+  dead immutable rule; same as the old site served). Open perf item, not a regression.
+- PageSpeed Insights API answered 429 (quota) twice; local mobile Lighthouse on this exact
+  build is 94 (Edit 6). Run pagespeed.web.dev on https://lenderdscr.com/ in the browser
+  for the public number.
