@@ -1,0 +1,60 @@
+---
+// On-brand 404. noindex; excluded from the sitemap by astro.config; never
+// loads the motion spine.
+import Layout from '../layouts/Layout.astro';
+import Topbar from '../components/Topbar.astro';
+import Footer from '../components/Footer.astro';
+import { brand, cta } from '../config/site';
+---
+
+<Layout title={`Page not found | ${brand.name}`} description="That page is not here. The Texas DSCR eligibility check is one click away." noindex>
+  <Topbar />
+  <main id="main" class="nf ground-paper">
+    <div class="hero-atmo" aria-hidden="true"></div>
+    <div class="container-x nf-inner">
+      <p class="eyebrow">404</p>
+      <h1 class="h-display nf-h1">That page isn't here.</h1>
+      <p class="prose-body nf-body">
+        The link may be old, or the page moved. The eligibility check is still one click away.
+      </p>
+      <div class="nf-actions">
+        <a href="/start" class="btn-amber">{cta.primary}</a>
+        <a href="/" class="btn-ghost">Back to the home page</a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  /* Private decor only; shared classes live in global.css. No @layer here. */
+  .nf {
+    position: relative;
+    isolation: isolate;
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+  }
+
+  .nf-inner {
+    position: relative;
+    z-index: 1;
+    padding-block: clamp(4rem, 10vw, 7rem);
+  }
+
+  .nf-h1 {
+    margin-top: 0.75rem;
+    max-width: 12ch;
+  }
+
+  .nf-body {
+    margin-top: 1.25rem;
+  }
+
+  .nf-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-top: 2rem;
+  }
+</style>

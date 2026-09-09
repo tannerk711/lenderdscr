@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /thank-you
+Disallow: /not-yet
+Disallow: /test-leads
+
+Sitemap: https://lenderdscr.com/sitemap-index.xml

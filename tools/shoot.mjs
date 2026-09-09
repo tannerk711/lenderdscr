@@ -1,187 +1,208 @@
-// Visual QA harness for the funnel. Usage:
-//   npm i -D puppeteer-core        (one time; not a runtime dep)
-//   npm run dev                    (server on :4321)
-//   node tools/shoot.mjs <outPrefix>
-// Captures desktop hero + full page, mobile-emulated hero + full page (with
-// horizontal-overflow diagnostics), every form step, the credit-decline
-// branch, and the personalized thank-you page into ./shots/.
-// Mobile shots MUST come from this (viewport emulation); bare headless
-// chrome --screenshot clamps window width ~500px and fakes overflow.
-import puppeteer from 'puppeteer-core';
-import { fileURLToPath } from 'node:url';
+// Screenshot sweep, variant B (b-t4-v1). One browser per viewport (desktop 1440x900 dsf1,
+// mobile 390x844 dsf2 hasTouch, no isMobile); every load asserts clientWidth === width.
+// Shots: / (fold + full page after a scroll-through + every LP section in-viewport),
+// /start (+ ?goal=refinance preselect), /not-yet, /thank-you (seeded lead-summary),
+// mobile sticky (scroll 1800), /privacy, /legal.
+// The form-step walk lives in step-walk-qa.mjs once stage 2 lands the /start form.
+// Output: tools/shots/<viewport>-<name>.png
+//
+//   CI=true npm run dev        (server on QA_BASE, default http://localhost:4332)
+//   node tools/shoot.mjs [desktop|mobile] [--sections]
+import {
+  QA_BASE,
+  VIEWPORTS,
+  readSiteConfig,
+  launchBrowser,
+  openPage,
+  scrollThrough,
+  overflowReport,
+  seedLeadSummary,
+  seedSession,
+  ensureShots,
+  shotPath,
+  settle,
+} from './qa-lib.mjs';
 
-const prefix = process.argv[2] || 'shot';
-const base = 'http://localhost:4321';
-// fileURLToPath, not .pathname: pathname keeps %20 for spaces and breaks fs writes
-const outDir = fileURLToPath(new URL('./shots/', import.meta.url));
+const site = readSiteConfig();
+const args = process.argv.slice(2);
+const only = args.find((a) => !a.startsWith('--'));
+const withSections = args.includes('--sections');
+ensureShots();
+console.log(`shoot: ${QA_BASE}  brand "${site.brandName}"  mode ${site.mode}`);
 
-const browser = await puppeteer.launch({
-  executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-  headless: 'new',
-  args: ['--hide-scrollbars', '--force-color-profile=srgb'],
-});
-
+const written = [];
+const failures = [];
 const errors = [];
 
-async function newPage(w, h, mobile = false) {
-  const page = await browser.newPage();
-  await page.setViewport({ width: w, height: h, deviceScaleFactor: 1, isMobile: mobile, hasTouch: mobile });
-  page.on('console', (m) => { if (m.type() === 'error') errors.push(`[console] ${m.text()}`); });
-  page.on('pageerror', (e) => errors.push(`[pageerror] ${e.message}`));
-  return page;
-}
-
-const settle = (ms) => new Promise((r) => setTimeout(r, ms));
-
-// --- desktop hero (above fold) ---
-let page = await newPage(1440, 900);
-await page.goto(base, { waitUntil: 'networkidle0', timeout: 30000 });
-await settle(2500);
-await page.screenshot({ path: `${outDir}${prefix}-desktop-hero.png` });
-
-// scrollWidth diagnostic
-const dw = await page.evaluate(() => ({
-  scrollW: document.documentElement.scrollWidth,
-  clientW: document.documentElement.clientWidth,
-}));
-console.log('desktop widths:', JSON.stringify(dw));
-
-// --- desktop full (scroll through to fire all reveals, then full capture) ---
-await page.evaluate(async () => {
-  await new Promise((resolve) => {
-    let y = 0;
-    const step = () => {
-      y += 600;
-      window.scrollTo(0, y);
-      if (y < document.body.scrollHeight) setTimeout(step, 120);
-      else resolve(null);
-    };
-    step();
-  });
-});
-await settle(1800);
-await page.screenshot({ path: `${outDir}${prefix}-desktop-full.png`, fullPage: true });
-await page.close();
-
-// --- mobile full ---
-page = await newPage(390, 844, true);
-await page.goto(base, { waitUntil: 'networkidle0', timeout: 30000 });
-await settle(2000);
-const mw = await page.evaluate(() => ({
-  scrollW: document.documentElement.scrollWidth,
-  clientW: document.documentElement.clientWidth,
-}));
-console.log('mobile widths:', JSON.stringify(mw));
-if (mw.scrollW > mw.clientW) {
-  // find offenders
-  const offenders = await page.evaluate(() => {
-    const out = [];
-    document.querySelectorAll('*').forEach((el) => {
-      const r = el.getBoundingClientRect();
-      if (r.width > document.documentElement.clientWidth + 1) {
-        out.push(`${el.tagName}.${String(el.className).slice(0, 80)} w=${Math.round(r.width)}`);
-      }
+async function snap(page, vp, name, full = false) {
+  const path = shotPath(vp.name, name);
+  if (full) {
+    // 1. cv-auto sections render blank when captured offscreen; force them visible for
+    //    the capture only (QA-side CSS, never shipped).
+    // 2. Chrome tiles/repeats full-page captures taller than 16384 device px; drop to
+    //    deviceScaleFactor 1 when height * dsf would cross the limit (layout width unchanged).
+    await page.evaluate(() => {
+      const s = document.createElement('style');
+      s.id = '__qa_cv';
+      s.textContent = '.cv-auto{content-visibility:visible!important;contain-intrinsic-size:none!important}';
+      document.head.appendChild(s);
     });
-    return out.slice(0, 20);
-  });
-  console.log('overflow offenders:\n' + offenders.join('\n'));
+    const h = await page.evaluate(() => document.documentElement.scrollHeight);
+    const dropDsf = vp.deviceScaleFactor > 1 && h * vp.deviceScaleFactor > 16000;
+    if (dropDsf) await page.setViewport({ ...vpViewport(vp), deviceScaleFactor: 1 });
+    await settle(400);
+    await page.screenshot({ path, fullPage: true });
+    if (dropDsf) await page.setViewport(vpViewport(vp));
+    await page.evaluate(() => document.getElementById('__qa_cv')?.remove());
+  } else {
+    await page.screenshot({ path });
+  }
+  written.push(path);
 }
-await page.screenshot({ path: `${outDir}${prefix}-mobile-hero.png` });
-await page.evaluate(async () => {
-  await new Promise((resolve) => {
-    let y = 0;
-    const step = () => {
-      y += 500;
-      window.scrollTo(0, y);
-      if (y < document.body.scrollHeight) setTimeout(step, 100);
-      else resolve(null);
-    };
-    step();
+
+function vpViewport(vp) {
+  const { name, ...viewport } = vp;
+  return viewport;
+}
+
+async function run(vp, label, fn) {
+  try {
+    await fn();
+  } catch (e) {
+    failures.push(`${vp.name} ${label}: ${e.message}`);
+    console.log(`  FAIL ${vp.name} ${label}: ${e.message}`);
+  }
+}
+
+for (const vp of Object.values(VIEWPORTS)) {
+  if (only && only !== vp.name) continue;
+  console.log(`\n== ${vp.name} ${vp.width}x${vp.height} ==`);
+  const browser = await launchBrowser(vp);
+  const open = (path, opts = {}) => openPage(browser, path, { vp, errors, ...opts });
+
+  // 1. home: fold, then full page after a scroll-through (reveals + cv-auto paint)
+  await run(vp, 'home', async () => {
+    const page = await open('/');
+    await settle(900);
+    const ov = await overflowReport(page);
+    console.log(`  widths client=${ov.clientWidth} scroll=${ov.scrollWidth}${ov.offenders.length ? '\n  overflow offenders:\n    ' + ov.offenders.join('\n    ') : ''}`);
+    if (vp.name === 'mobile') {
+      const fold = await page.evaluate((h) => {
+        const cards = [...document.querySelectorAll('#start .opt-card')];
+        const third = cards[2]?.getBoundingClientRect();
+        const start = document.querySelector('#start')?.getBoundingClientRect();
+        const h1 = document.querySelector('h1')?.getBoundingClientRect();
+        return {
+          optCards: cards.length,
+          h1Bottom: h1 ? Math.round(h1.bottom) : null,
+          thirdCardBottom: third ? Math.round(third.bottom) : null,
+          formCardBottom: start ? Math.round(start.bottom) : null,
+          thirdCardInFold: third ? third.bottom <= h : false,
+        };
+      }, vp.height);
+      console.log(`  mobile fold: ${JSON.stringify(fold)} (acceptance: H1 + all three tiles above ${vp.height})`);
+    }
+    await snap(page, vp, 'home-fold');
+    await scrollThrough(page);
+    await snap(page, vp, 'home-full', true);
+
+    // in-viewport shot per LP section (cv-auto sections capture blank in full-page shots)
+    if (withSections) {
+      const count = await page.evaluate(() => document.querySelectorAll('main > section, footer').length);
+      for (let i = 0; i < count; i++) {
+        await page.evaluate((idx) => {
+          const el = document.querySelectorAll('main > section, footer')[idx];
+          el?.scrollIntoView({ block: 'start' });
+        }, i);
+        await settle(700);
+        await snap(page, vp, `home-section-${String(i + 1).padStart(2, '0')}`);
+      }
+    }
+    await page.close();
   });
-});
-await settle(1500);
-await page.screenshot({ path: `${outDir}${prefix}-mobile-full.png`, fullPage: true });
-await page.close();
 
-// --- form steps walk (desktop) ---
-page = await newPage(1440, 980);
-await page.goto(base, { waitUntil: 'networkidle0', timeout: 30000 });
-await settle(1200);
-const clickByText = async (text) => {
-  const ok = await page.evaluate((t) => {
-    const btns = [...document.querySelectorAll('#eligibility button')];
-    const b = btns.find((x) => x.textContent.toLowerCase().includes(t.toLowerCase()));
-    if (b) { b.click(); return true; }
-    return false;
-  }, text);
-  if (!ok) console.log('CLICK MISS:', text);
-  await settle(700);
-};
-const fillInput = async (idx, val) => {
-  await page.evaluate(({ i, v }) => {
-    const inputs = [...document.querySelectorAll('#eligibility input')].filter((el) => el.id !== 'ff-company');
-    const s = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-    s.call(inputs[i], v);
-    inputs[i].dispatchEvent(new Event('input', { bubbles: true }));
-  }, { i: idx, v: val });
-  await settle(300);
-};
-await clickByText('Buy a rental');
-await page.screenshot({ path: `${outDir}${prefix}-form-stage.png` });
-await clickByText('Making offers');
-await clickByText('Single family');
-await clickByText('700');
-await page.screenshot({ path: `${outDir}${prefix}-form-price.png` });
-await clickByText('Continue');
-await page.screenshot({ path: `${outDir}${prefix}-form-structure.png` });
-await clickByText('Continue');
-// Texas-only funnel: no state step; deal-structure Continue lands on city
-await page.screenshot({ path: `${outDir}${prefix}-form-city.png` });
-await fillInput(0, 'Fort Worth');
-await clickByText('Continue');
-await page.screenshot({ path: `${outDir}${prefix}-form-contact.png` });
-await fillInput(0, 'Tanner');
-await fillInput(1, 'test@example.com');
-await clickByText('Continue');
-await settle(600);
-await page.screenshot({ path: `${outDir}${prefix}-form-phone.png` });
-await page.close();
+  // 2. /start bare + preselect
+  await run(vp, 'start', async () => {
+    const page = await open('/start', { strictTitle: false });
+    await settle(500);
+    await snap(page, vp, 'start');
+    await page.close();
+    const page2 = await open('/start?goal=refinance', { strictTitle: false });
+    await settle(500);
+    await snap(page2, vp, 'start-preselect-refinance');
+    await page2.close();
+  });
 
-// --- credit hard-exit branch (sub-620 -> /not-yet redirect) ---
-page = await newPage(1440, 980);
-await page.goto(base, { waitUntil: 'networkidle0', timeout: 30000 });
-await settle(1000);
-// redefine helper bound to this page
-const clickByText2 = async (text) => {
-  await page.evaluate((t) => {
-    const btns = [...document.querySelectorAll('#eligibility button')];
-    const b = btns.find((x) => x.textContent.toLowerCase().includes(t.toLowerCase()));
-    if (b) b.click();
-  }, text);
-  await settle(700);
-};
-await clickByText2('Refinance');
-await clickByText2('Comparing my options');
-await clickByText2('Single family');
-await clickByText2('Below 620');
-await settle(2000);
-console.log('after sub-620 pick, url =', page.url(), '(expect /not-yet)');
-await page.screenshot({ path: `${outDir}${prefix}-form-decline.png`, fullPage: true });
-await page.close();
+  // 3. /not-yet
+  await run(vp, 'not-yet', async () => {
+    const page = await open('/not-yet');
+    await settle(600);
+    await scrollThrough(page);
+    await snap(page, vp, 'not-yet', true);
+    await page.close();
+  });
 
-// --- thank-you (seed sessionStorage first) ---
-page = await newPage(1440, 1600);
-await page.goto(base, { waitUntil: 'domcontentloaded' });
-await page.evaluate(() => {
-  sessionStorage.setItem('lead-summary', JSON.stringify({
-    firstName: 'Tanner', goal: 'purchase', propertyType: 'sfr', credit: '700-739', price: 350000, city: 'Fort Worth', state: 'Texas',
-  }));
-});
-await page.goto(`${base}/thank-you`, { waitUntil: 'networkidle0', timeout: 30000 });
-await settle(2200);
-await page.screenshot({ path: `${outDir}${prefix}-thankyou.png`, fullPage: true });
-await page.close();
+  // 4. /thank-you with a seeded lead-summary
+  await run(vp, 'thank-you', async () => {
+    const page = await open('/thank-you', { init: seedSession, initArgs: [{ 'lead-summary': seedLeadSummary() }] });
+    await settle(900);
+    await scrollThrough(page);
+    await snap(page, vp, 'thank-you', true);
+    await page.close();
+  });
 
-console.log('errors:', errors.length ? errors.join('\n') : 'none');
-await browser.close();
-console.log('done');
+  // 5. mobile sticky CTA after a 1800px scroll
+  if (vp.name === 'mobile') {
+    await run(vp, 'sticky', async () => {
+      const page = await open('/');
+      await settle(800);
+      await page.evaluate(() => window.scrollTo(0, 1800));
+      await settle(1000);
+      const sticky = await page.evaluate(() => {
+        const el = document.querySelector('#sticky-cta');
+        if (!el) return 'missing #sticky-cta';
+        const r = el.getBoundingClientRect();
+        return `hidden=${el.hidden} top=${Math.round(r.top)} height=${Math.round(r.height)}`;
+      });
+      console.log(`  #sticky-cta at scrollY 1800: ${sticky} (expect hidden=false)`);
+      await snap(page, vp, 'sticky');
+      await page.close();
+    });
+  }
+
+  // 6. legal pages + the 404
+  for (const [path, name] of [['/privacy', 'privacy'], ['/legal', 'legal'], ['/nope-404', '404']]) {
+    await run(vp, name, async () => {
+      const page = await open(path);
+      await settle(500);
+      await snap(page, vp, name);
+      await page.close();
+    });
+  }
+
+  // 7. FAQ open state (first two questions expanded, in viewport)
+  await run(vp, 'faq-open', async () => {
+    const page = await open('/');
+    await settle(500);
+    await page.evaluate(() => {
+      const items = document.querySelectorAll('#faq details');
+      items[0]?.setAttribute('open', '');
+      items[1]?.setAttribute('open', '');
+      document.getElementById('faq')?.scrollIntoView({ block: 'start' });
+    });
+    await settle(900);
+    await snap(page, vp, 'faq-open');
+    await page.close();
+  });
+
+  await browser.close();
+}
+
+console.log('\nshots written:');
+for (const p of written) console.log('  ' + p);
+console.log(`\nbrowser errors: ${errors.length ? '\n  ' + errors.join('\n  ') : 'none'}`);
+if (failures.length) {
+  console.log(`\n${failures.length} shot group(s) FAILED:\n  ${failures.join('\n  ')}`);
+  process.exit(1);
+}
+console.log('\nshoot complete');

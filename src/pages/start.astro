@@ -1,0 +1,50 @@
+---
+// /start: the V1 (LeaderOne-style) nine-step DSCR eligibility form, full page
+// (BRIEF section 10, variant B, stage 2). Cream ground, Manrope 800 headlines,
+// gold gradient CTAs, progress bar. No wordmark inside the form (Tanner cut
+// it); a slim ILD topbar (logo + Call) above it carries continuity from the LP.
+// The form island is the page, so it hydrates on load. noindex in every mode.
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import FormV1 from '../components/start/FormV1';
+import { site, brand, housingPhrase } from '../config/site';
+import '../styles/start.css';
+
+const title = `Check Your Eligibility | ${brand.name}`;
+const description = 'Nine quick questions about your Texas rental deal. About a minute, no obligation.';
+---
+
+<Layout
+  title={title}
+  description={description}
+  noindex
+  preloadFonts={['/fonts/manrope-latin-wght-normal.woff2']}
+>
+  <div class="v1lo-page flex min-h-svh flex-col">
+    <header class="v1lo-topbar">
+      <div class="v1lo-topbar-row">
+        <a href="/" class="v1lo-topbar-logo" aria-label={`${brand.name} home`}>
+          <img src={brand.logoSrc} alt="" width="220" height="161" decoding="async" fetchpriority="high" />
+        </a>
+        <a href={brand.phoneHref} class="v1lo-topbar-call">
+          <Icon name="phone" size={16} />
+          <span>Call {brand.phone}</span>
+        </a>
+      </div>
+    </header>
+
+    <main id="main" class="flex flex-1 flex-col">
+      <FormV1 client:load />
+    </main>
+
+    <footer class="v1lo-foot">
+      <a href="/privacy">Privacy</a>
+      <a href="/legal">Legal</a>
+      <span class="eh-mark" role="img" aria-label={housingPhrase}>
+        <Icon name="equal-housing" />
+        <span>{housingPhrase}</span>
+      </span>
+      <span>&copy; {site.year} {brand.legalName}</span>
+    </footer>
+  </div>
+</Layout>

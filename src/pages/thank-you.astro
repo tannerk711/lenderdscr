@@ -1,197 +1,223 @@
 ---
+// /thank-you: the LeaderOne thank-you clone (BRIEF section 6). Structure,
+// spacing, type and palette reproduce _ref/leaderone/thank-you.astro with ILD
+// content; the LO palette tokens (now ILD values) and Manrope type are scoped to this
+// page by src/styles/thank-you.css (the LP keeps template 4's claret/amber
+// identity and never loads that sheet).
+//
+// CONVERSATION OPENER, never results delivery. Credit is the only answer the
+// form screens, so the H1 claims exactly that (LO's honesty-floor logic). The
+// promise sentence is Tanner's verbatim; no email is promised; Paul (and Mike,
+// first name only) are named on this page ONLY.
+//
+// Load path: no React, no GSAP. The H1 is the LCP and never animates. The seal
+// draws on with CSS keyframes (reduced motion renders it complete). The name
+// and chips fill from sessionStorage['lead-summary'] by an inline script that
+// runs while the document parses, with graceful defaults when there is none.
 import Layout from '../layouts/Layout.astro';
-import Topbar from '../components/Topbar.astro';
 import Footer from '../components/Footer.astro';
-import { brand } from '../config/funnel';
+import { brand, specialist, tracking, goals, propertyTypes, creditBands, leadDelivery } from '../config/site';
+import '../styles/thank-you.css';
+
+// TEST MODE (BRIEF section 3): the conversion code stays but cannot fire.
+const isLive = leadDelivery === 'live';
+
+// value -> label maps so a summary that carries only values still reads well
+const labels = {
+  goals: Object.fromEntries(goals.map((g) => [g.value, g.label])),
+  props: Object.fromEntries(propertyTypes.map((p) => [p.value, p.label])),
+  credits: Object.fromEntries(creditBands.map((c) => [c.value, c.label])),
+};
+
+const title = `Eligibility Check Received | ${brand.name}`;
+const description = `Your Texas DSCR eligibility check is in. Keep your phone close: a text from ${brand.phone} is how the conversation starts.`;
 ---
 
-<Layout title={`Eligibility Check Received | ${brand.name}`} description="Your DSCR eligibility check is in. Watch for a text.">
-  <Topbar />
+<Layout
+  title={title}
+  description={description}
+  noindex
+  preloadFonts={[
+    // Exactly three small files (scripts/instance-fonts.py), ordered by what
+    // paints biggest. Every face is font-display: optional, so a face that is
+    // not ready at first layout is dropped for the page; fewer and smaller
+    // preloads are what raise the cold hit rate, and the roman is warm from
+    // /start on the funnel path. tools/thank-you-cold-fonts.mjs measures it.
+    '/fonts/manrope-latin-wght-normal.woff2',
+  ]}
+>
+  <!-- GOOGLE ADS CONVERSION (LIVE MODE ONLY). Identical gating to the LeaderOne
+       page: fires only with a real submission in sessionStorage (or ?demo=1 for
+       Tag Assistant), never on a bare load, never when the session was started
+       with ?qa=1 (Layout stores sessionStorage.qa), once per tab. In TEST MODE
+       `live` is false, Layout renders no gtag at all, and nothing runs. -->
+  <script is:inline define:vars={{ conv: isLive ? tracking.gtagConversion : '', live: isLive }}>
+    (function () {
+      if (!live) return;
+      var hasLead = false;
+      var isQa = false;
+      try {
+        hasLead = !!sessionStorage.getItem('lead-summary');
+        isQa = sessionStorage.getItem('qa') === '1';
+      } catch (e) {}
+      var isDemo = false;
+      try {
+        isDemo = new URLSearchParams(window.location.search).get('demo') === '1';
+      } catch (e) {}
+      try {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'thank_you_view', lead: hasLead, demo: isDemo });
+      } catch (e) {}
+      try {
+        var fired = false;
+        try { fired = sessionStorage.getItem('conv_fired') === '1'; } catch (e) {}
+        if (conv && (hasLead || isDemo) && !isQa && !fired && typeof gtag === 'function') {
+          gtag('event', 'conversion', { send_to: conv });
+          try { sessionStorage.setItem('conv_fired', '1'); } catch (e) {}
+        }
+      } catch (e) {}
+    })();
+  </script>
 
-  <!-- ============ RESULT HERO ============ -->
-  <!-- Conversation frame (Tanner, 2026-08-24): the text is a CONVERSATION
-       OPENER, not a results delivery. Paul or Mike reaches out to chat about
-       the deal, answer questions, and run numbers IF the lead is interested.
-       Never promise "results are coming" (that frames a verdict we don't
-       render). Verdict still deliberately withheld. Paul/Mike are named on
-       THIS page only. -->
-  <section class="bg-paper py-20 lg:py-24 relative overflow-hidden">
-    <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-brass via-brass-2 to-brass"></div>
-    <div class="max-w-3xl mx-auto px-5 lg:px-10 text-center relative z-10">
-
-      <!-- brass seal -->
-      <div class="mx-auto w-20 h-20 mb-8 relative">
-        <svg viewBox="0 0 80 80" class="w-full h-full">
-          <circle cx="40" cy="40" r="37" fill="none" stroke="var(--color-brass)" stroke-width="2.5"
-            stroke-dasharray="233" stroke-dashoffset="233" id="seal-ring" />
-          <circle cx="40" cy="40" r="30" fill="var(--color-pine)" opacity="0.08" />
-          <path d="M26 41 l10 10 l19 -21" fill="none" stroke="var(--color-pine)" stroke-width="4.5"
-            stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="46" stroke-dashoffset="46" id="seal-check" />
-        </svg>
-      </div>
-
-      <p class="eyebrow text-moss mb-5">Eligibility check received</p>
-      <h1 class="font-bold text-pine text-[clamp(2rem,4.2vw,3.2rem)] leading-[1.12] tracking-[-0.008em]">
-        <span id="ty-name">Your eligibility check is in.</span>
-        <em class="italic">A text is on the way.</em>
-      </h1>
-      <p class="text-ink/65 text-lg leading-relaxed mt-5 max-w-xl mx-auto">
-        Paul or Mike will text you from {brand.phone} to answer any questions you have
-        and, if you&rsquo;re interested, run some numbers for you.
-      </p>
-
-      <!-- scenario chips (filled from sessionStorage) -->
-      <div id="ty-chips" class="flex flex-wrap justify-center gap-2 mt-7"></div>
-    </div>
-  </section>
-
-  <!-- ============ WATCH FOR THE TEXT ============ -->
-  <section class="bg-paper-2 border-y border-ink/10 py-16 lg:py-20">
-    <div class="max-w-4xl mx-auto px-5 lg:px-10">
-      <div class="text-center mb-10">
-        <h2 class="font-bold text-pine text-[clamp(1.7rem,3vw,2.4rem)] tracking-[-0.008em]">
-          Watch for the text.
-        </h2>
-        <p class="text-ink/60 mt-3 max-w-xl mx-auto">
-          When it lands, just reply. Ask anything about your deal, the programs, or the
-          process, and when you&rsquo;re ready, they&rsquo;ll run your numbers.
-        </p>
-      </div>
-
-      <div class="bg-paper border border-ink/10 rounded-2xl shadow-[var(--shadow-card)] px-8 py-12 text-center">
-        <p class="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-ink/45 mb-4">It will come from this number</p>
-        <a href={brand.phoneHref} class="font-bold text-[clamp(2rem,4vw,3rem)] tracking-[-0.008em] text-pine hover:text-ink transition-colors">
-          {brand.phone}
+  <div class="lo">
+    <!-- ============ TOPBAR (LO: white, logo left, tag + phone right) ============ -->
+    <header class="lo-topbar">
+      <div class="lo-topbar-row">
+        <a href="/" class="lo-topbar-logo" aria-label={`${brand.name} home`}>
+          <!-- no fetchpriority="high" here: this page's LCP is text, and the logo
+               must not compete with the optional-display fonts at first render -->
+          <img src={brand.logoSrc} alt="" width="220" height="161" decoding="async" />
+          <span class="lo-topbar-name">{brand.name}</span>
         </a>
-        <p class="text-ink/55 text-sm mt-4">
-          Save it so you know it&rsquo;s Paul or Mike. Rather talk it through live? Call the same number.
-        </p>
+        <div class="lo-topbar-right">
+          <span class="lo-topbar-tag"><span class="lo-dot" aria-hidden="true"></span>Texas DSCR loans</span>
+          <a href={brand.phoneHref} class="lo-topbar-phone">{brand.phone}</a>
+        </div>
       </div>
-    </div>
-  </section>
+    </header>
 
-  <!-- ============ WHY INVESTORS USE US (published capability proof only) ============ -->
-  <section class="bg-paper py-16 lg:py-20 border-b border-ink/10">
-    <div class="max-w-5xl mx-auto px-5 lg:px-10">
-      <p class="eyebrow text-moss text-center mb-4">While you wait</p>
-      <h2 class="font-bold text-pine text-[clamp(1.7rem,3vw,2.4rem)] tracking-[-0.008em] text-center mb-12">
-        What your scenario is checked against.
-      </h2>
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="border border-ink/10 rounded-2xl bg-paper-2 px-6 py-7 text-center">
-          <div class="font-bold text-[2rem] leading-none text-brass">{brand.lenderCount}</div>
-          <div class="text-sm text-ink/65 mt-2.5 leading-snug">Lenders your scenario is checked against</div>
-        </div>
-        <div class="border border-ink/10 rounded-2xl bg-paper-2 px-6 py-7 text-center">
-          <div class="font-bold text-[2rem] leading-none text-brass">Same day</div>
-          <div class="text-sm text-ink/65 mt-2.5 leading-snug">Income and credit approval on most files</div>
-        </div>
-        <div class="border border-ink/10 rounded-2xl bg-paper-2 px-6 py-7 text-center">
-          <div class="font-bold text-[2rem] leading-none text-brass">{brand.closeRangeDays}</div>
-          <div class="text-sm text-ink/65 mt-2.5 leading-snug">Days to close, typical DSCR file</div>
-        </div>
-        <div class="border border-ink/10 rounded-2xl bg-paper-2 px-6 py-7 text-center">
-          <div class="font-bold text-[2rem] leading-none text-brass">$0</div>
-          <div class="text-sm text-ink/65 mt-2.5 leading-snug">Tax returns and pay stubs required</div>
-        </div>
-      </div>
-      <p class="text-center text-ink/50 text-sm mt-8 max-w-2xl mx-auto leading-relaxed">
-        Have your rent numbers and target purchase price handy. Everything else, they pull.
-        <a href="/call-prep" class="text-pine underline underline-offset-4 hover:text-ink transition-colors ml-1">See the two-minute prep sheet</a>.
-      </p>
-    </div>
-  </section>
+    <main id="main">
+      <!-- ============ RESULT HERO ============ -->
+      <section class="lo-hero">
+        <div class="lo-hairline" aria-hidden="true"></div>
+        <div class="lo-wrap lo-wrap-3xl">
+          <!-- brass seal -->
+          <div class="lo-seal" aria-hidden="true">
+            <svg viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="37" fill="none" stroke="var(--lo-brass)" stroke-width="2.5" id="seal-ring" />
+              <circle cx="40" cy="40" r="30" fill="var(--lo-pine)" opacity="0.08" />
+              <path d="M26 41 l10 10 l19 -21" fill="none" stroke="var(--lo-pine)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" id="seal-check" />
+            </svg>
+          </div>
 
-  <!-- ============ WHAT HAPPENS NEXT ============ -->
-  <section class="bg-paper py-20 lg:py-24">
-    <div class="max-w-5xl mx-auto px-5 lg:px-10">
-      <p class="eyebrow text-moss text-center mb-4">What happens next</p>
-      <h2 class="font-bold text-pine text-[clamp(1.8rem,3vw,2.5rem)] tracking-[-0.008em] text-center mb-14">
-        From here, it&rsquo;s three steps to funded.
-      </h2>
-      <div class="grid sm:grid-cols-3 gap-5">
-        <div class="border border-ink/10 rounded-2xl bg-paper-2 p-7">
-          <span class="font-bold text-[2.2rem] text-brass leading-none">1</span>
-          <h3 class="font-bold text-lg mt-4 mb-2">Reply to the text</h3>
-          <p class="text-sm leading-relaxed text-ink/65">That reply starts the conversation. Ask questions, talk through the deal, and when you&rsquo;re interested, your scenario gets priced across the lender network.</p>
-        </div>
-        <div class="border border-ink/10 rounded-2xl bg-paper-2 p-7">
-          <span class="font-bold text-[2.2rem] text-brass leading-none">2</span>
-          <h3 class="font-bold text-lg mt-4 mb-2">Terms in writing</h3>
-          <p class="text-sm leading-relaxed text-ink/65">You get the rate, the leverage, and the cash-to-close on paper, so you can write offers or lock your refi terms with real numbers.</p>
-        </div>
-        <div class="border border-ink/10 rounded-2xl bg-paper-2 p-7">
-          <span class="font-bold text-[2.2rem] text-brass leading-none">3</span>
-          <h3 class="font-bold text-lg mt-4 mb-2">Appraisal to funding</h3>
-          <p class="text-sm leading-relaxed text-ink/65">Appraisal with a rent schedule, title, done. No tax returns, no pay stubs, no employment verification anywhere in the file.</p>
-        </div>
-      </div>
+          <p class="lo-eyebrow lo-eyebrow-hero">Eligibility check received</p>
+          <!-- Honesty floor: credit is the only answer this funnel screens, so
+               the headline claims exactly that and nothing more. -->
+          <h1 class="lo-display lo-h1">
+            <span id="ty-name">Nice work</span>. Your credit clears <em>the DSCR floor.</em>
+          </h1>
+          <p class="lo-lede">
+            Now keep your phone close. <strong>Paul or Mike</strong> will text you from
+            <a href={brand.phoneHref}>{brand.phone}</a> to answer any questions you have and,
+            if you're interested, run some numbers for you. Save the number so you know it's them.
+          </p>
 
-      <!-- specialist -->
-      <div class="mt-14 max-w-md mx-auto text-center border border-ink/10 rounded-2xl bg-paper-2 px-8 py-8">
-        <div class="w-14 h-14 rounded-full bg-pine text-cream font-bold text-xl flex items-center justify-center mx-auto mb-4" id="specialist-initial">
-          {brand.specialist.name.charAt(0)}
+          <!-- scenario chips (filled from sessionStorage; hidden while empty) -->
+          <div id="ty-chips" class="lo-chips"></div>
         </div>
-        <div class="font-bold text-lg">{brand.specialist.name}</div>
-        <div class="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-ink/50 mt-1.5">
-          {brand.specialist.title}{brand.specialist.nmls ? ` · ${brand.specialist.nmls}` : ''}
+      </section>
+
+      <!-- PERSONALIZATION: runs as soon as the hero is parsed (before the band,
+           ahead of first paint on a document this small) so the name and chips
+           are in the first frame. No summary = the defaults above stand. -->
+      <script is:inline define:vars={{ labels }}>
+        (function () {
+          var summary = null;
+          try {
+            var raw = sessionStorage.getItem('lead-summary');
+            if (raw) summary = JSON.parse(raw);
+          } catch (e) {}
+          if (!summary || typeof summary !== 'object') return;
+
+          var str = function (v) { return v == null ? '' : String(v).trim(); };
+
+          var first = str(summary.firstName).split(/\s+/)[0];
+          var nameEl = document.getElementById('ty-name');
+          if (nameEl && first) nameEl.textContent = 'Nice work, ' + first;
+
+          var goal = str(summary.goalLabel) || labels.goals[str(summary.goal)] || '';
+          var prop = str(summary.propertyTypeLabel) || labels.props[str(summary.propertyType)] || '';
+          var price = str(summary.priceDisplay);
+          if (!price && typeof summary.price === 'number') price = '$' + summary.price.toLocaleString('en-US');
+          if (!price && str(summary.price) === '3000000+') price = '$3,000,000+';
+          var credit = str(summary.credit);
+          var chips = [
+            goal,
+            prop,
+            str(summary.state) || 'Texas',
+            price,
+            credit ? 'Credit ' + (labels.credits[credit] || credit) : '',
+          ].filter(Boolean);
+
+          var wrap = document.getElementById('ty-chips');
+          if (!wrap) return;
+          for (var i = 0; i < chips.length; i++) {
+            var chip = document.createElement('span');
+            chip.className = 'lo-chip';
+            chip.textContent = chips[i];
+            wrap.appendChild(chip);
+          }
+        })();
+      </script>
+
+      <!-- ============ WHILE YOU WAIT ============ -->
+      <section class="lo-band">
+        <div class="lo-wrap lo-wrap-5xl">
+          <p class="lo-eyebrow lo-eyebrow-band">While you wait</p>
+          <h2 class="lo-display lo-h2">Three things worth doing right now.</h2>
+
+          <div class="lo-cards">
+            <div class="lo-card">
+              <span class="lo-display lo-num" aria-hidden="true">1</span>
+              <h3 class="lo-display">Watch for the text</h3>
+              <p>
+                It comes from {brand.phone}. If you see a Texas rental inquiry from Paul or
+                Mike, that's it. Reply and the conversation starts.
+              </p>
+            </div>
+            <div class="lo-card">
+              <span class="lo-display lo-num" aria-hidden="true">2</span>
+              <h3 class="lo-display">Have your numbers handy</h3>
+              <p>
+                Nothing is required yet. The rent, the price, and what you're putting down
+                are what turn a quick text into same-day income and credit approval.
+              </p>
+            </div>
+            <div class="lo-card">
+              <span class="lo-display lo-num" aria-hidden="true">3</span>
+              <h3 class="lo-display">Keep shopping deals</h3>
+              <p>
+                Once terms are in writing you can write offers sellers take seriously, with
+                closings in 15 to 25 days.
+              </p>
+            </div>
+          </div>
+
+          <!-- the human: one card, centered. No NMLS line (none exists). -->
+          <div class="lo-human">
+            <div class="lo-avatar lo-display" aria-hidden="true">{specialist.name.charAt(0)}</div>
+            <div class="lo-display lo-human-name">{specialist.name}</div>
+            <div class="lo-label">{specialist.title}</div>
+          </div>
+
+          <div class="lo-call">
+            <p class="lo-label">Rather not wait?</p>
+            <a href={brand.phoneHref} class="lo-display lo-tel">{brand.phone}</a>
+          </div>
         </div>
-      </div>
-    </div>
-  </section>
+      </section>
+    </main>
+  </div>
 
   <Footer />
-
-  <script>
-    import gsap from 'gsap';
-    import { brand } from '../config/funnel';
-
-    // personalize from the form summary
-    let hasLead = false;
-    try {
-      const raw = sessionStorage.getItem('lead-summary');
-      if (raw) {
-        hasLead = true;
-        const s = JSON.parse(raw);
-        if (s.firstName) {
-          const el = document.getElementById('ty-name');
-          const first = String(s.firstName).trim().split(/\s+/)[0];
-          if (el) el.textContent = `${first}, your eligibility check is in.`;
-        }
-        const labels: Record<string, string> = {
-          purchase: 'Purchase', refinance: 'Refinance', cashout: 'Cash-out refi', bridge: 'Fix & flip',
-          sfr: 'Single family', '2-4': '2–4 units', '5-9': '5–9 units', '10+': '10+ units',
-          commercial: 'Commercial', other: 'Other property',
-        };
-        const price = typeof s.price === 'number'
-          ? s.price >= 2_000_000 ? '$2M+' : `$${Number(s.price).toLocaleString()}`
-          : null;
-        const chips = [labels[s.goal], labels[s.propertyType], s.city || s.state, price, s.credit ? `Credit ${s.credit}` : null].filter(Boolean);
-        const wrap = document.getElementById('ty-chips');
-        if (wrap) {
-          chips.forEach((c) => {
-            const span = document.createElement('span');
-            span.className = 'font-mono text-[0.62rem] uppercase tracking-[0.14em] bg-pine/10 text-pine border border-pine/20 rounded-full px-3 py-1.5';
-            span.textContent = String(c);
-            wrap.appendChild(span);
-          });
-        }
-      }
-    } catch { /* fine */ }
-
-    // seal animation
-    gsap.to('#seal-ring', { strokeDashoffset: 0, duration: 1.1, ease: 'power2.inOut', delay: 0.2 });
-    gsap.to('#seal-check', { strokeDashoffset: 0, duration: 0.7, ease: 'power2.out', delay: 1.0 });
-
-    // Google Ads conversion. Gated: fires for real submissions (lead-summary in
-    // sessionStorage) and the ?demo=1 preview (Tag Assistant verification), never
-    // on bare visits, so bots and accidental loads do not inflate conversions.
-    // A QA walk started with ?qa=1 posts a real lead but never fires the
-    // conversion, so test submits stay out of the Ads data.
-    const isDemo = new URLSearchParams(window.location.search).get('demo') === '1';
-    const isQa = sessionStorage.getItem('qa') === '1';
-    if (brand.gtagConversion && (hasLead || isDemo) && !isQa && typeof (window as any).gtag === 'function') {
-      (window as any).gtag('event', 'conversion', { send_to: brand.gtagConversion });
-    }
-  </script>
 </Layout>

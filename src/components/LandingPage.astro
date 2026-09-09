@@ -1,0 +1,57 @@
+---
+// The composed funnel page (Texas-only, lender mode). Section order:
+// Topbar -> HeroForm (#start, the live V1 form) -> CityMarquee -> TrustBand ->
+// Advantages -> Faq -> FinalCta -> Footer (+ StickyCta). StatsBand + HowItWorks
+// CUT 2026-09-08 (Tanner: the numbers content made zero sense; how-it-works out too).
+// The template's claim-text Marquee stays CUT; CityMarquee is LeaderOne's city
+// ticker (names, not claims), added 2026-09-08 at Tanner's request. Partners / LenderPicks are network-mode only and stay
+// gated off. Every section owns its own ground, reveal carrier and .cv-auto.
+import Layout from '../layouts/Layout.astro';
+import Topbar from './Topbar.astro';
+import HeroForm from './HeroForm.astro';
+import CityMarquee from './CityMarquee.astro';
+import TrustBand from './TrustBand.astro';
+import Partners from './Partners.astro';
+import LenderPicks from './LenderPicks.astro';
+import Advantages from './Advantages.astro';
+import Faq from './Faq.astro';
+import FinalCta from './FinalCta.astro';
+import Footer from './Footer.astro';
+import StickyCta from './StickyCta.astro';
+import { site, seo, hero, lenders } from '../config/site';
+
+const network = site.mode === 'network';
+
+// Mirrors LenderPicks' own render condition: when it renders, IT owns
+// id="advertiser-disclosure" and the Footer must not duplicate the id.
+const lenderPicksVisible =
+  network && (import.meta.env.PROD ? lenders.some((l) => !l.placeholder && l.verified === true) : lenders.length > 0);
+
+const sub = network ? hero.subNetwork : hero.subLender;
+---
+
+<Layout
+  title={seo.title}
+  description={seo.description}
+  noindex={false}
+  preloadFonts={[
+    '/fonts/manrope-latin-wght-normal.woff2',
+  ]}
+>
+  <Topbar />
+  <main id="main">
+    <HeroForm h1={hero.h1} sub={sub} />
+    <CityMarquee />
+    <TrustBand />
+    {network && <Partners />}
+    {network && <LenderPicks />}
+    <Advantages />
+    <Faq />
+    <FinalCta />
+  </main>
+  <Footer disclosureAnchor={!lenderPicksVisible} />
+  <StickyCta />
+  <script>
+    import '../scripts/motion.ts';
+  </script>
+</Layout>

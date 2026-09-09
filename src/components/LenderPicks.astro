@@ -1,0 +1,225 @@
+---
+// LenderPicks: "DSCR lender picks for {Month Year}" cards (network mode only).
+// Advertiser disclosure sits directly under the H2 and carries
+// id="advertiser-disclosure" (the under-form fine print and the footer Company
+// column anchor here whenever this section renders). PROD excludes
+// placeholder / unverified lenders; zero real entries renders nothing.
+// Cards alternate data-reveal="slide-left"/"slide-right" and carry data-tilt
+// inside a .card-tilt perspective wrapper. .cv-auto.
+import { site, lenders, lenderPicksMonth, legal } from '../config/site';
+import Icon from './Icon.astro';
+
+const real = lenders.filter((l) => !l.placeholder && l.verified === true);
+const visible = import.meta.env.PROD ? real : lenders;
+const excluded = lenders.length - real.length;
+if (import.meta.env.PROD && excluded > 0) {
+  console.warn(`WARN: ${excluded} placeholder lenders excluded`);
+}
+const render = site.mode === 'network' && visible.length > 0;
+---
+
+{render && (
+  <section class="lender-picks ground-mist cv-auto">
+    <div class="container-x">
+      <div class="lp-head">
+        <p class="eyebrow">Lender picks</p>
+        <h2 class="h-section">DSCR lender picks for {lenderPicksMonth}</h2>
+        <p class="lp-disclosure" id="advertiser-disclosure">{legal.advertiserDisclosure}</p>
+      </div>
+
+      <div class="lp-list">
+        {visible.map((l, i) => (
+          <div class="card-tilt">
+            <article class="card-lg lp-card" data-reveal={i % 2 === 0 ? 'slide-left' : 'slide-right'} data-tilt>
+              <span class="ribbon lp-ribbon">{l.ribbon}</span>
+              {l.placeholder && <span class="sample-tag lp-sample">Sample</span>}
+              <div class="lp-body">
+                <div class="lp-info">
+                  {l.logoSrc ? (
+                    <img class="lp-logo" src={l.logoSrc} alt={l.name} loading="lazy" width="180" height="48" />
+                  ) : (
+                    <span class="lp-wordmark">{l.name}</span>
+                  )}
+                  <div class="lp-meta">
+                    <span class="lp-badge">{l.badge}</span>
+                    {l.nmls && <span class="lp-nmls">NMLS #{l.nmls}</span>}
+                  </div>
+                  <ul class="lp-highlights">
+                    {l.highlights.map((h) => (
+                      <li>
+                        <Icon name="check" size={16} class="lp-check" />
+                        <span>{h}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div class="lp-cta">
+                  <a href={l.href} data-scroll-to="#start" class="btn-amber">Check Eligibility</a>
+                </div>
+              </div>
+            </article>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .lender-picks {
+    padding-block: clamp(3rem, 7vw, 5.5rem);
+  }
+
+  .lp-head {
+    text-align: center;
+    margin-bottom: clamp(2rem, 4.5vw, 3rem);
+  }
+
+  .lp-head .h-section {
+    margin: 0.6rem 0 0;
+    color: var(--color-ink);
+  }
+
+  .lp-disclosure {
+    margin: 1rem auto 0;
+    max-width: 62ch;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    color: rgba(18, 36, 49, 0.62);
+    scroll-margin-top: 2rem;
+  }
+
+  .lp-list {
+    display: grid;
+    gap: 1.75rem;
+    max-width: 58rem;
+    margin-inline: auto;
+  }
+
+  .lp-card {
+    padding: 2.4rem 1.5rem 1.5rem;
+  }
+
+  .lp-ribbon {
+    position: absolute;
+    top: 0;
+    left: 1.4rem;
+    translate: 0 -50%;
+  }
+
+  .lp-sample {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .lp-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .lp-info {
+    min-width: 0;
+  }
+
+  .lp-logo {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .lp-wordmark {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.35rem, 2.4vw, 1.7rem);
+    letter-spacing: -0.008em;
+    line-height: 1.2;
+    color: var(--color-ink);
+  }
+
+  .lp-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.7rem;
+  }
+
+  .lp-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.28rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-line);
+    background: var(--color-paper);
+    font-weight: 700;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(18, 36, 49, 0.62);
+    white-space: nowrap;
+  }
+
+  .lp-nmls {
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: rgba(18, 36, 49, 0.62);
+    white-space: nowrap;
+  }
+
+  .lp-highlights {
+    list-style: none;
+    margin: 1.1rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .lp-highlights li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: rgba(18, 36, 49, 0.8);
+  }
+
+  .lp-highlights :global(.lp-check) {
+    flex: none;
+    color: var(--color-brand);
+  }
+
+  .lp-cta {
+    flex: none;
+  }
+
+  .lp-cta .btn-amber {
+    width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .lp-card {
+      padding: 2.6rem 2.25rem 2rem;
+    }
+
+    .lp-body {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2.5rem;
+    }
+
+    .lp-highlights {
+      flex-direction: row;
+      flex-wrap: wrap;
+      column-gap: 1.25rem;
+    }
+
+    .lp-cta .btn-amber {
+      width: auto;
+    }
+  }
+</style>

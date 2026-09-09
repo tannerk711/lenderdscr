@@ -1,0 +1,311 @@
+/* /start page styles: the V1 (LeaderOne-style) form as Tanner picked it, ported
+   from _ref/form-templates/v1/styles.ts. Loaded by start.astro only, so the
+   landing page never carries it. Deliberately UNLAYERED (like the original
+   inline <style>): these rules must beat the Tailwind utilities on the same
+   elements (selected-state borders, slider chrome, button gradients).
+
+   Changes from the source: Playfair -> Manrope 800 (the ILD logo's geometric
+   sans, via --font-display), Inter -> Manrope (--font-body), plus the slim ILD topbar, the
+   honeypot, and the footer line. Palette (2026-09-08): ILD sky & slate, cream #e9f2f8 ground,
+   ink #122431, action green #0e7c69 / #12967f. Class prefix v1lo-. */
+
+.v1lo-page {
+  background-color: #e9f2f8;
+  color: #122431;
+}
+
+.v1lo-root {
+  font-family: var(--font-body);
+}
+
+/* class name kept for the walker/markup; the face is the display sans now */
+.v1lo-serif {
+  font-family: var(--font-display);
+}
+
+.v1lo-headline {
+  letter-spacing: -0.008em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+/* The outline follows each element's own radius (cards 14px, buttons 14px).
+   The V1 source also set border-radius: 6px here, which reshaped a 14px card
+   the moment it took keyboard focus; the radius-less Back button carries its
+   own rounded-[6px] instead. */
+.v1lo-root :focus-visible {
+  outline: 2px solid #0e7c69;
+  outline-offset: 2px;
+}
+
+/* honeypot: off-canvas, present for bots, invisible to people and screen readers */
+.v1lo-hp {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- slim ILD topbar (continuity from the LP) ---------- */
+
+.v1lo-topbar {
+  border-bottom: 1px solid #dbe5ec;
+  background-color: #e9f2f8;
+}
+
+.v1lo-topbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: 0.6rem 1.25rem;
+}
+
+.v1lo-topbar-logo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.v1lo-topbar-logo img {
+  display: block;
+  height: 2.4rem;
+  width: auto;
+}
+
+.v1lo-topbar-call {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.35rem 0.25rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #122431;
+  text-decoration: none;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.v1lo-topbar-call:hover {
+  color: #0e7c69;
+}
+
+.v1lo-topbar-call svg {
+  color: #0e7c69;
+}
+
+@media (min-width: 768px) {
+  .v1lo-topbar-row {
+    padding-inline: 2.5rem;
+  }
+
+  .v1lo-topbar-logo img {
+    height: 2.75rem;
+  }
+}
+
+/* ---------- footer line ---------- */
+
+.v1lo-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 1rem;
+  padding: 1rem 1.25rem 1.5rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #4a6478;
+}
+
+.v1lo-foot a {
+  color: #4a6478;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  text-decoration-color: rgba(74, 100, 120, 0.5);
+  padding-block: 0.35rem;
+}
+
+.v1lo-foot a:hover {
+  color: #122431;
+}
+
+.v1lo-foot .eh-mark {
+  color: #4a6478;
+  font-size: 0.66rem;
+}
+
+/* ---------- option cards ---------- */
+
+.v1lo-card {
+  box-shadow: 0 1px 2px rgba(18, 36, 49, 0.05), 0 4px 14px rgba(18, 36, 49, 0.04);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, background-color 0.18s ease;
+}
+
+/* Hover states only on devices that hover. On touch, a tapped card keeps its
+   :hover until the next tap (sticky hover), so after Back a second card wore
+   the gold border next to the real selection (QA stage, mobile back-nav). */
+@media (hover: hover) {
+  .v1lo-card:hover {
+    border-color: #8fc7bb;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(18, 36, 49, 0.06), 0 10px 24px rgba(18, 36, 49, 0.09);
+  }
+}
+
+.v1lo-card:active {
+  transform: translateY(0);
+}
+
+.v1lo-card[data-selected="true"] {
+  border-color: #0e7c69;
+  background-color: #eaf6f3;
+  box-shadow: 0 0 0 1px #0e7c69, 0 6px 18px rgba(14, 124, 105, 0.16);
+}
+
+/* ---------- gold gradient CTA ---------- */
+
+.v1lo-gold-btn {
+  background: linear-gradient(180deg, #12967f 0%, #0e7c69 100%);
+  box-shadow: 0 2px 6px rgba(11, 101, 86, 0.25), 0 8px 20px rgba(11, 101, 86, 0.16);
+  transition: filter 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+
+@media (hover: hover) {
+  .v1lo-gold-btn:hover:enabled,
+  a.v1lo-gold-btn:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(11, 101, 86, 0.28), 0 12px 26px rgba(11, 101, 86, 0.2);
+  }
+}
+
+.v1lo-gold-btn:active:enabled,
+a.v1lo-gold-btn:active {
+  transform: translateY(0);
+  filter: brightness(0.98);
+}
+
+.v1lo-gold-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ---------- gold outline button (kick-out undo) ---------- */
+
+.v1lo-gold-outline {
+  transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+@media (hover: hover) {
+  .v1lo-gold-outline:hover {
+    background-color: rgba(14, 124, 105, 0.09);
+    border-color: #0b6556;
+    transform: translateY(-1px);
+  }
+}
+
+/* ---------- text inputs ---------- */
+
+.v1lo-input {
+  background-color: #fbfdfe;
+  border: 1px solid #dbe5ec;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.v1lo-input::placeholder {
+  color: #7590a6;
+}
+
+@media (hover: hover) {
+  .v1lo-input:hover {
+    border-color: #8fc7bb;
+  }
+}
+
+.v1lo-input:focus {
+  outline: none;
+  border-color: #0e7c69;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(14, 124, 105, 0.16);
+}
+
+/* ---------- sliders (price, down payment) ---------- */
+
+.v1lo-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+
+.v1lo-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #5fc2ae 0%, #12967f 55%, #0e7c69 100%);
+  border: 3px solid #122431;
+  box-shadow: 0 2px 8px rgba(18, 36, 49, 0.3);
+  cursor: grab;
+}
+
+.v1lo-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+}
+
+.v1lo-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #5fc2ae 0%, #12967f 55%, #0e7c69 100%);
+  border: 3px solid #122431;
+  box-shadow: 0 2px 8px rgba(18, 36, 49, 0.3);
+  cursor: grab;
+}
+
+.v1lo-slider:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(14, 124, 105, 0.35);
+}
+
+/* ---------- consent checkbox ---------- */
+
+.v1lo-check {
+  accent-color: #0e7c69;
+}
+
+/* ---------- progress fill ---------- */
+
+.v1lo-progress-fill {
+  background: linear-gradient(90deg, #12967f 0%, #0e7c69 100%);
+  transition: width 0.4s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v1lo-card,
+  .v1lo-gold-btn,
+  .v1lo-gold-outline,
+  .v1lo-input,
+  .v1lo-progress-fill {
+    transition: none;
+  }
+
+  .v1lo-card:hover,
+  .v1lo-gold-btn:hover:enabled,
+  a.v1lo-gold-btn:hover,
+  .v1lo-gold-outline:hover {
+    transform: none;
+  }
+}

@@ -1,36 +1,77 @@
 ---
+// /legal: Internet Loans Direct's legal disclosures (verbatim from the live
+// lenderdscr.com funnel, _ref/ild-main/legal.astro), set in template 4's legal
+// layout. Replaces the template's /terms page.
 import Layout from '../layouts/Layout.astro';
 import Topbar from '../components/Topbar.astro';
 import Footer from '../components/Footer.astro';
-import { brand } from '../config/funnel';
+import { brand, housingPhrase } from '../config/site';
 ---
 
-<Layout title={`Legal | ${brand.name}`}>
+<Layout
+  title={`Legal | ${brand.name}`}
+  description={`Legal disclosures for ${brand.name}: not a commitment to lend, licensing, and how figures on this site should be read.`}
+>
   <Topbar />
-  <section class="bg-paper py-20">
-    <div class="max-w-3xl mx-auto px-5 lg:px-10">
-      <h1 class="font-display text-4xl tracking-tight mb-8">Legal Disclosures</h1>
-      <div class="space-y-5 text-ink/70 leading-relaxed text-[0.95rem]">
-        <p>
-          No advertisement or solicitation from {brand.name} ({brand.site}) is meant to be a mortgage
-          brokering activity or mortgage lending activity. All brokering or lending activities can only be
-          completed by a licensed loan originator. To see if your loan officer is licensed in your state,
-          visit
-          <a href={brand.licensingUrl} class="underline" rel="noopener" target="_blank">www.nmlsconsumeraccess.org</a>.
-        </p>
-        <p>
-          This is not a commitment to lend. All loan approvals are subject to underwriting guidelines, credit
-          review, and property appraisal. Rates, terms, and program availability are subject to change without
-          notice. This company is not endorsed by, nor acting on behalf of or at the direction of, any
-          government agency.
-        </p>
-        <p>
-          Any figures shown on this site (including example rents, payments, and DSCR ratios) are
-          illustrations for educational purposes only and are not a quote, an offer of credit, or a
-          representation of terms available to any particular borrower.
-        </p>
+
+  <main class="ground-paper">
+    <section class="container-x py-14 md:py-20">
+      <div class="mx-auto max-w-3xl">
+        <p class="label mb-4">Legal</p>
+        <h1 class="h-section text-ink">Legal Disclosures</h1>
+
+        <div class="legal-flow mt-8 grid gap-5">
+          <section class="card p-6 md:p-8">
+            <h2 class="h-step">Licensing</h2>
+            <p>
+              No advertisement or solicitation from {brand.name} ({brand.domain}) is meant to be a mortgage
+              brokering activity or mortgage lending activity. All brokering or lending activities can only be
+              completed by a licensed loan originator. To see if your loan officer is licensed in your state,
+              visit
+              <a href={brand.licensingUrl} class="link" rel="noopener" target="_blank">www.nmlsconsumeraccess.org</a>.
+            </p>
+          </section>
+
+          <section class="card p-6 md:p-8">
+            <h2 class="h-step">Not a commitment to lend</h2>
+            <p>
+              This is not a commitment to lend. All loan approvals are subject to underwriting guidelines, credit
+              review, and property appraisal. Rates, terms, and program availability are subject to change without
+              notice. This company is not endorsed by, nor acting on behalf of or at the direction of, any
+              government agency.
+            </p>
+          </section>
+
+          <section class="card p-6 md:p-8">
+            <h2 class="h-step">Figures on this site</h2>
+            <p>
+              Any figures shown on this site (including example rents, payments, and DSCR ratios) are
+              illustrations for educational purposes only and are not a quote, an offer of credit, or a
+              representation of terms available to any particular borrower.
+            </p>
+            <p class="text-sm text-ink/55">{housingPhrase}.</p>
+          </section>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </main>
+
   <Footer />
 </Layout>
+
+<style>
+  /* Private prose rhythm for the legal cards. No @layer inside a component. */
+  .legal-flow h2 {
+    margin-bottom: 0.9rem;
+  }
+
+  .legal-flow p {
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: rgba(18, 36, 49, 0.8);
+  }
+
+  .legal-flow p + p {
+    margin-top: 0.85rem;
+  }
+</style>

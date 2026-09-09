@@ -1,5 +1,15 @@
 # CLAUDE.md. Internet Loans Direct DSCR Funnel (Paul Howarth)
 
+> **2026-09-09: THIS TREE IS THE "VARIANT B" FUNNEL (template 4 LP + V1 LeaderOne form +
+> LeaderOne-clone thank-you), live on lenderdscr.com. Tanner's call: it REPLACED the
+> PMF-model site on the apex (no split test). The document of record for this codebase is
+> `VARIANT-README.md` + `QA-REPORT.md`; `src/config/site.ts` is the rebrand surface
+> (not `funnel.ts`). The old PMF-model site is archived on git branch
+> `archive/pmf-funnel-2026-09-08` (tag `pmf-funnel-final`). Everything below this box
+> describes that OLD site and its history; the hard rules (never publish rates, no
+> fabricated proof, thank-you = conversation opener, Zapier not GHL webhooks, TCPA gate,
+> one webhook per lead, never a second Vercel project) still apply in full.**
+
 **Texas-only DSCR funnel for Paul Howarth's Internet Loans Direct, target domain
 `lenderdscr.com`.** Built 2026-07-24 by cloning `clients/dscr-funnel-template/` (funnel v1)
 and rebranding it. Replaces the current GHL landing pages at lenderdscr.com/dscr-loan-texas
@@ -307,6 +317,16 @@ before linking.**
   the deferred-to-window-load variant on 2026-09-07. Do not re-add it.
 
 ## Lessons Learned
+
+- **[2026-09-09] Built ads nobody asked for:** the go-live handoff prompt listed "duplicate
+  each ad with the B URL", so 7 ads went into the live DSCR - TX campaign. Tanner: "stop
+  adding ads we never talked about." Removed same day. A written plan is not consent for
+  Ads changes; only Tanner asking in the current conversation is. Ship the page, then ask.
+
+- **[2026-09-08] QA tools hardcode theme colors:** the walker's touch-hover check still
+  compared against the pre-retheme cream border (#e7e1d2) and was failing silently since the
+  ILD retheme; it only surfaced on the next full walk. During any retheme, sweep `tools/` for
+  the old hexes and rgb triplets too, and re-run every walker, not just the screenshot sweep.
 
 - **[2026-08-24] Read `reference_astro_perf_pagespeed_gotchas` BEFORE Lighthouse debugging,
   not after:** the design-pass perf loop burned three diagnosis cycles rediscovering

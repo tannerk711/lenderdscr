@@ -1,78 +1,160 @@
 ---
+// /privacy: Internet Loans Direct's privacy copy (verbatim from the live
+// lenderdscr.com funnel, _ref/ild-main/privacy.astro), set in template 4's legal
+// layout, plus a "Do Not Sell or Share" section so the footer's opt-out link
+// lands on a real anchor. ILD does not sell personal information.
 import Layout from '../layouts/Layout.astro';
 import Topbar from '../components/Topbar.astro';
 import Footer from '../components/Footer.astro';
-import { brand } from '../config/funnel';
+import { brand } from '../config/site';
+
+const sections = [
+  { id: 'collect', title: 'Information we collect' },
+  { id: 'use', title: 'How we use your information' },
+  { id: 'consent', title: 'Consent to be contacted' },
+  { id: 'cookies', title: 'Log files, cookies, and advertising' },
+  { id: 'rights', title: 'Your rights (CCPA and GDPR)' },
+  { id: 'do-not-sell', title: 'Do Not Sell or Share My Personal Information' },
+  { id: 'children', title: "Children's information" },
+  { id: 'agreement', title: 'Consent' },
+];
 ---
 
-<Layout title={`Privacy Policy | ${brand.name}`}>
+<Layout
+  title={`Privacy Policy | ${brand.name}`}
+  description={`How ${brand.name} collects, uses, and protects the information you provide, and how to revoke consent to contact.`}
+>
   <Topbar />
-  <section class="bg-paper py-20">
-    <div class="max-w-3xl mx-auto px-5 lg:px-10">
-      <h1 class="font-display text-4xl tracking-tight mb-8">Privacy Policy</h1>
-      <div class="space-y-5 text-ink/70 leading-relaxed text-[0.95rem]">
-        <p>
-          At {brand.name} ({brand.site}), the privacy of our visitors is one of our main priorities. This
+
+  <main class="ground-paper">
+    <section class="container-x py-14 md:py-20">
+      <div class="mx-auto max-w-3xl">
+        <p class="label mb-4">Legal</p>
+        <h1 class="h-section text-ink">Privacy Policy</h1>
+        <p class="prose-body mt-5">
+          At {brand.name} ({brand.domain}), the privacy of our visitors is one of our main priorities. This
           Privacy Policy describes the types of information we collect and how we use it. It applies only to
           our online activities and to information shared with or collected on this website, not to
           information collected offline or through other channels.
         </p>
 
-        <h2 class="font-display text-2xl tracking-tight pt-4">Information we collect</h2>
-        <p>
-          When you complete the eligibility check form on this site, we collect the information you provide: your
-          name, email address, phone number, and the loan-scenario answers you select (such as goal, property
-          type, credit range, property value, and location). If you contact us directly, we may receive
-          additional information such as the contents of your message.
-        </p>
+        <nav class="card mt-8 p-5 md:p-6" aria-label="On this page">
+          <p class="label mb-3">On this page</p>
+          <ol class="grid gap-1.5 text-[0.95rem] sm:grid-cols-2">
+            {sections.map((s, i) => (
+              <li>
+                <a href={`#${s.id}`} class="link">{String(i + 1).padStart(2, '0')}. {s.title}</a>
+              </li>
+            ))}
+          </ol>
+        </nav>
 
-        <h2 class="font-display text-2xl tracking-tight pt-4">How we use your information</h2>
-        <p>
-          We use the information we collect to respond to your inquiry, evaluate your loan scenario, price it
-          with lending partners, communicate with you about your inquiry (including by email, phone, and text
-          message where you have consented), operate and improve our website, and find and prevent fraud. We
-          do not sell your personal information. Information may be shared with lending partners solely for
-          the purpose of pricing and originating your loan.
-        </p>
+        <div class="legal-flow mt-8 grid gap-5">
+          <section id="collect" class="card p-6 md:p-8">
+            <h2 class="h-step">1. Information we collect</h2>
+            <p>
+              When you complete the eligibility check form on this site, we collect the information you provide: your
+              name, email address, phone number, and the loan-scenario answers you select (such as goal, property
+              type, credit range, property value, and location). If you contact us directly, we may receive
+              additional information such as the contents of your message.
+            </p>
+          </section>
 
-        <h2 class="font-display text-2xl tracking-tight pt-4">Consent to be contacted</h2>
-        <p>
-          By submitting the form you expressly consent to being contacted by {brand.name} about
-          your inquiry by email, phone call, or text message at the contact details you provided, including
-          via automated technology. Consent is not a condition of purchase or of receiving services and can
-          be revoked at any time. Reply STOP to any text message to opt out.
-        </p>
+          <section id="use" class="card p-6 md:p-8">
+            <h2 class="h-step">2. How we use your information</h2>
+            <p>
+              We use the information we collect to respond to your inquiry, evaluate your loan scenario, price it
+              with lending partners, communicate with you about your inquiry (including by email, phone, and text
+              message where you have consented), operate and improve our website, and find and prevent fraud. We
+              do not sell your personal information. Information may be shared with lending partners solely for
+              the purpose of pricing and originating your loan.
+            </p>
+          </section>
 
-        <h2 class="font-display text-2xl tracking-tight pt-4">Log files, cookies, and advertising</h2>
-        <p>
-          Like most websites, we use standard log files and cookies. Log files record information such as IP
-          address, browser type, date and time stamps, and referring pages; this information is not linked to
-          anything personally identifiable and is used to analyze trends and administer the site. Cookies
-          store visitor preferences and help us optimize your experience. Third-party advertising platforms
-          (such as Google) may use cookies or similar technologies to measure the effectiveness of
-          advertising campaigns; we have no access to or control over third-party cookies. You can disable
-          cookies through your browser settings.
-        </p>
+          <section id="consent" class="card p-6 md:p-8">
+            <h2 class="h-step">3. Consent to be contacted</h2>
+            <p>
+              By submitting the form you expressly consent to being contacted by {brand.name} about
+              your inquiry by email, phone call, or text message at the contact details you provided, including
+              via automated technology. Consent is not a condition of purchase or of receiving services and can
+              be revoked at any time. Reply STOP to any text message to opt out.
+            </p>
+          </section>
 
-        <h2 class="font-display text-2xl tracking-tight pt-4">Your rights (CCPA and GDPR)</h2>
-        <p>
-          Depending on your place of residence, you may have the right to request access to the personal data
-          we hold about you, request correction of inaccurate information, request deletion of your data, and
-          restrict or object to its processing. To exercise any of these rights, call us at
-          <a href={brand.phoneHref} class="underline">{brand.phone}</a> and we will respond within one month.
-        </p>
+          <section id="cookies" class="card p-6 md:p-8">
+            <h2 class="h-step">4. Log files, cookies, and advertising</h2>
+            <p>
+              Like most websites, we use standard log files and cookies. Log files record information such as IP
+              address, browser type, date and time stamps, and referring pages; this information is not linked to
+              anything personally identifiable and is used to analyze trends and administer the site. Cookies
+              store visitor preferences and help us optimize your experience. Third-party advertising platforms
+              (such as Google) may use cookies or similar technologies to measure the effectiveness of
+              advertising campaigns; we have no access to or control over third-party cookies. You can disable
+              cookies through your browser settings.
+            </p>
+          </section>
 
-        <h2 class="font-display text-2xl tracking-tight pt-4">Children's information</h2>
-        <p>
-          {brand.name} does not knowingly collect personal information from children under the age of 13. If
-          you believe your child provided this kind of information on our website, contact us immediately and
-          we will promptly remove it from our records.
-        </p>
+          <section id="rights" class="card p-6 md:p-8">
+            <h2 class="h-step">5. Your rights (CCPA and GDPR)</h2>
+            <p>
+              Depending on your place of residence, you may have the right to request access to the personal data
+              we hold about you, request correction of inaccurate information, request deletion of your data, and
+              restrict or object to its processing. To exercise any of these rights, call us at
+              <a href={brand.phoneHref} class="link tabular">{brand.phone}</a> and we will respond within one month.
+            </p>
+          </section>
 
-        <h2 class="font-display text-2xl tracking-tight pt-4">Consent</h2>
-        <p>By using our website, you hereby consent to this Privacy Policy and agree to its terms.</p>
+          <section id="do-not-sell" class="card p-6 md:p-8">
+            <h2 class="h-step">6. Do Not Sell or Share My Personal Information</h2>
+            <p>
+              {brand.name} does not sell your personal information. Residents of California and other states
+              with comprehensive privacy laws still have the right to opt out of its use for targeted advertising.
+              To opt out, call <a href={brand.phoneHref} class="link tabular">{brand.phone}</a> and say you want to
+              opt out of the sale or sharing of your personal information. Have the name, email address, and phone
+              number you used on the form ready so we can find your record. We will not discriminate against you
+              for exercising this right.
+            </p>
+          </section>
+
+          <section id="children" class="card p-6 md:p-8">
+            <h2 class="h-step">7. Children's information</h2>
+            <p>
+              {brand.name} does not knowingly collect personal information from children under the age of 13. If
+              you believe your child provided this kind of information on our website, contact us immediately and
+              we will promptly remove it from our records.
+            </p>
+          </section>
+
+          <section id="agreement" class="card p-6 md:p-8">
+            <h2 class="h-step">8. Consent</h2>
+            <p>By using our website, you hereby consent to this Privacy Policy and agree to its terms.</p>
+          </section>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </main>
+
   <Footer />
 </Layout>
+
+<style>
+  /* Private prose rhythm for the legal cards. No @layer inside a component. */
+  .legal-flow h2 {
+    margin-bottom: 0.9rem;
+  }
+
+  .legal-flow p,
+  .legal-flow li {
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: rgba(18, 36, 49, 0.8);
+  }
+
+  .legal-flow p + p {
+    margin-top: 0.85rem;
+  }
+
+  .legal-flow section {
+    scroll-margin-top: 5rem;
+  }
+</style>
