@@ -308,6 +308,11 @@ before linking.**
 
 ## Lessons Learned
 
+- **[2026-09-08] QA tools hardcode theme colors:** the walker's touch-hover check still
+  compared against the pre-retheme cream border (#e7e1d2) and was failing silently since the
+  ILD retheme; it only surfaced on the next full walk. During any retheme, sweep `tools/` for
+  the old hexes and rgb triplets too, and re-run every walker, not just the screenshot sweep.
+
 - **[2026-08-24] Read `reference_astro_perf_pagespeed_gotchas` BEFORE Lighthouse debugging,
   not after:** the design-pass perf loop burned three diagnosis cycles rediscovering
   fixes that memory already documented (font-display optional, no opacity entrance on
