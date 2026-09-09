@@ -120,9 +120,7 @@ export type Lender = {
   placeholder: boolean;
   verified: boolean;
 };
-export type Stat = { value: number; from?: number; suffix: string; decimals: number; label: string; confirmed: boolean };
 export type Advantage = { icon: IconName; title: string; body: string };
-export type Step = { title: string; body: string };
 export type Faq = { q: string; a: string };
 export type Option = { value: string; label: string; icon: IconName; sub?: string };
 export type DirectoryLink = { label: string; href: string };
@@ -156,8 +154,8 @@ export const texasCities: string[] = [
 ];
 export const marqueeLabel = 'Serving investors across Texas';
 
-// TrustBand: ILD's speed and structure specs. Numbers (620, 0 tax returns,
-// 100+ lenders) live in the StatsBand and nowhere else on the page.
+// TrustBand: ILD's speed and structure specs. (StatsBand + HowItWorks were CUT
+// 2026-09-08, Tanner: the numbers content made no sense; 620 now lives only in the FAQ.)
 export const specs: Spec[] = [
   { icon: 'clock', label: 'Same-day income and credit approval' },
   { icon: 'calendar', label: 'Close in 15 to 25 days' },
@@ -168,17 +166,6 @@ export const trustStrip = {
   text: 'Under contract or still running the numbers? Check it before you need it.',
   cta: 'Check My Eligibility',
 };
-
-// StatsBand renders ONLY confirmed:true. `from` = count-down start (optional).
-// Confirmed = ILD's published claims. LTV and term figures are NOT published
-// by ILD, so they stay hidden.
-export const stats: Stat[] = [
-  { value: 620, from: 0, suffix: '', decimals: 0, label: 'Minimum credit score', confirmed: true },
-  { value: 0, from: 24, suffix: '', decimals: 0, label: 'Tax returns required', confirmed: true }, // counts DOWN 24 -> 0
-  { value: 100, from: 0, suffix: '+', decimals: 0, label: 'Lenders your scenario is priced across', confirmed: true },
-  { value: 80, from: 0, suffix: '%', decimals: 0, label: 'Max loan-to-value on purchases', confirmed: false }, // NOT an ILD claim
-  { value: 30, from: 0, suffix: 'yr', decimals: 0, label: 'Fixed-payment terms available', confirmed: false }, // NOT an ILD claim
-];
 
 // ---------------------------------------------------------------------------
 // Network-mode rows: EMPTY for ILD (lender mode). Partners + LenderPicks render nothing.
@@ -191,7 +178,7 @@ export const lenderPicksMonth = new Date().toLocaleString('en-US', { month: 'lon
 // Advantages: left prose teaches the mechanism (the one place on the page that
 // explains DSCR); right cards carry four investor outcomes that no other
 // section states. Page-level say-it-once: no 620, no tax-return count, no
-// closing days, no LLC line here (TrustBand and StatsBand own those).
+// closing days, no LLC line here (TrustBand owns those).
 // ---------------------------------------------------------------------------
 export const advantages: Advantage[] = [
   {
@@ -223,43 +210,8 @@ export const advantagesProse: string[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// How it works (lender mode is the live branch). Step 2 never names Paul.
-// ---------------------------------------------------------------------------
-export const howItWorks: { network: Step[]; lender: Step[] } = {
-  network: [
-    {
-      title: 'Answer a few questions',
-      body: 'Your goal, where you are in the process, the property, your credit range, and the money side.',
-    },
-    {
-      title: 'Hear from a participating lender',
-      body: `A participating DSCR lender reaches out by text or call, and mentions ${brand.name} so you know it's real.`,
-    },
-    {
-      title: 'Get terms from the lender',
-      body: 'The lender runs the numbers on the rent and puts terms in writing if the deal fits. No obligation at any step.',
-    },
-  ],
-  lender: [
-    {
-      title: 'Answer a few questions',
-      body: 'Your goal, where you are in the process, the property, your credit range, and the money side.',
-    },
-    {
-      title: 'A DSCR specialist reaches out',
-      body: `A text or call from ${brand.phone} to talk through the deal, answer questions, and, if you want, run the numbers on the rent.`,
-    },
-    {
-      title: 'Terms in writing',
-      body: 'If the deal fits, you get the program details and terms in writing so you can decide with the numbers in front of you.',
-    },
-  ],
-};
-
-// ---------------------------------------------------------------------------
 // FAQ: ILD's five (Paul's published claims only, NO RATES) plus the two BRIEF
-// section 2 allows. FAQ 1's closing stat line was trimmed (620 / 20 to 25% /
-// 100+ lenders are the StatsBand's job).
+// section 2 allows. FAQ 1's closing stat line was trimmed.
 // ---------------------------------------------------------------------------
 export const faqs: Faq[] = [
   {

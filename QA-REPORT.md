@@ -99,3 +99,14 @@ between the hero and the blue TrustBand.
   LCP 2.13s, TBT 38ms, CLS 0.000. /start 99, /thank-you 100. Gate 90: PASS.
 - Walker fix: the touch-border check still compared against the pre-retheme cream border
   (#e7e1d2); it now uses the ILD resting border #dbe5ec.
+
+## Edit 5: StatsBand + HowItWorks cut, plain eyebrows (2026-09-08)
+
+Tanner: "01 / By the numbers" looked great but the content made zero sense; remove it, the
+How it works section, and the "02 / " style numbering on the remaining eyebrows ("Why DSCR",
+"Questions"). Components deleted (not archived), `stats` / `howItWorks` config and their types
+removed, page order is now Topbar, HeroForm, CityMarquee, TrustBand, Advantages, Faq, FinalCta,
+Footer. Build clean, check-links PASS, shoot.mjs full-page sweep read on both viewports.
+
+- Mobile Lighthouse on built output, median of runs 2-4 on /: perf 99, FCP 1.38s,
+  LCP 1.99s, TBT 35ms, CLS 0.000. /start 99, /thank-you 100. Gate 90: PASS.
