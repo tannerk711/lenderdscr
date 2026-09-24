@@ -143,7 +143,7 @@ export const seo = {
 };
 
 export const hero = {
-  h1: site.showYearInH1 ? `Check Your ${site.year} Texas DSCR Loan Eligibility` : 'Check Your Texas DSCR Loan Eligibility',
+  h1: 'DSCR Rental Property Loans For Investors in Texas', // Tanner, 2026-09-24 (replaces the year-toggled "Check Your ... Eligibility" H1)
   subNetwork: 'Rent qualifies the loan, not your tax returns. See which lenders fit your Texas deal.',
   subLender: 'Check Updated Requirements. See What You Qualify For.', // Tanner, 2026-09-09
 };
