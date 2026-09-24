@@ -130,7 +130,7 @@ export type DirectoryColumn = { title: string; links: DirectoryLink[] };
 // SEO + hero
 // ---------------------------------------------------------------------------
 export const seo = {
-  title: `Check Your ${site.year} Texas DSCR Loan Eligibility | ${brand.name}`,
+  title: 'DSCR Loan Texas Prequalification', // Tanner, 2026-09-24 (exact tab title, no brand suffix)
   description: `DSCR rental property loans for Texas real estate investors. Qualify on the rent, not your tax returns. Check your ${site.year} eligibility in about a minute.`,
   /**
    * Every page carries noindex,nofollow while true, independent of leadDelivery
