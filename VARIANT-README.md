@@ -1,6 +1,7 @@
 # Internet Loans Direct, split-test variant B (`b-t4-v1`)
 
-Branch `split/b-t4-v1`, worktree `clients/Internet-Loans-Direct-variants/b/`. Binding
+Branch `split/b-t4-v1`, worktree `clients/internet-loans-direct/funnels/variants-ref/b/` (historical;
+the worktree was removed on 2026-09-09, see below). Binding
 contract: `../BRIEF.md`. Template docs for the underlying codebase: `TEMPLATE-CLAUDE.md`,
 `TEMPLATE-BRIEF.md`, `TEMPLATE-WIRING.md` (DSCR funnel template 4). The root `CLAUDE.md` is
 the ILD main-site doc carried over by the worktree; this file is the variant's own doc.
@@ -20,7 +21,7 @@ none is invented; Paul is named on the thank-you page only.
 ## Run it locally
 
 ```
-cd clients/Internet-Loans-Direct-variants/b
+cd clients/internet-loans-direct/funnels/variants-ref/b
 npm install
 CI=true npm run dev -- --port 4332        # background shells need CI=true
 ```
@@ -38,7 +39,7 @@ Kill the dev server when done (PowerShell):
 ## LIVE on lenderdscr.com since 2026-09-09 (this tree IS the site)
 
 Tanner's call: B replaced the PMF-model funnel on the apex, no split test. `main` of
-`github.com/tannerk711/lenderdscr` is this tree, checked out at `clients/Internet-Loans-Direct/`;
+`github.com/tannerk711/lenderdscr` is this tree, checked out at `clients/internet-loans-direct/funnels/lenderdscr/`;
 pushing `main` deploys production on the `lenderdscr` Vercel project (never a second one).
 The old site is on branch `archive/pmf-funnel-2026-09-08` + tag `pmf-funnel-final`.
 
