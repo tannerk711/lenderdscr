@@ -46,9 +46,9 @@ page) and `reference/fhaloans-home.png` (homepage). The modeled page's section o
 9. dark footer: 4 directory nav columns + legal/disclosure paragraphs
 
 Sister templates (read for proven MECHANICS, never copy their look): v1
-`clients/dscr-funnel-template/` (ink green + brass, Fraunces), v2
-`clients/dscr-funnel-template-2/` (blueprint cobalt/orange, Big Shoulders), v3
-`clients/dscr-funnel-template-3/` (IMPORTANT: also an fhaloans-style light directory LP,
+`templates/funnels/dscr-1-private-credit` (ink green + brass, Fraunces), v2
+`templates/funnels/dscr-2-blueprint` (blueprint cobalt/orange, Big Shoulders), v3
+`templates/funnels/dscr-3-light-directory` (IMPORTANT: also an fhaloans-style light directory LP,
 navy/pine/blue/gold, Archivo + Hanken; built 2026-08-31 in another session), and the live
 PMF-model client build `clients/Internet-Loans-Direct/` (current best-practice form, API,
 consent record, tracking, perf, QA tools). Template 4 must look like none of them. What
@@ -60,7 +60,7 @@ lenders.
 
 ## 1. Folder, stack, versions (ALREADY INSTALLED)
 
-Folder: `clients/dscr-funnel-template-4/`. Package `dscr-funnel-template-4`.
+Folder: `templates/funnels/dscr-4-civic-ledger`. Package `dscr-funnel-template-4`.
 `package.json`, `astro.config.mjs`, `tsconfig.json`, `.gitignore` exist; `node_modules`
 is installed; the two variable woff2 fonts are already in `public/fonts/`; the fal PNG
 sources are in `assets-src/`.
@@ -79,7 +79,7 @@ node scripts/check-links.mjs` (expects a dev server at `QA_BASE`; does not start
 
 Windows notes for every agent: the workspace path contains spaces; always quote paths,
 forward slashes are fine. Background `astro dev` needs `CI=true` in the environment.
-PORTS: 4321 is currently held by `dscr-funnel-template-3`'s dev server from ANOTHER
+PORTS: 4321 is currently held by `templates/funnels/dscr-3-light-directory`'s dev server from ANOTHER
 session and 4322 by another session too; NEVER kill either. Run THIS project's dev server
 on port 4323 (`CI=true npx astro dev --port 4323`) and point every QA tool at it with
 `QA_BASE=http://localhost:4323`. Always check the served `<title>` contains `brand.name`

@@ -11,7 +11,7 @@
 > one webhook per lead, never a second Vercel project) still apply in full.**
 
 **Texas-only DSCR funnel for Paul Howarth's Internet Loans Direct, target domain
-`lenderdscr.com`.** Built 2026-07-24 by cloning `clients/dscr-funnel-template/` (funnel v1)
+`lenderdscr.com`.** Built 2026-07-24 by cloning `templates/funnels/dscr-1-private-credit` (funnel v1)
 and rebranding it. Replaces the current GHL landing pages at lenderdscr.com/dscr-loan-texas
 (where the live Google Ads campaign points today).
 

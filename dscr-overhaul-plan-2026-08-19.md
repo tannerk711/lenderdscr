@@ -5,7 +5,7 @@ Evidence: API pull of both Ads accounts (LeaderOne 211-922-5117 `FHA - TX (SKAG)
 
 ## THE SMOKING GUN (operator-confirmed)
 
-The 2026-08-13 form-copy pass reframed the funnel around "See If I Qualify" (submit button, CTAs, badge, phone step; see client CLAUDE.md). Conversions collapsed immediately after: 2 on 8/14, then ZERO on 33 clicks through 8/19. **The tag is VERIFIED firing (Tanner).** The qualify frame is the prime suspect: an investor asked to "see if he qualifies" is offered an audition; an investor offered pricing options is offered the thing he searched for. Rolling this back is move #1. NOTE: this frame was also back-ported to the master template `clients/dscr-funnel-template/`; do not deploy it to future DSCR/investor clients (it may still be fine for consumer avatars like FHA, where approval anxiety is the emotion).
+The 2026-08-13 form-copy pass reframed the funnel around "See If I Qualify" (submit button, CTAs, badge, phone step; see client CLAUDE.md). Conversions collapsed immediately after: 2 on 8/14, then ZERO on 33 clicks through 8/19. **The tag is VERIFIED firing (Tanner).** The qualify frame is the prime suspect: an investor asked to "see if he qualifies" is offered an audition; an investor offered pricing options is offered the thing he searched for. Rolling this back is move #1. NOTE: this frame was also back-ported to the master template `templates/funnels/dscr-1-private-credit`; do not deploy it to future DSCR/investor clients (it may still be fine for consumer avatars like FHA, where approval anxiety is the emotion).
 
 ## Headline numbers (life to date, pulled 2026-08-19)
 
