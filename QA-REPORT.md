@@ -178,7 +178,7 @@ Prod gates on the branch deployment (bypass header):
   to window load and nothing else changed. pagespeed.web.dev on go.lenderdscr.com runs
   once DNS resolves.
 
-Ads (`google-ads/clients/paul-howarth/split_b_ads.py`, `BUILD-RECORD-split-b-2026-09-09.md`):
+Ads (`clients/internet-loans-direct/ads/campaigns/dscr-texas/split_b_ads.py`, `BUILD-RECORD-split-b-2026-09-09.md`):
 7 PAUSED duplicate RSAs in DSCR - TX (24041061079), one per SKAG, final URL
 `https://go.lenderdscr.com/`, utm_content = the control's slug + `-b`, utm_term={keyword}
 unchanged, headlines/descriptions/paths equal to each control; ad rotation ROTATE_FOREVER

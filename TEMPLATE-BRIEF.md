@@ -50,7 +50,7 @@ Sister templates (read for proven MECHANICS, never copy their look): v1
 `templates/funnels/dscr-2-blueprint` (blueprint cobalt/orange, Big Shoulders), v3
 `templates/funnels/dscr-3-light-directory` (IMPORTANT: also an fhaloans-style light directory LP,
 navy/pine/blue/gold, Archivo + Hanken; built 2026-08-31 in another session), and the live
-PMF-model client build `clients/Internet-Loans-Direct/` (current best-practice form, API,
+PMF-model client build `clients/internet-loans-direct/` (current best-practice form, API,
 consent record, tracking, perf, QA tools). Template 4 must look like none of them. What
 separates t4 from t3 (same structural model): the claret/amber "Civic ledger" identity,
 Bricolage + Manrope, the full video-to-website scroll layer (Lenis, oversized marquee,

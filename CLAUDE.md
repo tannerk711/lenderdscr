@@ -43,7 +43,7 @@ charcoal roof that dies on navy) + wordmark. Warm golden-hour imagery kept on pu
 - **Google Ads:** acct **340-440-3562** (InternetLoansDirect, under CRE Loan Pro MCC
   480-267-1468). `DSCR - TX` campaign 24041061079 built PAUSED 2026-07-15 pointing at
   lenderdscr.com/dscr-loan-texas; legacy `DSCR Texas` 22391415320 still in account.
-  Build record: `google-ads/clients/paul-howarth/`.
+  Build record: `clients/internet-loans-direct/ads/campaigns/dscr-texas/`.
 
 ## Proof claims (all from Paul's own lenderdscr.com copy, locked 2026-07-24)
 
@@ -213,7 +213,7 @@ descriptions with "Close in 14-21 Days" → "15-25 Days" (Paul's published claim
 inflate) and "Minimum 20% Down" KEPT (PMF-proven qualifier, matches the form). utm_content
 `*-pmf1`, `utm_term={keyword}` on every ad. The 8/19 rewrite ads are PAUSED. Bidding (Max
 Clicks + $6.50 ceiling), negatives, callouts untouched. Script + verify:
-`google-ads/clients/paul-howarth/pmf_model_swap.py` (--verify = ALL PASS 2026-08-24).
+`clients/internet-loans-direct/ads/campaigns/dscr-texas/pmf_model_swap.py` (--verify = ALL PASS 2026-08-24).
 
 **QA tools updated for the 7-step flow:** tcpa-test.mjs, prod-submit-qa.mjs (+ new
 step-walk-qa.mjs); all take `ILD_BASE` env for alt ports. All passing 2026-08-24.
@@ -263,7 +263,7 @@ All four phases shipped same day. Current state supersedes older form/page notes
   ENABLED in every group (contact promise, 620 floor, no "Minimum 20% Down"), old
   Ad 1s/qualify-frame Ad 2 PAUSED for a clean 2-week window; +17 negatives (65 total);
   callouts fixed to "620+ Credit Score" and "Close in 15-25 Days". Scripts + verify:
-  `google-ads/clients/paul-howarth/overhaul_*.py` (verify = all PASS 2026-08-19).
+  `clients/internet-loans-direct/ads/campaigns/dscr-texas/overhaul_*.py` (verify = all PASS 2026-08-19).
 
 ## Open items before launch
 

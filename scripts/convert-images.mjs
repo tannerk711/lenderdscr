@@ -1,5 +1,5 @@
 // Image pipeline (sharp). Run: `npm run images`
-// ILD's Texas fal set (sources copied from clients/Internet-Loans-Direct/public/images):
+// ILD's Texas fal set (sources copied from clients/internet-loans-direct/funnels/lenderdscr/public/images):
 //   assets-src/aerial-golden.png  -> public/images/ild-aerial-golden.webp (1600 wide max, q70): StatsBand texture
 //   assets-src/hero-property.png  -> public/images/ild-hero-property.webp (1024 wide, q70): HowItWorks accent photo
 //   public/images/og.jpg (1200x630): aerial cover-cropped + solid ink band, bottom third, NO text
