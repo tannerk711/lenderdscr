@@ -19,10 +19,11 @@
 > `motion.ts`. Layout has a `head` slot for JSON-LD. Pattern for the next content page:
 > terms first, the form last, never the form in the hero; no `.cv-auto` on any section
 > above `#start`; every claim from the client's doc; closing speed always "after the
-> appraisal"; "lender", not "investor"; Paul's NMLS line lives under this page's form
-> only. Images: `npm run images` (three fal sources in `assets-src/str-*.png`). Gates
-> on 10/03: build green, 33 static checks, overflow OK at 320/390, mobile Lighthouse 99
-> (LP 92), LP pixel-identical above its footer.
+> appraisal"; "lender", not "investor"; the legal block is the site's own (Paul's doc
+> ends on his personal NMLS line, which stays OFF the site until Tanner says so).
+> Images: `npm run images` (three fal sources in `assets-src/str-*.png`). Gates on
+> 10/03: build green, 34 static checks, overflow OK at 320/390, mobile Lighthouse 99
+> (LP 92), LP pixel-identical above its footer, one adversarial review applied.
 
 **Texas-only DSCR funnel for Paul Howarth's Internet Loans Direct, target domain
 `lenderdscr.com`.** Built 2026-07-24 by cloning `templates/funnels/dscr-1-private-credit` (funnel v1)

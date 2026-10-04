@@ -12,7 +12,10 @@
 //     a rate (the worked example carries no rate on purpose)
 //   - closing speed is always "7 to 10 days after the appraisal", never bare
 //   - "lender" for the capital source (his doc says "investor"; the reader IS the
-//     investor). The disclosure line under the form is his, verbatim
+//     investor)
+//   - the legal block is the site's own (the LP's under-form line + the footer).
+//     His doc ends on his personal NMLS line; it is NOT published here until Tanner
+//     says so (client CLAUDE.md: no NMLS published, Paul named on the thank-you only)
 //   - no section above #start carries .cv-auto: a height change mid-scroll strands
 //     the Lenis jump to the form
 //   - the form hydrates on approach (client:visible), so a reader who never
@@ -24,7 +27,7 @@ import Footer from '../components/Footer.astro';
 import StickyCta from '../components/StickyCta.astro';
 import Icon from '../components/Icon.astro';
 import FormV1 from '../components/start/FormV1';
-import { brand, cta, type Faq as FaqItem } from '../config/site';
+import { brand, legal, housingPhrase, type Faq as FaqItem } from '../config/site';
 import { lqip, imageDims } from '../data/lqip';
 import '../styles/start.css';
 
@@ -38,12 +41,14 @@ const ctaLabel = 'Check Your DSCR Eligibility';
 
 // The four terms a searcher scans for first, then the rest of the sheet.
 const headlineTerms = [
-  { value: '660', label: 'Minimum credit score' },
+  // "for this program": the shared form's own floor is 620, the long-term DSCR number
+  { value: '660', label: 'Minimum credit score for this program' },
   { value: '75%', label: 'Maximum LTV at a 660 FICO', note: 'Better credit can open up more favorable terms.' },
   { value: '$150K to $650K', label: 'Loan amounts' },
   {
     value: '7 to 10 days',
-    label: 'From appraisal to closing, in most cases',
+    suffix: 'after the appraisal',
+    label: 'To close, in most cases',
     note: 'Sometimes faster, depending on your file and, on a purchase, the agents involved.',
   },
 ];
@@ -57,7 +62,7 @@ const terms = [
   },
   { label: 'Transaction types', value: 'Purchase and cash-out refinance.' },
   { label: 'Reserves', value: 'None required at a 720+ FICO. Tiered below that, and some lenders are more flexible depending on the file.' },
-  { label: 'Property type', value: '1 to 4 unit residential, in town or rural.' },
+  { label: 'Property type', value: '1 to 4 unit residential, in town or rural. Rural carries roughly a 5% LTV reduction.' },
   { label: 'Ownership', value: 'LLC allowed, with a personal guaranty from the borrower.' },
 ];
 
@@ -84,7 +89,7 @@ const incomeSources = [
 
 // fill = months of reserves out of 12
 const reserveTiers = [
-  { fico: '720 and up', req: 'Zero reserves in the bank', fill: 0 },
+  { fico: '720 and up', req: 'Can qualify with zero reserves in the bank', fill: 0 },
   { fico: '680 to 720', req: 'Typically 3 to 6 months of PITIA', fill: 50 },
   { fico: '660 to 680', req: 'Up to 12 months of PITIA', fill: 100 },
 ];
@@ -152,10 +157,6 @@ const faqs: FaqItem[] = [
     a: 'No. The credit range you pick on the form is your own estimate, and nothing on this site pulls, checks, or touches your credit. A credit report only comes into play later, if you decide to move forward with an application.',
   },
 ];
-
-// Paul's disclosure for this page, verbatim from his doc (his dash became a comma).
-const disclosure =
-  'Paul Howarth, Licensed Loan Officer, NMLS #354915, CA DRE #01239455. Internet Loans Direct, powered by Loan Factory. Equal Housing Opportunity. This is not a commitment to lend. All loans subject to credit approval, underwriting, and property review. Rates and terms vary by investor.';
 
 const img = {
   hero: {
@@ -276,12 +277,7 @@ const schema = {
               {ctaLabel}
               <Icon name="arrow" size={18} />
             </a>
-            <a href={brand.phoneHref} class="btn-ghost hidden sm:inline-flex">
-              <Icon name="phone" size={18} />
-              {brand.phone}
-            </a>
           </div>
-          <p class="tx-reassure">{cta.final.body}</p>
         </div>
 
         <figure class="offset-frame">
@@ -311,7 +307,10 @@ const schema = {
             headlineTerms.map((t) => (
               <div class="tx-tile" data-child data-reveal="fade-up">
                 <dt class="tx-tile-label">{t.label}</dt>
-                <dd class="tx-tile-value">{t.value}</dd>
+                <dd class="tx-tile-value">
+                  {t.value}
+                  {t.suffix && <span class="tx-tile-suffix">{t.suffix}</span>}
+                </dd>
                 {t.note && <dd class="tx-tile-note">{t.note}</dd>}
               </div>
             ))
@@ -545,8 +544,7 @@ const schema = {
           <div class="tx-example-foot">
             <div>
               <p class="tx-example-close">
-                Same property, same rent, different outcome because of which program you're placed in. This is exactly why
-                the shopping process matters more than any single advertised rate.
+                Same property, same rent, different outcome because of which program you're placed in.
               </p>
               <p class="tx-fine mt-2">An illustration, not a quote or a commitment to lend.</p>
             </div>
@@ -595,7 +593,13 @@ const schema = {
           <FormV1 client:visible={{ rootMargin: '1000px' }} embedded />
         </div>
 
-        <p class="tx-disclosure">{disclosure}</p>
+        <p class="tx-under-form">
+          <span>{legal.underForm}</span>
+          <span class="eh-mark" role="img" aria-label={housingPhrase}>
+            <Icon name="equal-housing" />
+            <span>{housingPhrase}</span>
+          </span>
+        </p>
       </div>
     </section>
   </main>
@@ -718,13 +722,6 @@ const schema = {
     margin-top: 1.75rem;
   }
 
-  .tx-reassure {
-    margin-top: 0.9rem;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: rgba(18, 36, 49, 0.62);
-  }
-
   @media (max-width: 639px) {
     .tx-cta-row .btn-amber {
       width: 100%;
@@ -778,6 +775,15 @@ const schema = {
     letter-spacing: -0.008em;
     color: #ffffff;
     text-wrap: balance;
+  }
+
+  /* the qualifier rides WITH the number, never demoted to the label */
+  .tx-tile-suffix {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 1rem;
+    letter-spacing: 0;
+    line-height: 1.3;
   }
 
   .tx-tile-label {
@@ -1269,13 +1275,19 @@ const schema = {
     color: #122431;
   }
 
-  .tx-disclosure {
+  /* the LP's own under-form line, on the dark ground */
+  .tx-under-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem 0.6rem;
     max-width: 46rem;
-    margin: 1.5rem auto 0;
+    margin: 1.25rem auto 0;
     text-align: center;
     font-size: 0.78rem;
-    line-height: 1.6;
-    color: rgba(233, 242, 248, 0.72);
+    line-height: 1.5;
+    color: rgba(233, 242, 248, 0.78);
   }
 
   /* ---------- breadcrumb, at the foot (flat ink: runs straight into the footer) ---------- */

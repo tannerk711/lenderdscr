@@ -253,10 +253,17 @@ the footer a "Loan programs" column.
 Gates on the built output (gzip static server, 4342):
 
 - `npm run build` exit 0; the sitemap lists the page; `check-links` PASS (127 hrefs).
-- 33 static checks: one H1, title 57 chars, meta 160, canonical without a slash, indexable,
+- 34 static checks: one H1, title 57 chars, meta 160, canonical without a slash, indexable,
   JSON-LD parses (WebPage, Service/LoanOrCredit, BreadcrumbList, FAQPage, every FAQ answer
   visible on the page), zero em or en dashes, no rate figure, closing speed always with its
-  appraisal qualifier, three images with alt and dimensions, form SSR-rendered and deferred.
+  appraisal qualifier, no NMLS number or specialist name on the page, three images with alt
+  and dimensions, form SSR-rendered and deferred.
+- One adversarial review, applied: the 660 floor is scoped "for this program" (the shared
+  form's floor is 620), the speed tile carries "after the appraisal" with the number, two of
+  Paul's hedges restored (720+ "can qualify with" zero reserves; rural 5% LTV in the terms
+  row), the hero keeps one button, one repeated closer cut. Its one blocker, publishing
+  Paul's personal NMLS line from his doc, was resolved by leaving the line off: the page
+  runs the site's existing legal block until Tanner decides.
 - `overflow-check` OK at 390 and 320 on every route, the new one included (added to its list).
 - Mobile Lighthouse x3 on the page: 99 / 99 / 99 (LCP 2.0s, CLS 0, TBT about 65ms); SEO 100;
   accessibility 96 (the two remaining contrast flags are the shared footer's). LP `/` x3:
