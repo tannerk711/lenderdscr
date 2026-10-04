@@ -86,6 +86,7 @@ export const icons = {
   gauge2: ['M4 16a8 8 0 0 1 16 0', 'M12 16l-2.8-6', 'M12 16h.01'],
   gauge1: ['M4 16a8 8 0 0 1 16 0', 'M12 16l-5.2-4.2', 'M12 16h.01'],
   check: ['m5 12.5 4.5 4.5L19 7.5'],
+  x: ['m7 7 10 10', 'm17 7-10 10'],
   arrow: ['M5 12h14', 'm13 6 6 6-6 6'],
   phone: ['M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z'],
   calendar: ['M4 6h16v15H4z', 'M4 10h16', 'M8 3v5', 'M16 3v5', 'M8 14h.01', 'M12 14h.01', 'M16 14h.01'],
@@ -253,12 +254,20 @@ export const faqs: Faq[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Footer Company column. Every href must resolve on THIS build:
-// '/', '/start', '/privacy', '/legal', '/privacy#do-not-sell', '#faq', '#start'.
+// Footer columns. Every href must resolve on THIS build:
+// '/', '/start', '/privacy', '/legal', '/privacy#do-not-sell', '#faq', '#start',
+// '/texas-airbnb-vrbo-dscr-loans'.
 // (Footer.astro throws at build time on anything else.)
 // ---------------------------------------------------------------------------
 export const directory: { columns: DirectoryColumn[] } = {
   columns: [
+    {
+      title: 'Loan programs',
+      links: [
+        { label: 'Texas DSCR rental loans', href: '/' },
+        { label: 'Texas Airbnb & VRBO DSCR loans', href: '/texas-airbnb-vrbo-dscr-loans' },
+      ],
+    },
     {
       title: 'Company',
       links: [

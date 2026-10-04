@@ -89,6 +89,7 @@ const loadScript = gtagId
 
     <script is:inline set:html={headScript} />
     {loadScript && <script is:inline set:html={loadScript} />}
+    <slot name="head" />
   </head>
   <body class="ground-paper">
     <slot />

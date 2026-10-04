@@ -3,10 +3,19 @@
 // shows it while #start (the step-1 tiles) is out of view AND the FinalCta
 // [data-persist] element is not in view. Toggled ONLY via the hidden attribute
 // ([hidden] wins in CSS). Links to #start (the form in the hero).
+// `after` (content pages, where the form closes the page): a selector that must
+// ALSO be out of view before the bar shows, so the bar never sits under the
+// hero's own button and the page does not open on the ask.
 import { cta } from '../config/site';
+
+interface Props {
+  after?: string;
+}
+
+const { after } = Astro.props;
 ---
 
-<div id="sticky-cta" class="sticky-bar md:hidden" hidden>
+<div id="sticky-cta" class="sticky-bar md:hidden" data-after={after} hidden>
   <a href="#start" data-scroll-to="#start" class="btn-amber sticky-btn">{cta.sticky}</a>
 </div>
 
@@ -16,15 +25,18 @@ import { cta } from '../config/site';
     const start = document.getElementById('start');
     if (bar && start) {
       const persist = document.querySelector('[data-persist]');
+      const gate = bar.dataset.after ? document.querySelector(bar.dataset.after) : null;
       let startIn = true;
       let persistIn = false;
+      let gateIn = !!gate;
       const update = () => {
-        bar.hidden = startIn || persistIn;
+        bar.hidden = startIn || persistIn || gateIn;
       };
       const io = new IntersectionObserver(
         (entries) => {
           for (const e of entries) {
             if (e.target === start) startIn = e.isIntersecting;
+            else if (e.target === gate) gateIn = e.isIntersecting;
             else persistIn = e.isIntersecting;
           }
           update();
@@ -33,6 +45,7 @@ import { cta } from '../config/site';
       );
       io.observe(start);
       if (persist) io.observe(persist);
+      if (gate) io.observe(gate);
     }
   } catch {
     /* the page never breaks because of the sticky bar */

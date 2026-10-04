@@ -2,20 +2,39 @@
 // FAQ accordion: native <details> (keyboard-operable for free), a plus glyph
 // that rotates open, six questions from config. Pricing language is confined
 // to the one sanctioned answer that lives in site.ts.
-import { faqs } from '../config/site';
+// Every prop defaults to the LP's own rows and classes, so a bare <Faq /> is
+// the landing page's section; a content page passes its own questions.
+import { faqs, type Faq } from '../config/site';
+
+interface Props {
+  items?: Faq[];
+  heading?: string;
+  /** Small label above the heading. '' renders none. */
+  eyebrow?: string;
+  /** Section classes. A page whose form sits BELOW this section drops .cv-auto:
+   *  a section that changes height mid-scroll strands a jump to #start. */
+  class?: string;
+}
+
+const {
+  items = faqs,
+  heading = 'DSCR loan questions, answered',
+  eyebrow = 'Questions',
+  class: sectionClass = 'ground-paper cv-auto',
+} = Astro.props;
 ---
 
-<section id="faq" class="ground-paper cv-auto">
+<section id="faq" class={sectionClass}>
   <div class="container-x py-20 lg:py-28">
     <div class="grid items-start gap-10 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-16">
       <div data-reveal="fade-up">
-        <p class="eyebrow">Questions</p>
-        <h2 class="h-section mt-3">DSCR loan questions, answered</h2>
+        {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+        <h2 class:list={['h-section', eyebrow && 'mt-3']}>{heading}</h2>
       </div>
 
       <div class="flex flex-col gap-4" data-stagger>
         {
-          faqs.map((f) => (
+          items.map((f) => (
             <details class="card faq-item" data-child data-reveal="fade-up">
               <summary>
                 <span class="faq-q">{f.q}</span>

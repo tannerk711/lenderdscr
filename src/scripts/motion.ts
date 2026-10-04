@@ -1,9 +1,10 @@
 /**
  * Motion spine (BRIEF section 10): the video-to-website layer without the video.
  *
- * Side-effect module imported by LandingPage.astro ONLY (thank-you, not-yet,
- * privacy, terms, 404 never load it: lenis.css disables pointer-events on
- * iframes while smooth-scrolling, which would break a booking embed).
+ * Side-effect module imported by LandingPage.astro and the content page
+ * texas-airbnb-vrbo-dscr-loans.astro ONLY (thank-you, not-yet, privacy, terms,
+ * 404 never load it: lenis.css disables pointer-events on iframes while
+ * smooth-scrolling, which would break a booking embed).
  *
  * Load discipline (perf budget, section 12):
  *   - nothing is imported before `window load`; then a 1200ms delay; then

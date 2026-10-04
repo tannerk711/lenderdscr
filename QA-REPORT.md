@@ -241,3 +241,31 @@ Prod gates on https://lenderdscr.com (production deployment, no bypass):
 - PageSpeed Insights API answered 429 (quota) twice; local mobile Lighthouse on this exact
   build is 94 (Edit 6). Run pagespeed.web.dev on https://lenderdscr.com/ in the browser
   for the public number.
+
+## Edit 8: first content page, /texas-airbnb-vrbo-dscr-loans (2026-10-03)
+
+Short-term rental (Airbnb / VRBO) DSCR page from Paul's own page doc; brief in
+`clients/internet-loans-direct/seo/pages/texas-airbnb-vrbo-dscr-loans.md`. Terms band under a
+white hero, the embedded V1 form closes the page (`client:visible`), JSON-LD graph, three fal
+images. Shared components took opt-in props (Faq, Footer, StickyCta, a Layout head slot) and
+the footer a "Loan programs" column.
+
+Gates on the built output (gzip static server, 4342):
+
+- `npm run build` exit 0; the sitemap lists the page; `check-links` PASS (127 hrefs).
+- 33 static checks: one H1, title 57 chars, meta 160, canonical without a slash, indexable,
+  JSON-LD parses (WebPage, Service/LoanOrCredit, BreadcrumbList, FAQPage, every FAQ answer
+  visible on the page), zero em or en dashes, no rate figure, closing speed always with its
+  appraisal qualifier, three images with alt and dimensions, form SSR-rendered and deferred.
+- `overflow-check` OK at 390 and 320 on every route, the new one included (added to its list).
+- Mobile Lighthouse x3 on the page: 99 / 99 / 99 (LCP 2.0s, CLS 0, TBT about 65ms); SEO 100;
+  accessibility 96 (the two remaining contrast flags are the shared footer's). LP `/` x3:
+  median 92.
+- LP regression: full-page shots of `/` before and after at 1440 and 390 (reduced motion),
+  0 px differ above the footer.
+- Three screenshot passes at 1440x900 and 375x667 with the hero button jump, form hydration,
+  step 1 to step 2, two FAQ answers open, and the sticky bar gated behind the hero button.
+  iPhone SE fold: H1 on two lines, lead, intro and the button all above 667px.
+- Not run: a real prod submit from this page. The form, `/api/lead` and `/thank-you` are the
+  LP's unchanged code, and a `?qa=1` walk drops a test lead in Paul's GHL, so it waits for
+  Tanner.

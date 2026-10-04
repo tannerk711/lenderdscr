@@ -10,6 +10,20 @@
 > fabricated proof, thank-you = conversation opener, Zapier not GHL webhooks, TCPA gate,
 > one webhook per lead, never a second Vercel project) still apply in full.**
 
+> **2026-10-03: FIRST CONTENT PAGE, `/texas-airbnb-vrbo-dscr-loans`** (short-term rental DSCR
+> loans, from Paul's own page doc; brief in `clients/internet-loans-direct/seo/pages/`).
+> `src/pages/texas-airbnb-vrbo-dscr-loans.astro` holds its own copy, schema and scoped
+> `tx-` styles; it reuses Topbar, Faq (now takes `items`/`heading`/`eyebrow`/`class`),
+> Footer (`ownAnchors`, plus the "Loan programs" column in `site.ts`), StickyCta (`after`),
+> the embedded V1 form (`client:visible`, so React loads only near the form) and
+> `motion.ts`. Layout has a `head` slot for JSON-LD. Pattern for the next content page:
+> terms first, the form last, never the form in the hero; no `.cv-auto` on any section
+> above `#start`; every claim from the client's doc; closing speed always "after the
+> appraisal"; "lender", not "investor"; Paul's NMLS line lives under this page's form
+> only. Images: `npm run images` (three fal sources in `assets-src/str-*.png`). Gates
+> on 10/03: build green, 33 static checks, overflow OK at 320/390, mobile Lighthouse 99
+> (LP 92), LP pixel-identical above its footer.
+
 **Texas-only DSCR funnel for Paul Howarth's Internet Loans Direct, target domain
 `lenderdscr.com`.** Built 2026-07-24 by cloning `templates/funnels/dscr-1-private-credit` (funnel v1)
 and rebranding it. Replaces the current GHL landing pages at lenderdscr.com/dscr-loan-texas

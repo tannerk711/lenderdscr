@@ -1,0 +1,1310 @@
+---
+// /texas-airbnb-vrbo-dscr-loans: the short-term rental (Airbnb / VRBO) DSCR page,
+// built from Paul's own page doc (clients/internet-loans-direct/
+// texas-airbnb-vrbo-dscr-loans.md). A CONTENT page, not a paid landing page: it
+// gives the searcher the terms first, breaks the two beliefs in the way (an AirDNA
+// projection qualifies the deal; one lender's rulebook is the rulebook), then ends
+// on the ask, the same live V1 form the LP carries (#start, embedded). It never
+// opens with the form (golden rules, the outcome test).
+//
+// Rules that bind this file:
+//   - every number and program term is Paul's, from that doc: add none, and never
+//     a rate (the worked example carries no rate on purpose)
+//   - closing speed is always "7 to 10 days after the appraisal", never bare
+//   - "lender" for the capital source (his doc says "investor"; the reader IS the
+//     investor). The disclosure line under the form is his, verbatim
+//   - no section above #start carries .cv-auto: a height change mid-scroll strands
+//     the Lenis jump to the form
+//   - the form hydrates on approach (client:visible), so a reader who never
+//     reaches it never downloads React
+import Layout from '../layouts/Layout.astro';
+import Topbar from '../components/Topbar.astro';
+import Faq from '../components/Faq.astro';
+import Footer from '../components/Footer.astro';
+import StickyCta from '../components/StickyCta.astro';
+import Icon from '../components/Icon.astro';
+import FormV1 from '../components/start/FormV1';
+import { brand, cta, type Faq as FaqItem } from '../config/site';
+import { lqip, imageDims } from '../data/lqip';
+import '../styles/start.css';
+
+const path = '/texas-airbnb-vrbo-dscr-loans';
+const url = `https://${brand.domain}${path}`;
+const h1 = 'Texas Airbnb & VRBO DSCR Loans';
+const title = `${h1} | 660 FICO, No Tax Returns`;
+const description =
+  'DSCR financing for Texas Airbnb and VRBO rentals in Austin, San Antonio, the Hill Country, Houston, Dallas and the Gulf Coast. No tax returns, 660 FICO minimum.';
+const ctaLabel = 'Check Your DSCR Eligibility';
+
+// The four terms a searcher scans for first, then the rest of the sheet.
+const headlineTerms = [
+  { value: '660', label: 'Minimum credit score' },
+  { value: '75%', label: 'Maximum LTV at a 660 FICO', note: 'Better credit can open up more favorable terms.' },
+  { value: '$150K to $650K', label: 'Loan amounts' },
+  {
+    value: '7 to 10 days',
+    label: 'From appraisal to closing, in most cases',
+    note: 'Sometimes faster, depending on your file and, on a purchase, the agents involved.',
+  },
+];
+
+const terms = [
+  { label: 'DSCR ratio', value: 'Down to 0.75 accepted. Negative cash flow is OK, though pricing climbs the lower you go.' },
+  { label: 'Rate options', value: '30-year fixed, 40-year fixed with 10-year interest-only, or ARM.' },
+  {
+    label: 'Prepayment',
+    value: 'Averages 3 years, up to 5 years depending on the lender. Shorter terms (1 year or no prepay) are available at a cost in points and fees.',
+  },
+  { label: 'Transaction types', value: 'Purchase and cash-out refinance.' },
+  { label: 'Reserves', value: 'None required at a 720+ FICO. Tiered below that, and some lenders are more flexible depending on the file.' },
+  { label: 'Property type', value: '1 to 4 unit residential, in town or rural.' },
+  { label: 'Ownership', value: 'LLC allowed, with a personal guaranty from the borrower.' },
+];
+
+const incomeSources = [
+  {
+    counts: true,
+    tag: 'Qualifies the deal',
+    title: "The appraiser's rental analysis",
+    body: 'The standard short-term or comparable rental schedule that comes with the appraisal. On a new purchase, this market analysis carries the weight.',
+  },
+  {
+    counts: true,
+    tag: 'Qualifies the deal',
+    title: 'Documented rental history',
+    body: 'If the property already has a track record on Airbnb or VRBO, bring that booking history. It strengthens your file.',
+  },
+  {
+    counts: false,
+    tag: 'Sanity check only',
+    title: 'An AirDNA projection on its own',
+    body: 'Some lenders will glance at one as a sanity check. It does not carry the deal.',
+  },
+];
+
+// fill = months of reserves out of 12
+const reserveTiers = [
+  { fico: '720 and up', req: 'Zero reserves in the bank', fill: 0 },
+  { fico: '680 to 720', req: 'Typically 3 to 6 months of PITIA', fill: 50 },
+  { fico: '660 to 680', req: 'Up to 12 months of PITIA', fill: 100 },
+];
+
+const markets = [
+  {
+    name: 'Austin',
+    body: "Still one of the most active short-term rental markets in the state, though the city's permit system means you'll want to confirm zoning before you buy or convert a property. We can talk through what that means for your loan timeline.",
+  },
+  {
+    name: 'San Antonio',
+    body: 'A steadier, less saturated market than Austin, with strong year-round demand tied to tourism around the River Walk and the medical center corridor.',
+  },
+  {
+    name: 'Hill Country',
+    places: 'Fredericksburg, Wimberley, New Braunfels',
+    body: 'Wine-country and river-town getaways where short-term rentals often outperform long-term lease comps by a wide margin. Exactly the kind of property DSCR financing was built for.',
+  },
+  {
+    name: 'Houston',
+    body: 'Medical center and business travel keep demand steady beyond tourist season, which appraisers factor into the rental analysis differently than a pure vacation market.',
+  },
+  {
+    name: 'Dallas',
+    body: 'Convention and corporate travel support a different pattern than the Hill Country or the Gulf Coast: shorter average stays and more weekday demand.',
+  },
+  {
+    name: 'Gulf Coast',
+    places: 'Galveston, Port Aransas',
+    body: 'Classic beach-town territory with established rental comps, which usually makes the appraisal process more straightforward than in newer markets.',
+  },
+];
+
+const propertyTypes = ['Single family homes', 'Duplexes', 'Triplexes', 'Fourplexes'];
+
+const exampleOutcomes = [
+  'A 3-month to a 6-month reserve requirement',
+  'A purchase LTV in the high 70s',
+  'A rate priced around a DSCR near 1.0 to 1.1 for that rent-to-payment ratio',
+];
+
+const faqs: FaqItem[] = [
+  {
+    q: 'Do I need existing Airbnb booking history to qualify?',
+    a: "No. A new short-term rental can qualify using the appraiser's rental analysis. Existing booking history helps but isn't required.",
+  },
+  {
+    q: 'Can I close this loan in an LLC?',
+    a: "Yes. Most serious investors hold short-term rental properties in an LLC for liability separation, and that's standard for this loan type. The LLC doesn't remove you from the loan personally, though. You'll still sign the loan documents individually and personally guarantee the debt.",
+  },
+  {
+    q: 'What if my city restricts short-term rentals?',
+    a: 'Check local zoning and short-term rental permitting before you buy or convert a property. Austin in particular has an active permit process. We can help you think through how that affects your loan and your appraisal.',
+  },
+  {
+    q: 'Is there a maximum number of properties I can finance this way?',
+    a: "There's no personal cap on our end. It depends on the specific lender's guidelines for your file, which is part of why we shop multiple lenders rather than being boxed into one.",
+  },
+  {
+    q: 'Do you work with foreign national borrowers?',
+    a: 'Not on our short-term rental programs specifically. Our standard long-term rental DSCR loans have separate options, so it is worth a conversation if that applies to you.',
+  },
+  {
+    q: 'Does checking my eligibility pull my credit?',
+    a: 'No. The credit range you pick on the form is your own estimate, and nothing on this site pulls, checks, or touches your credit. A credit report only comes into play later, if you decide to move forward with an application.',
+  },
+];
+
+// Paul's disclosure for this page, verbatim from his doc (his dash became a comma).
+const disclosure =
+  'Paul Howarth, Licensed Loan Officer, NMLS #354915, CA DRE #01239455. Internet Loans Direct, powered by Loan Factory. Equal Housing Opportunity. This is not a commitment to lend. All loans subject to credit approval, underwriting, and property review. Rates and terms vary by investor.';
+
+const img = {
+  hero: {
+    src: '/images/texas-hill-country-short-term-rental.webp',
+    srcset: '/images/texas-hill-country-short-term-rental-720.webp 720w, /images/texas-hill-country-short-term-rental.webp 1120w',
+    alt: 'Limestone short-term rental home with a covered porch under live oaks in the Texas Hill Country at golden hour',
+    ...imageDims.strHillCountry,
+    lqip: lqip.strHillCountry,
+  },
+  coast: {
+    src: '/images/texas-gulf-coast-beach-house-rental.webp',
+    srcset: '/images/texas-gulf-coast-beach-house-rental-720.webp 720w, /images/texas-gulf-coast-beach-house-rental.webp 960w',
+    alt: 'Elevated beach house on pilings behind the dunes on the Texas Gulf Coast',
+    ...imageDims.strGulfCoast,
+    lqip: lqip.strGulfCoast,
+  },
+  duplex: {
+    src: '/images/austin-duplex-short-term-rental.webp',
+    srcset: '/images/austin-duplex-short-term-rental-720.webp 720w, /images/austin-duplex-short-term-rental.webp 960w',
+    alt: 'Modern duplex with two front doors on a residential street in Austin, Texas at dusk',
+    ...imageDims.strAustinDuplex,
+    lqip: lqip.strAustinDuplex,
+  },
+};
+const lqipStyle = (data: string) => `background: center / cover no-repeat url(${data})`;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebPage',
+      '@id': `${url}#webpage`,
+      url,
+      name: title,
+      description,
+      inLanguage: 'en-US',
+      breadcrumb: { '@id': `${url}#breadcrumb` },
+      primaryImageOfPage: {
+        '@type': 'ImageObject',
+        url: `https://${brand.domain}${img.hero.src}`,
+        width: img.hero.width,
+        height: img.hero.height,
+      },
+    },
+    {
+      '@type': ['Service', 'LoanOrCredit'],
+      '@id': `${url}#loan`,
+      name: h1,
+      serviceType: 'DSCR loan for short-term rental properties',
+      loanType: 'DSCR (debt service coverage ratio) investment property loan',
+      description,
+      url,
+      provider: {
+        '@type': 'Organization',
+        name: brand.name,
+        url: `https://${brand.domain}`,
+        telephone: brand.phoneHref.replace('tel:', ''),
+      },
+      areaServed: [
+        { '@type': 'State', name: 'Texas' },
+        ...['Austin', 'San Antonio', 'Houston', 'Dallas', 'Fredericksburg', 'Wimberley', 'New Braunfels', 'Galveston', 'Port Aransas'].map(
+          (name) => ({ '@type': 'City', name: `${name}, Texas` }),
+        ),
+      ],
+      audience: { '@type': 'Audience', audienceType: 'Experienced real estate investors' },
+      amount: { '@type': 'MonetaryAmount', currency: 'USD', minValue: 150000, maxValue: 650000 },
+      requiredCollateral: '1 to 4 unit residential short-term rental property in Texas',
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${url}#breadcrumb`,
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `https://${brand.domain}/` },
+        { '@type': 'ListItem', position: 2, name: h1, item: url },
+      ],
+    },
+    {
+      '@type': 'FAQPage',
+      '@id': `${url}#faq`,
+      mainEntity: faqs.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    },
+  ],
+};
+---
+
+<Layout
+  title={title}
+  description={description}
+  ogImage="/images/og-texas-airbnb-vrbo-dscr-loans.jpg"
+  preloadFonts={['/fonts/manrope-latin-wght-normal.woff2']}
+>
+  <Fragment slot="head">
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </Fragment>
+
+  <div class="tx-top"><Topbar /></div>
+
+  <main id="main">
+    <section class="tx-hero" aria-labelledby="tx-h1">
+      <div class="container-x tx-hero-grid">
+        <div>
+          <h1 id="tx-h1" class="h-display tx-h1">{h1}</h1>
+          <p class="tx-lead">
+            Financing for short-term rentals in Austin, San Antonio, Houston, Dallas, the Hill Country, and the Gulf Coast.
+          </p>
+          <p class="prose-body mt-4">
+            If you own or want to buy a short-term rental in Texas, a DSCR (debt service coverage ratio) loan qualifies you
+            on what the property earns. Not your personal tax returns, not your W-2s, not your debt-to-income ratio. We shop
+            the loan across our lender network to find the one program that fits your deal, instead of running you through a
+            single lender's fixed rulebook.
+          </p>
+          <div id="hero-cta" class="tx-cta-row">
+            <a href="#start" data-scroll-to="#start" class="btn-amber" data-magnet>
+              {ctaLabel}
+              <Icon name="arrow" size={18} />
+            </a>
+            <a href={brand.phoneHref} class="btn-ghost hidden sm:inline-flex">
+              <Icon name="phone" size={18} />
+              {brand.phone}
+            </a>
+          </div>
+          <p class="tx-reassure">{cta.final.body}</p>
+        </div>
+
+        <figure class="offset-frame">
+          <img
+            src={img.hero.src}
+            srcset={img.hero.srcset}
+            sizes="(min-width: 1024px) 460px, calc(100vw - 2.5rem)"
+            width={img.hero.width}
+            height={img.hero.height}
+            alt={img.hero.alt}
+            fetchpriority="high"
+            decoding="async"
+            style={lqipStyle(img.hero.lqip)}
+          />
+        </figure>
+      </div>
+    </section>
+
+    <section class="ground-dark tx-terms" aria-labelledby="tx-terms-h">
+      <div class="container-x">
+        <h2 id="tx-terms-h" class="h-section tx-h2 max-w-3xl">
+          Texas <span class="whitespace-nowrap">short-term</span> rental DSCR loan requirements
+        </h2>
+
+        <dl class="tx-tiles" data-stagger>
+          {
+            headlineTerms.map((t) => (
+              <div class="tx-tile" data-child data-reveal="fade-up">
+                <dt class="tx-tile-label">{t.label}</dt>
+                <dd class="tx-tile-value">{t.value}</dd>
+                {t.note && <dd class="tx-tile-note">{t.note}</dd>}
+              </div>
+            ))
+          }
+        </dl>
+
+        <dl class="tx-rows">
+          {
+            terms.map((t) => (
+              <div class="tx-row">
+                <dt>{t.label}</dt>
+                <dd>{t.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </section>
+
+    <section class="ground-paper tx-sec" aria-labelledby="tx-income-h">
+      <div class="container-x">
+        <h2 id="tx-income-h" class="h-section tx-h2 max-w-3xl">
+          How Texas <span class="whitespace-nowrap">short-term</span> rental income actually qualifies
+        </h2>
+        <p class="prose-body mt-5">
+          Here's where a lot of borrowers get confused: an AirDNA projection alone doesn't carry the deal. The qualifying
+          number comes from one of two places.
+        </p>
+
+        <ul class="tx-sources" data-stagger>
+          {
+            incomeSources.map((s) => (
+              <li class:list={['card tx-source', !s.counts && 'is-no']} data-child data-reveal="fade-up">
+                <span class="tx-mark" aria-hidden="true">
+                  <Icon name={s.counts ? 'check' : 'x'} size={22} />
+                </span>
+                <div>
+                  <div class="tx-source-head">
+                    <h3 class="tx-h3">{s.title}</h3>
+                    <span class="tx-tag">{s.tag}</span>
+                  </div>
+                  <p class="prose-body tx-small mt-2">{s.body}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="ground-mist tx-sec" aria-labelledby="tx-broker-h">
+      <div class="container-x tx-split tx-split-even">
+        <div>
+          <h2 id="tx-broker-h" class="h-section tx-h2">Why work with a broker instead of one direct lender</h2>
+          <p class="prose-body mt-5">
+            Most DSCR sites you'll find are a single lender with one set of guidelines. If your deal doesn't fit their box,
+            you're stuck.
+          </p>
+          <p class="prose-body mt-4">
+            We don't underwrite in-house. Instead, we take your scenario to the lenders in our network who compete for it,
+            and place the loan with whoever gives you the strongest combination of pricing, LTV, and terms for that specific
+            property. If one lender's overlay (an extra rule on top of the standard guidelines) kills the deal, we have
+            others to try. That's the entire point of using a broker instead of a single-source lender.
+          </p>
+        </div>
+
+        <article id="reserves" class="card-lg tx-reserves" data-reveal="fade-up">
+          <h3 class="h-step">Same credit score, different reserve requirement</h3>
+          <p class="prose-body tx-small mt-3">
+            Here's an example of what shopping the loan actually does for you. Reserve requirements on our programs are
+            tiered by credit score.
+          </p>
+          <ul class="tx-tiers">
+            {
+              reserveTiers.map((t) => (
+                <li class="tx-tier">
+                  <span class="tx-tier-fico">{t.fico}</span>
+                  <span class="tx-tier-req">{t.req}</span>
+                  <span class="tx-tier-bar" aria-hidden="true">
+                    <span style={`width:${t.fill}%`} />
+                  </span>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="tx-fine mt-3">
+            PITIA is the full monthly payment: principal, interest, taxes, insurance, and any association dues.
+          </p>
+          <p class="prose-body tx-small mt-4">
+            On paper, that looks like a hard rule. In practice, some lenders in our network are more flexible on reserves
+            than others, depending on the rest of your file. A borrower who looks stuck at a 12-month reserve requirement
+            with one lender might qualify with 3 to 6 months at another, even at the same credit score. A single-lender
+            site can't offer you that, because it only has its own rulebook to work with.
+          </p>
+          <p class="tx-pull">
+            Picking the lender isn't just about who has the lowest advertised rate. It's about who underwrites your specific
+            situation the way you need it underwritten.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="ground-paper tx-sec" aria-labelledby="tx-markets-h">
+      <div class="container-x">
+        <h2 id="tx-markets-h" class="h-section tx-h2 max-w-3xl">
+          Texas <span class="whitespace-nowrap">short-term</span> rental markets we finance
+        </h2>
+
+        <ul class="tx-markets" data-stagger>
+          {
+            markets.map((m) => (
+              <li class="card tx-market" data-child data-reveal="fade-up">
+                <div class="tx-market-head">
+                  <span class="tx-coin" aria-hidden="true">
+                    <Icon name="map-pin" size={22} />
+                  </span>
+                  <div>
+                    <h3 class="tx-h3">{m.name}</h3>
+                    {m.places && <p class="tx-places">{m.places}</p>}
+                  </div>
+                </div>
+                <p class="prose-body tx-small mt-4">{m.body}</p>
+              </li>
+            ))
+          }
+        </ul>
+
+        <article class="card-lg tx-rural" data-reveal="fade-up">
+          <img
+            src={img.coast.src}
+            srcset={img.coast.srcset}
+            sizes="(min-width: 900px) 440px, calc(100vw - 2.5rem)"
+            width={img.coast.width}
+            height={img.coast.height}
+            alt={img.coast.alt}
+            loading="lazy"
+            decoding="async"
+            style={lqipStyle(img.coast.lqip)}
+          />
+          <div class="tx-rural-copy">
+            <h3 class="h-step">Outside city limits</h3>
+            <p class="prose-body tx-small mt-3">
+              Hill Country ranch properties, Gulf Coast beach houses off the main strip: rural short-term rentals are
+              eligible too. Expect roughly a 5% hit to your maximum LTV compared to a comparable in-town property, since
+              rural comps and exit liquidity carry more weight in the lender's eyes.
+            </p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="ground-mist tx-sec" aria-labelledby="tx-fit-h">
+      <div class="container-x tx-split tx-split-media">
+        <figure class="offset-frame order-2 lg:order-1">
+          <img
+            src={img.duplex.src}
+            srcset={img.duplex.srcset}
+            sizes="(min-width: 1024px) 420px, calc(100vw - 2.5rem)"
+            width={img.duplex.width}
+            height={img.duplex.height}
+            alt={img.duplex.alt}
+            loading="lazy"
+            decoding="async"
+            style={lqipStyle(img.duplex.lqip)}
+          />
+        </figure>
+        <div class="order-1 lg:order-2">
+          <h2 id="tx-fit-h" class="h-section tx-h2">Who this loan is built for</h2>
+          <p class="prose-body mt-5">
+            This program is designed for experienced real estate investors, not a first Airbnb purchase. If this would be
+            your first investment property, a <a href="/" class="link">standard DSCR loan for a long-term rental</a> is
+            generally a better starting point, and we can point you toward that instead.
+          </p>
+          <p class="prose-body mt-4">Eligible properties are 1 to 4 unit residential:</p>
+          <ul class="tx-chips">
+            {
+              propertyTypes.map((p) => (
+                <li>
+                  <Icon name="check" size={16} />
+                  {p}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="ground-brand tx-sec" aria-labelledby="tx-example-h">
+      <div class="container-x">
+        <h2 id="tx-example-h" class="h-section tx-h2">A quick example of how this plays out</h2>
+        <p class="tx-example-lead">Say you're looking at a three-bedroom Hill Country property near Fredericksburg.</p>
+
+        <div class="card-lg tx-example" data-reveal="fade-up">
+          <dl class="tx-deal">
+            <div>
+              <dt>Purchase price</dt>
+              <dd>$400,000</dd>
+            </div>
+            <div>
+              <dt>Market rent the appraiser's short-term rental schedule supports</dt>
+              <dd>$3,200 a month</dd>
+            </div>
+          </dl>
+
+          <div class="tx-scenarios">
+            <article class="tx-scenario">
+              <h3 class="tx-h3">Your credit is 690</h3>
+              <p class="prose-body tx-small mt-2">
+                Depending on which lender in our network fits your file best, you might land anywhere from:
+              </p>
+              <ul class="tx-outcomes">
+                {
+                  exampleOutcomes.map((o) => (
+                    <li>
+                      <Icon name="check" size={18} />
+                      <span>{o}</span>
+                    </li>
+                  ))
+                }
+              </ul>
+            </article>
+            <article class="tx-scenario is-alt">
+              <h3 class="tx-h3">Change the credit score to 725</h3>
+              <p class="prose-body tx-small mt-2">
+                The reserve requirement can drop to zero with a different lender entirely.
+              </p>
+            </article>
+          </div>
+
+          <div class="tx-example-foot">
+            <div>
+              <p class="tx-example-close">
+                Same property, same rent, different outcome because of which program you're placed in. This is exactly why
+                the shopping process matters more than any single advertised rate.
+              </p>
+              <p class="tx-fine mt-2">An illustration, not a quote or a commitment to lend.</p>
+            </div>
+            <a href="#start" data-scroll-to="#start" class="btn-amber" data-magnet>
+              {ctaLabel}
+              <Icon name="arrow" size={18} />
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ground-paper tx-sec" aria-labelledby="tx-points-h">
+      <div class="container-x">
+        <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-16">
+          <h2 id="tx-points-h" class="h-section tx-h2">Why we charge points upfront</h2>
+          <div>
+            <p class="prose-body">
+              Some lenders roll their compensation into a higher rate so you pay nothing at closing. We do the opposite and
+              charge points upfront, because the lower rate that results directly improves your DSCR and your monthly cash
+              flow, which is the entire qualifying metric on this loan.
+            </p>
+            <p class="prose-body mt-4">
+              For you as the property owner, the monthly cash flow usually matters more than what you paid to get there.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="tx-faq">
+      <Faq items={faqs} heading="Common questions about Texas Airbnb DSCR loans" eyebrow="" class="ground-mist" />
+    </div>
+
+    <section class="ground-brand-deep relative tx-form-sec" aria-labelledby="tx-form-h">
+      <div class="seam" data-seam></div>
+      <div class="container-x" data-persist>
+        <div class="tx-form-head">
+          <h2 id="tx-form-h" class="h-section tx-h2">Get your scenario in front of the right lender</h2>
+          <p class="tx-form-body">
+            Every deal is different. Tell us the numbers and we'll tell you which lender in our network fits it best.
+          </p>
+        </div>
+
+        <div id="start" class="card-lg tx-form-card scroll-mt-4 p-4 sm:p-7 md:p-9">
+          <FormV1 client:visible={{ rootMargin: '1000px' }} embedded />
+        </div>
+
+        <p class="tx-disclosure">{disclosure}</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tx-crumbs" aria-label="Breadcrumb">
+    <ol class="container-x">
+      <li><a href="/">Home</a></li>
+      <li aria-current="page">{h1}</li>
+    </ol>
+  </nav>
+
+  <Footer ownAnchors />
+  <StickyCta after="#hero-cta" />
+  <script>
+    import '../scripts/motion.ts';
+  </script>
+</Layout>
+
+<style>
+  /* ---------- shared ---------- */
+
+  .tx-sec {
+    padding-block: clamp(3.5rem, 8vw, 6.5rem);
+  }
+
+  /* a long-form page carries many H2s: one step under the LP's section size
+     (the shared Faq section's heading follows suit) */
+  .tx-h2,
+  .tx-faq :global(.h-section) {
+    font-size: clamp(1.7rem, 3.2vw, 2.6rem);
+  }
+
+  .tx-h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.125rem;
+    line-height: 1.3;
+    letter-spacing: -0.008em;
+    color: var(--color-ink);
+  }
+
+  .tx-small {
+    font-size: 1rem;
+  }
+
+  .tx-fine {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: rgba(18, 36, 49, 0.62);
+  }
+
+  .tx-split {
+    display: grid;
+    align-items: start;
+    gap: 2.25rem;
+  }
+
+  @media (min-width: 1024px) {
+    .tx-split {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: 4rem;
+    }
+
+    .tx-split-even {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    /* the short prose column rides alongside the taller card */
+    .tx-split-even > :first-child {
+      position: sticky;
+      top: 2.5rem;
+    }
+
+    .tx-split-media {
+      align-items: center;
+    }
+  }
+
+  /* ---------- hero: white, text first, the button after the answer ---------- */
+
+  .tx-top :global(.topbar),
+  .tx-hero {
+    background-color: #ffffff;
+  }
+
+  .tx-hero-grid {
+    display: grid;
+    align-items: center;
+    gap: 2.25rem;
+    padding-block: 1.5rem 3rem;
+  }
+
+  @media (min-width: 1024px) {
+    .tx-hero-grid {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      gap: 4rem;
+      padding-block: 4rem 5rem;
+    }
+  }
+
+  .tx-h1 {
+    font-size: clamp(2.05rem, 4.3vw, 3.5rem);
+    --tw-leading: 1.12;
+    line-height: var(--tw-leading);
+  }
+
+  .tx-lead {
+    margin-top: 1rem;
+    max-width: 44ch;
+    font-weight: 600;
+    font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+    line-height: 1.45;
+    color: var(--color-ink);
+  }
+
+  .tx-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    margin-top: 1.75rem;
+  }
+
+  .tx-reassure {
+    margin-top: 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(18, 36, 49, 0.62);
+  }
+
+  @media (max-width: 639px) {
+    .tx-cta-row .btn-amber {
+      width: 100%;
+    }
+  }
+
+  /* ---------- program terms (the dark band under the white hero) ---------- */
+
+  .tx-terms {
+    padding-block: clamp(3rem, 7vw, 5.5rem);
+  }
+
+  .tx-tiles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  @media (min-width: 1024px) {
+    .tx-tiles {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1.25rem;
+      margin-top: 2.5rem;
+    }
+  }
+
+  .tx-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1.1rem 1rem 1.2rem;
+    border-radius: 16px;
+    background: rgba(233, 242, 248, 0.06);
+    border: 1px solid rgba(233, 242, 248, 0.14);
+    box-shadow: inset 0 1px 0 rgba(233, 242, 248, 0.08);
+  }
+
+  @media (min-width: 1024px) {
+    .tx-tile {
+      padding: 1.5rem 1.4rem 1.6rem;
+    }
+  }
+
+  .tx-tile-value {
+    order: -1;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.4rem, 2.5vw, 2rem);
+    line-height: 1.12;
+    letter-spacing: -0.008em;
+    color: #ffffff;
+    text-wrap: balance;
+  }
+
+  .tx-tile-label {
+    font-weight: 700;
+    font-size: 0.92rem;
+    line-height: 1.35;
+    color: var(--color-cream);
+  }
+
+  .tx-tile-note {
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: rgba(233, 242, 248, 0.68);
+  }
+
+  .tx-rows {
+    display: grid;
+    column-gap: 3.5rem;
+    margin-top: 1.75rem;
+  }
+
+  @media (min-width: 900px) {
+    .tx-rows {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .tx-row {
+    display: grid;
+    gap: 0.3rem;
+    padding-block: 1rem;
+    border-top: 1px solid rgba(233, 242, 248, 0.14);
+  }
+
+  @media (min-width: 480px) {
+    .tx-row {
+      grid-template-columns: 9.5rem minmax(0, 1fr);
+      gap: 1.25rem;
+    }
+  }
+
+  .tx-row dt {
+    padding-top: 0.22rem;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(233, 242, 248, 0.68);
+  }
+
+  .tx-row dd {
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: var(--color-cream);
+  }
+
+  /* ---------- how the income qualifies ---------- */
+
+  .tx-sources {
+    display: grid;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .tx-source {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-content: start;
+    gap: 1rem;
+    padding: 1.25rem 1.2rem;
+  }
+
+  /* three across on desktop: the mark sits above the copy, the tag under the title */
+  @media (min-width: 900px) {
+    .tx-sources {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.25rem;
+      margin-top: 2.25rem;
+    }
+
+    .tx-source {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 1.6rem 1.6rem 1.75rem;
+    }
+
+    .tx-source-head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  .tx-mark {
+    display: inline-grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: rgba(14, 124, 105, 0.12);
+    color: var(--color-amber-deep);
+  }
+
+  .tx-source.is-no .tx-mark {
+    background: var(--color-mist);
+    color: rgba(18, 36, 49, 0.6);
+  }
+
+  .tx-source-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+  }
+
+  .tx-tag {
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-amber-deep);
+  }
+
+  .tx-source.is-no .tx-tag {
+    color: rgba(18, 36, 49, 0.62);
+  }
+
+  /* ---------- broker + the reserves example ---------- */
+
+  .tx-reserves {
+    padding: 1.5rem 1.25rem 1.6rem;
+    scroll-margin-top: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .tx-reserves {
+      padding: 2.25rem 2.25rem 2.4rem;
+    }
+  }
+
+  .tx-tiers {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 1.1rem;
+  }
+
+  .tx-tier {
+    display: grid;
+    grid-template-columns: 6.25rem minmax(0, 1fr);
+    align-items: baseline;
+    gap: 0.6rem 0.9rem;
+    padding: 0.85rem 1rem 0.95rem;
+    border-radius: 12px;
+    background: var(--color-paper);
+    border: 1px solid var(--color-line);
+  }
+
+  .tx-tier-fico {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.02rem;
+    line-height: 1.25;
+    color: var(--color-ink);
+  }
+
+  .tx-tier-req {
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    color: rgba(18, 36, 49, 0.82);
+  }
+
+  .tx-tier-bar {
+    grid-column: 1 / -1;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--color-mist);
+    overflow: hidden;
+  }
+
+  .tx-tier-bar > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--color-brand);
+  }
+
+  .tx-pull {
+    margin-top: 1.2rem;
+    padding-left: 1rem;
+    border-left: 3px solid var(--color-brand);
+    font-weight: 700;
+    font-size: 1.02rem;
+    line-height: 1.45;
+    color: var(--color-ink);
+  }
+
+  /* ---------- markets ---------- */
+
+  .tx-markets {
+    display: grid;
+    gap: 1rem;
+    margin-top: 2.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .tx-markets {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .tx-markets {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.25rem;
+    }
+  }
+
+  .tx-market {
+    padding: 1.3rem 1.25rem 1.45rem;
+  }
+
+  @media (min-width: 1024px) {
+    .tx-market {
+      padding: 1.6rem 1.6rem 1.75rem;
+    }
+  }
+
+  .tx-market-head {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .tx-coin {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    background: var(--color-brand-soft);
+    color: var(--color-brand);
+  }
+
+  .tx-places {
+    margin-top: 0.1rem;
+    font-size: 0.84rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: rgba(18, 36, 49, 0.62);
+  }
+
+  .tx-rural {
+    display: grid;
+    margin-top: 1rem;
+    overflow: hidden;
+  }
+
+  .tx-rural img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+  }
+
+  .tx-rural-copy {
+    align-self: center;
+    padding: 1.5rem 1.25rem 1.65rem;
+  }
+
+  @media (min-width: 900px) {
+    .tx-rural {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      margin-top: 1.25rem;
+    }
+
+    .tx-rural img {
+      aspect-ratio: auto;
+      min-height: 17rem;
+    }
+
+    .tx-rural-copy {
+      padding: 2.25rem 2.75rem;
+    }
+  }
+
+  /* ---------- who it is for ---------- */
+
+  /* brand blue is 4.1:1 on the mist ground; the deep blue clears AA */
+  .link {
+    color: var(--color-brand-deep);
+  }
+
+  .tx-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 0.9rem;
+  }
+
+  .tx-chips li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.9rem 0.5rem 0.7rem;
+    border-radius: 999px;
+    background: var(--color-sheet);
+    border: 1px solid var(--color-line);
+    box-shadow: 0 1px 2px rgba(18, 36, 49, 0.05);
+    font-weight: 600;
+    font-size: 0.92rem;
+    line-height: 1.2;
+    color: var(--color-ink);
+  }
+
+  .tx-chips svg {
+    color: var(--color-amber);
+  }
+
+  /* ---------- worked example ---------- */
+
+  /* white, not cream: cream on the brand blue lands at 4.2:1 for body-size text */
+  .tx-example-lead {
+    max-width: 56ch;
+    margin-top: 0.9rem;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: #ffffff;
+  }
+
+  .tx-example {
+    margin-top: 2rem;
+    padding: 1.25rem 1.1rem 1.5rem;
+    color: var(--color-ink);
+  }
+
+  @media (min-width: 768px) {
+    .tx-example {
+      padding: 2.25rem 2.5rem 2.4rem;
+    }
+  }
+
+  .tx-deal {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .tx-deal > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 1rem 1.1rem 1.1rem;
+    border-radius: 14px;
+    background: var(--color-paper);
+    border: 1px solid var(--color-line);
+  }
+
+  .tx-deal dd {
+    order: -1;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    line-height: 1.12;
+    letter-spacing: -0.008em;
+    color: var(--color-ink);
+  }
+
+  .tx-deal dt {
+    font-weight: 600;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: rgba(18, 36, 49, 0.7);
+  }
+
+  .tx-scenarios {
+    display: grid;
+    gap: 0.85rem;
+    margin-top: 0.85rem;
+  }
+
+  .tx-scenario {
+    padding: 1.15rem 1.1rem 1.25rem;
+    border-radius: 14px;
+    border: 1px solid var(--color-line);
+  }
+
+  .tx-scenario.is-alt {
+    background: var(--color-brand-soft);
+    border-color: rgba(31, 120, 180, 0.22);
+  }
+
+  .tx-outcomes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .tx-outcomes li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.6rem;
+    font-weight: 600;
+    font-size: 0.97rem;
+    line-height: 1.4;
+    color: var(--color-ink);
+  }
+
+  .tx-outcomes svg {
+    margin-top: 0.15rem;
+    color: var(--color-amber);
+  }
+
+  .tx-example-foot {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    margin-top: 1.4rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .tx-example-foot .btn-amber {
+    flex: none;
+  }
+
+  .tx-example-close {
+    max-width: 54ch;
+    font-weight: 700;
+    font-size: 1.05rem;
+    line-height: 1.45;
+    color: var(--color-ink);
+  }
+
+  @media (min-width: 768px) {
+    .tx-deal {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .tx-scenarios {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .tx-scenario {
+      padding: 1.4rem 1.5rem 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .tx-example-foot {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2.5rem;
+    }
+  }
+
+  /* ---------- the ask: the live V1 form, on the LP's own card ground ---------- */
+
+  .tx-form-sec {
+    padding-block: clamp(3.5rem, 8vw, 6rem);
+  }
+
+  .tx-form-head {
+    max-width: 46rem;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .tx-form-body {
+    margin-top: 1rem;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: rgba(233, 242, 248, 0.85);
+  }
+
+  .tx-form-card {
+    width: 100%;
+    max-width: 46rem;
+    margin: 2rem auto 0;
+    background: #e9f2f8;
+    border-color: #dbe5ec;
+    color: #122431;
+  }
+
+  .tx-disclosure {
+    max-width: 46rem;
+    margin: 1.5rem auto 0;
+    text-align: center;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: rgba(233, 242, 248, 0.72);
+  }
+
+  /* ---------- breadcrumb, at the foot (flat ink: runs straight into the footer) ---------- */
+
+  .tx-crumbs {
+    background: var(--color-ink);
+    border-bottom: 1px solid rgba(233, 242, 248, 0.1);
+  }
+
+  .tx-crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.5rem;
+    padding-block: 0.95rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgba(233, 242, 248, 0.66);
+  }
+
+  .tx-crumbs li + li::before {
+    content: "/";
+    margin-right: 0.5rem;
+    color: rgba(233, 242, 248, 0.4);
+  }
+
+  .tx-crumbs a {
+    color: rgba(233, 242, 248, 0.88);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+</style>

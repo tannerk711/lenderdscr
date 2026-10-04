@@ -4,9 +4,18 @@
 export const lqip = {
   aerialGolden: 'data:image/webp;base64,UklGRpoAAABXRUJQVlA4II4AAAAQBACdASoYAA4APu1iqU2ppaOiMAgBMB2JZgCdEf/gPHHzdXeSOUClAAD+eJQUz3bEusDlCINW6pSN+wmVeY9D5Y/wphyTvfyCkoTunIpMYPce3da8DP7YjoKDVrlGJavkWBovi/b0hMs0QXgO9ul/HGHGzmUT2s8h64Dhm/peCJkiDQfBJSSJWTeKIAAA',
   heroProperty: 'data:image/webp;base64,UklGRi4BAABXRUJQVlA4ICIBAAAwBgCdASoYAB4APu1kqE2ppaOiMAgBMB2JbACdMoCpAawLhjVaAmV2UWbjmlFwgru4saJW+dIKmKLAAP7QbknV14aujcdjicM+DWzKNVDxKabnACjZMl0qjejqmyImBYNHJN059Nh+dDgW9T0M8E7vwEVD6RsFzC2jfSBDt9oRRfuNFt/jjBQgAAx1CHzQbJmMfMIZQ3FN/SbxHpQ+03jbmxAPo0ih+zAQCS90rR2S4Ss61uVGm63A3hGgTlc9RCVPwJuQOYKE8BcgQxz+j9FtjHJvYBIvuFAmf/QbN1fMrTkaDJCWQ9Y6JJwP/OlX6nv2DktaSq3r0V5dbmPnQQ/17AHVHMClE4YRXj3htuB9q12UN/cJ4b7wnnCOIazTdDAAAA==',
+  strHillCountry: 'data:image/webp;base64,UklGRsYAAABXRUJQVlA4ILoAAACwBACdASoYABAAPu1iqU2ppaOiMAgBMB2JaACdHX/Z/8b0jebYasgZZS2HJ5QAAP4BozTzXTTvUiBjwicYpxn4AeyarN9QygJd7di5Uh9blCZv6/hLE8pE3RlvYgFG6Kq2tjzVmSIbYHaw17B5HKYy4DJ0oUwaY39EWa7Mu74ussE7Oz/eXh8nOcazF1rG8m8snZgwVbXTQ4ECatUUBB1nilHT5iGfHFsE/zvEaPKq0BPl6cWqPAygAAA=',
+  strGulfCoast: 'data:image/webp;base64,UklGRo4AAABXRUJQVlA4IIIAAAAQBACdASoYABAAPu1iqk2ppaQiMAgBMB2JZQDE2CHhShYQ+J/I9HU5gAD+5zSx3AnKAN+rT1tVCtjRfn6t7w1lcP62S9+b9KWCQ7JV2DkiwvnEf0JTLOO+vjagKGfLEF9OJurVcCN+NU8Nqzfk7yMeuFsSpyfy95SvqiTyhAAIEAAA',
+  strAustinDuplex: 'data:image/webp;base64,UklGRt4AAABXRUJQVlA4INIAAABQBQCdASoYABAAPu1iqU2ppaOiMAgBMB2JbACdMoRgC3CpQFUAMK364wgpy4xqX6PVmAAA/nxe1MDQsC7cExJL9/MC5gVWe7Ptoj/d32+cPL3uz3wdlOBb1so2dnIMF5P34f/3WISqqxqg32txvj8WmhwxO+ycMzXUV45saJCtMGxuTuB6CPRzq3wh2S+QbPud10JxeP2VBod1ijh0q+330wveOy+3pPpKD0/FixVhWwx+7FrZeSpJ2+JSvDVT2DGevG1L8vcJ88O2OfMwbzmWoAA=',
 } as const;
 
 export const imageDims = {
   aerialGolden: { width: 1440, height: 864 },
   heroProperty: { width: 880, height: 1100 },
+  strHillCountry: { width: 1120, height: 747 },
+  strHillCountrySm: { width: 720, height: 480 },
+  strGulfCoast: { width: 960, height: 649 },
+  strGulfCoastSm: { width: 720, height: 486 },
+  strAustinDuplex: { width: 960, height: 649 },
+  strAustinDuplexSm: { width: 720, height: 486 },
 } as const;

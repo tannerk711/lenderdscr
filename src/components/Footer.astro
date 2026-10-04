@@ -11,11 +11,16 @@ import Icon from './Icon.astro';
 interface Props {
   /** Kept for LandingPage's call signature; lender mode renders no disclosure block. */
   disclosureAnchor?: boolean;
+  /** true on a content page that carries its own #start and #faq. */
+  ownAnchors?: boolean;
 }
-const { disclosureAnchor = true } = Astro.props;
+const { disclosureAnchor = true, ownAnchors = false } = Astro.props;
 
 // ---- build-time link guard (config hrefs only)
-const allowedExact = new Set(['/', '/start', '/privacy', '/legal', '/privacy#do-not-sell', '#faq', '#start']);
+const allowedExact = new Set([
+  '/', '/start', '/privacy', '/legal', '/privacy#do-not-sell', '#faq', '#start',
+  '/texas-airbnb-vrbo-dscr-loans',
+]);
 for (const col of directory.columns) {
   for (const link of col.links) {
     if (!allowedExact.has(link.href)) {
@@ -30,10 +35,11 @@ for (const col of directory.columns) {
 const columns = directory.columns;
 const isNetwork = site.mode === 'network';
 
-// The landing page (/) carries #start and #faq; on every other page those
-// anchors are routed home so they are never dead links.
+// The landing page (/) carries #start and #faq, and so does a content page
+// that says so (ownAnchors); on every other page those anchors are routed
+// home so they are never dead links.
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
-const hasLandingAnchors = path === '/';
+const hasLandingAnchors = path === '/' || ownAnchors;
 const resolveHref = (href: string) =>
   !hasLandingAnchors && (href === '#start' || href === '#faq') ? `/${href}` : href;
 ---
