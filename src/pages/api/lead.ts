@@ -32,12 +32,10 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ ok: false, error: 'bad json' }, 400);
   }
 
-  // 2. honeypot. The trap carries a nonsense name (`ff_hp`) plus password-manager
-  //    ignore attributes; a filled trap only drops a form "completed" in under
-  //    20 s. A slower submit is a human whose form filler hit the trap: it goes
-  //    through, flagged. `website` is the pre-rename key; cached bundles still
-  //    send it. (2026-10-06: a CLP submit returned 200 and reached nobody, and
-  //    the silent drop left nothing in the logs.)
+  // 2. Honeypot is a LABEL, never a gate (Tanner, 2026-10-06: every complete
+  // submit fires the Zap and becomes a lead). A filled trap travels as
+  // honeypotFilled: true on the payload and gets one log line; nothing is
+  // dropped. The pre-rename trap key is still read for cached bundles.
   const who = () =>
     JSON.stringify({ name: data.firstName, email: data.email ?? data.phone });
   const trap = [data.ff_hp, data.website].find((v) => typeof v === 'string' && v.trim() !== '');
@@ -46,11 +44,7 @@ export const POST: APIRoute = async ({ request }) => {
   const seconds = Number(data.secondsToComplete);
   data.honeypotFilled = trap !== undefined;
   if (trap !== undefined) {
-    if (!Number.isFinite(seconds) || seconds < 20) {
-      console.warn(`[lead] dropped: honeypot filled, form done in ${seconds}s`, who());
-      return json({ ok: true }, 200);
-    }
-    console.warn(`[lead] honeypot filled after ${seconds}s, forwarding flagged`, who());
+    console.warn(`[lead] trap filled (${seconds}s), forwarding flagged`, who());
   }
 
   // 3. sub-620 never reaches the CRM (the form kicks out before contact info
