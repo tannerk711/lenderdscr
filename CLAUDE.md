@@ -89,8 +89,8 @@ Loan Specialist), booking URL, gtag ids.
 
 Form (`FunnelForm.tsx`) → POST `/api/lead` (serverless) → forwards server-side to
 `LEAD_WEBHOOK_URL` → **Zapier catch hook** → Tanner maps into GHL. Payload contract in
-`deliverables/WIRING.md` section 1-2. Honeypot field `website` drops bots inside
-`/api/lead` before they ever reach Zapier (so bots never burn Zap tasks). Thank-you
+`deliverables/WIRING.md` section 1-2. Honeypot trap `ff_hp` (time-gated: a filled trap drops only a sub-20s form, slower submits forward flagged `honeypotFilled`; every outcome logs one line) is checked inside
+`/api/lead` before bots reach Zapier. Thank-you
 conversion is GATED (real submission or `?demo=1` only).
 
 **Zapier, never GHL inbound webhooks.** Standing decision (2026-07-27): every project

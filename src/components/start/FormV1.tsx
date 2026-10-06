@@ -268,7 +268,7 @@ export default function FormV1({ embedded = false }: FormV1Props) {
       return;
     }
 
-    const honeypot = (document.getElementById('ff-website') as HTMLInputElement | null)?.value ?? '';
+    const honeypot = (document.getElementById('ff-hp') as HTMLInputElement | null)?.value ?? '';
     const payload = buildPayload(answers, {
       consent: { at: consentAt.current, url: window.location.href },
       startedAt: startedAt.current,
@@ -447,7 +447,7 @@ export default function FormV1({ embedded = false }: FormV1Props) {
       className={embedded ? 'v1lo-root relative flex flex-col' : 'v1lo-root flex flex-1 flex-col px-4 pb-8 pt-6 sm:px-6 sm:pt-8'}
     >
       {/* honeypot: in the always-mounted shell so its value survives step changes */}
-      <input id="ff-website" name="website" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" className="v1lo-hp" />
+      <input id="ff-hp" name="ff_hp" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" data-lpignore="true" data-1p-ignore data-form-type="other" className="v1lo-hp" />
 
       <div className={embedded ? 'mx-auto flex w-full max-w-[640px] flex-col' : 'mx-auto flex w-full max-w-[640px] flex-1 flex-col justify-center'}>
         <div className={embedded ? 'mb-5 sm:mb-7' : 'mb-10'}>

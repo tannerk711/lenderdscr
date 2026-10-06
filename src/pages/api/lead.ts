@@ -32,21 +32,38 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ ok: false, error: 'bad json' }, 400);
   }
 
-  // 2. honeypot filled => bot. Silent success so it learns nothing and never
-  //    burns a Zap task.
-  if (typeof data.website === 'string' && data.website.trim() !== '') {
-    return json({ ok: true }, 200);
+  // 2. honeypot. The trap carries a nonsense name (`ff_hp`) plus password-manager
+  //    ignore attributes; a filled trap only drops a form "completed" in under
+  //    20 s. A slower submit is a human whose form filler hit the trap: it goes
+  //    through, flagged. `website` is the pre-rename key; cached bundles still
+  //    send it. (2026-10-06: a CLP submit returned 200 and reached nobody, and
+  //    the silent drop left nothing in the logs.)
+  const who = () =>
+    JSON.stringify({ name: data.firstName, email: data.email ?? data.phone });
+  const trap = [data.ff_hp, data.website].find((v) => typeof v === 'string' && v.trim() !== '');
+  delete data.ff_hp;
+  delete data.website;
+  const seconds = Number(data.secondsToComplete);
+  data.honeypotFilled = trap !== undefined;
+  if (trap !== undefined) {
+    if (!Number.isFinite(seconds) || seconds < 20) {
+      console.warn(`[lead] dropped: honeypot filled, form done in ${seconds}s`, who());
+      return json({ ok: true }, 200);
+    }
+    console.warn(`[lead] honeypot filled after ${seconds}s, forwarding flagged`, who());
   }
 
   // 3. sub-620 never reaches the CRM (the form kicks out before contact info
   //    exists; this backstops a hand-built POST the same silent way).
   if (data.credit === '<620') {
+    console.warn('[lead] dropped: credit under 620', who());
     return json({ ok: true }, 200);
   }
 
   // 4. TCPA gate, server side. A client-only gate is bypassable and this is a
   //    legal consent record. Never soften into a warning.
   if (data.tcpaConsent !== true) {
+    console.warn('[lead] rejected: missing consent', who());
     return json({ ok: false, error: 'consent required' }, 400);
   }
 
@@ -55,6 +72,7 @@ export const POST: APIRoute = async ({ request }) => {
   const email = typeof data.email === 'string' ? data.email.trim() : '';
   const phone = typeof data.phone === 'string' ? data.phone : String(data.phone ?? '');
   if (firstName.length < 2 || !EMAIL_RE.test(email) || !/^\d{10}$/.test(phone)) {
+    console.warn('[lead] rejected: missing name, email, or phone', who());
     return json({ ok: false, error: 'incomplete lead' }, 400);
   }
 
@@ -81,6 +99,7 @@ export const POST: APIRoute = async ({ request }) => {
   // 9. missing webhook: fail loudly in production, log in dev.
   if (!webhook) {
     if (import.meta.env.PROD) {
+      console.error('[lead] LEAD_WEBHOOK_URL not set', who());
       return json({ ok: false, error: 'not configured' }, 500);
     }
     console.warn('[lead] LEAD_WEBHOOK_URL not set; payload:', JSON.stringify(data));
@@ -94,8 +113,23 @@ export const POST: APIRoute = async ({ request }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-    if (!res.ok) return json({ ok: false, error: `webhook ${res.status}` }, 502);
-  } catch {
+    if (!res.ok) {
+      console.error(`[lead] webhook answered ${res.status}`, who());
+      return json({ ok: false, error: `webhook ${res.status}` }, 502);
+    }
+    console.log(
+      `[lead] accepted, webhook ${res.status}`,
+      JSON.stringify({
+        name: data.firstName,
+        email,
+        receivedAt: data.tcpaConsentReceivedAt,
+        ip: data.tcpaConsentIp,
+        seconds,
+        honeypotFilled: data.honeypotFilled,
+      }),
+    );
+  } catch (e) {
+    console.error('[lead] webhook unreachable', who(), e);
     return json({ ok: false, error: 'webhook unreachable' }, 502);
   }
 

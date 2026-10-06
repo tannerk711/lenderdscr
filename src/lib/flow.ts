@@ -254,7 +254,7 @@ export interface ConsentRecord {
 export interface PayloadMeta {
   consent: ConsentRecord;
   startedAt: number; // Date.now() of the first interaction, 0 if none
-  honeypot: string; // value of the hidden `website` field ('' for humans)
+  honeypot: string; // value of the hidden `ff_hp` trap field ('' for humans)
 }
 
 export type LeadPayload = Record<string, unknown>;
@@ -326,7 +326,7 @@ export function buildPayload(a: Answers, meta: PayloadMeta): LeadPayload {
     ...attribution,
     landingPage: loc ? loc.pathname + loc.search : '',
     secondsToComplete: meta.startedAt ? Math.round((Date.now() - meta.startedAt) / 1000) : null,
-    website: meta.honeypot,
+    ff_hp: meta.honeypot,
     submittedAt: new Date().toISOString(),
     variant,
     source: 'lenderdscr', // the apex funnel since 2026-09-09 (was 'ild-split-test' while B was a challenger)
